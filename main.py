@@ -10,7 +10,7 @@ import threading
 basedir = os.path.dirname(os.path.abspath(__file__))
 cred_path = os.path.join(basedir, "serviceAccountKey.json")
 
-# ফায়ারবেস চেক
+# ফায়ারবেস ফাইল চেক
 if not os.path.exists(cred_path):
     print("Error: serviceAccountKey.json ফাইলটি পাওয়া যায়নি!")
 
@@ -19,9 +19,8 @@ firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://earnmoneybot-8836f-default-rtdb.firebaseio.com'
 })
 
-# ২. টেলিগ্রাম বট টোকেন (BotFather থেকে পাওয়া টোকেনটি এখানে বসান)
-# উদাহরণ: '123456789:ABCDefghIJKLmnop'
-API_TOKEN = 'আপনার_বট_টোকেন_এখানে' 
+# ২. টেলিগ্রাম বট টোকেন (আপনার দেওয়া আসল টোকেন এখানে বসানো হয়েছে)
+API_TOKEN = '8304215251:AAHH_eaNKPH_MUXz_Yig4jGU04jv45zk9FM' 
 bot = telebot.TeleBot(API_TOKEN)
 
 @bot.message_handler(commands=['start'])
@@ -41,7 +40,7 @@ def handle_start(message):
             'name': name
         })
 
-        # রেফারেল লজিক
+        # রেফারেল লজিক (কেউ যদি রেফার লিঙ্কে ক্লিক করে আসে)
         if len(args) > 1:
             referrer_id = args[1]
             # নিজে নিজেকে রেফার করা প্রতিরোধ
