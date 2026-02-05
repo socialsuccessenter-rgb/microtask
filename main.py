@@ -20,7 +20,7 @@ firebase_admin.initialize_app(cred, {
 })
 
 # ২. টেলিগ্রাম বট টোকেন (আপনার দেওয়া আসল টোকেন এখানে বসানো হয়েছে)
-API_TOKEN = '8304215251:AAHH_eaNKPH_MUXz_Yig4jGU04jv45zk9FM' 
+API_TOKEN = '8304215251:AAE8C7uEtHd2LO1l-bHyKPS7CRrINs5OESw' 
 bot = telebot.TeleBot(API_TOKEN)
 
 @bot.message_handler(commands=['start'])
@@ -81,3 +81,4 @@ if __name__ == "__main__":
     # ওয়েব সার্ভার পোর্ট সেট করা
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
+
