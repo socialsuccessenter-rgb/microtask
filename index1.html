@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microtask Earn Money</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        body { font-family: 'Arial', sans-serif; background: #f4f7f6; margin: 0; padding-bottom: 80px; }
+        .page { display: none; padding: 20px; animation: fadein 0.5s; }
+        .active-page { display: block; }
+        @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+        
+        .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 15px; text-align: center; }
+        button { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; }
+        
+        /* Bottom Navigation */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; z-index: 1000; }
+        .nav-item { text-align: center; font-size: 12px; color: #777; cursor: pointer; flex: 1; }
+        .nav-item.active { color: #3498db; font-weight: bold; }
+        .nav-icon { font-size: 20px; margin-bottom: 2px; }
+
+        input { width: 90%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+        .ref-box { background: #eee; padding: 10px; border-radius: 8px; word-break: break-all; font-size: 12px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+
+    <div id="home" class="page active-page">
+        <div class="card">
+            <h2 style="margin:0;">💰 ড্যাশবোর্ড</h2>
+            <p style="color:#666;">আপনার বর্তমান ব্যালেন্স</p>
+            <h1 style="color: #2ecc71; font-size: 40px; margin: 10px 0;"><span id="home_balance">0</span> ৳</h1>
+        </div>
+        <div class="card">
+            <h3>ভিডিও দেখে আয়</h3>
+            <button style="background: #e67e22; color: white;" onclick="showAd()">📺 ভিডিও অ্যাড (২৳)</button>
+        </div>
+    </div>
+
+    <div id="task" class="page">
+        <div class="card">
+            <h3>🎯 সোশ্যাল টাস্ক</h3>
+            <p style="font-size:13px; color:#666;">টাস্ক পূরণ করে ৫ টাকা বোনাস নিন</p>
+            
+            <button style="background: #1877f2; color: white;" onclick="doTask('fb', 'https://www.facebook.com/share/1AYqvgHGGs/', 5)">🔵 ফেসবুক ফলো করুন</button>
+            
+            <button style="background: #ff0000; color: white;" onclick="doTask('yt', 'https://www.youtube.com/@arshoppingmalls', 5)">🔴 ইউটিউব সাবস্ক্রাইব</button>
+        </div>
+    </div>
+
+    <div id="profile" class="page">
+        <div class="card">
+            <h3>👤 প্রোফাইল</h3>
+            <p>আইডি: <span id="u_id">...</span></p>
+            <p>মোট রেফার: <span id="ref_count" style="color: #e74c3c; font-weight: bold;">0</span> / ১০</p>
+            <hr>
+            <h4>💸 টাকা উত্তোলন (মিনিমাম ৭০০৳)</h4>
+            <input type="number" id="withdrawAmount" placeholder="টাকার পরিমাণ (৭০০+)">
+            <input type="text" id="bkashNumber" placeholder="বিকাশ/নগদ নম্বর">
+            <button style="background: #3498db; color: white;" onclick="checkAndWithdraw()">উইথড্র রিকোয়েস্ট</button>
+        </div>
+        <div class="card">
+            <h4>👥 রেফার করে আয় (১০৳)</h4>
+            <div class="ref-box" id="refLinkDisplay">লিঙ্ক জেনারেট হচ্ছে...</div>
+            <button style="background: #8e44ad; color: white;" onclick="copyRef()">রেফার লিঙ্ক কপি</button>
+        </div>
+    </div>
+
+    <div id="support" class="page">
+        <div class="card">
+            <h3>💬 সাপোর্ট সেন্টার</h3>
+            <p>যেকোনো সমস্যা বা পেমেন্ট প্রুফ দেখতে আমাদের চ্যানেলে জয়েন করুন।</p>
+            <button style="background: #0088cc; color: white;" onclick="window.open('https://t.me/microtask_earnmoney', '_blank')">টেলিগ্রাম চ্যানেল</button>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="showPage('home')"><div class="nav-icon">🏠</div>হোম</div>
+        <div class="nav-item" onclick="showPage('task')"><div class="nav-icon">📋</div>টাস্ক</div>
+        <div class="nav-item" onclick="showPage('profile')"><div class="nav-icon">👤</div>প্রোফাইল</div>
+        <div class="nav-item" onclick="showPage('support')"><div class="nav-icon">💬</div>সাপোর্ট</div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // ফায়ারবেস কনফিগারেশন
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwjqWl4Qto-n06g2SVGlf4IKKArRnAKBQ",
+            authDomain: "earnmoneybot-8836f.firebaseapp.com",
+            databaseURL: "https://earnmoneybot-8836f-default-rtdb.firebaseio.com",
+            projectId: "earnmoneybot-8836f",
+            storageBucket: "earnmoneybot-8836f.firebasestorage.app",
+            messagingSenderId: "953591788516",
+            appId: "1:953591788516:web:f284c6d083d5ca872bcdf1"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // ইউজার ডাটা
+        const user = tg.initDataUnsafe.user;
+        const userId = user ? user.id : "user_test_mode";
+        document.getElementById('u_id').innerText = userId;
+        
+        const botUsername = "Microtask_Earnmoney_Bot"; 
+        const refLink = "https://t.me/" + botUsername + "?start=" + userId;
+        document.getElementById('refLinkDisplay').innerText = refLink;
+
+        let currentBalance = 0;
+        let totalRefer = 0;
+
+        // ডাটাবেস থেকে রিয়েল টাইম ডাটা আনা
+        database.ref('users/' + userId).on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                currentBalance = data.balance || 0;
+                totalRefer = data.ref_count || 0;
+                document.getElementById('home_balance').innerText = currentBalance;
+                document.getElementById('ref_count').innerText = totalRefer;
+            } else {
+                database.ref('users/' + userId).set({ balance: 0, ref_count: 0 });
+            }
+        });
+
+        // পেজ ন্যাভিগেশন
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+            document.getElementById(pageId).classList.add('active-page');
+            
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            const navItems = document.querySelectorAll('.nav-item');
+            if(pageId === 'home') navItems[0].classList.add('active');
+            if(pageId === 'task') navItems[1].classList.add('active');
+            if(pageId === 'profile') navItems[2].classList.add('active');
+            if(pageId === 'support') navItems[3].classList.add('active');
+        }
+
+        // অ্যাড ফাংশন
+        function showAd() {
+            // এখানে Monetag SDK কল হবে
+            updateBalance(2);
+            alert("সফল! ২ টাকা যোগ করা হয়েছে।");
+        }
+
+        function updateBalance(amount) {
+            currentBalance += amount;
+            database.ref('users/' + userId).update({ balance: currentBalance });
+        }
+
+        function doTask(name, url, reward) {
+            window.open(url, '_blank');
+            setTimeout(() => {
+                updateBalance(reward);
+                alert("টাস্ক ভেরিফাইড! " + reward + "৳ বোনাস যোগ হয়েছে।");
+            }, 5000);
+        }
+
+        // উইথড্র সিস্টেম
+        function checkAndWithdraw() {
+            const amount = document.getElementById('withdrawAmount').value;
+            const number = document.getElementById('bkashNumber').value;
+
+            if (totalRefer < 10) {
+                alert("দুঃখিত! টাকা তুলতে অন্তত ১০ টি রেফার থাকতে হবে। বর্তমান রেফার: " + totalRefer);
+                return;
+            }
+            if (amount < 700) {
+                alert("দুঃখিত! সর্বনিম্ন ৭০০ টাকা না হলে উইথড্র করা যাবে না।");
+                return;
+            }
+            if (amount > currentBalance) {
+                alert("আপনার একাউন্টে পর্যাপ্ত ব্যালেন্স নেই।");
+                return;
+            }
+            if (!number) {
+                alert("নম্বর প্রদান করুন।");
+                return;
+            }
+
+            database.ref('withdraw_requests/').push({
+                userId: userId,
+                name: user ? user.first_name : "Unknown",
+                amount: amount,
+                phone: number,
+                status: "Pending",
+                time: new Date().toLocaleString()
+            }).then(() => {
+                updateBalance(-amount);
+                alert("রিকোয়েস্ট সফল! অ্যাডমিন ২৪ ঘণ্টার মধ্যে পেমেন্ট করে দেবে।");
+            });
+        }
+
+        function copyRef() {
+            const tempInput = document.createElement("input");
+            tempInput.value = refLink;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            alert("রেফার লিঙ্ক কপি হয়েছে!");
+        }
+    </script>
+</body>
+</html>
