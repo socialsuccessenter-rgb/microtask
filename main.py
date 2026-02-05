@@ -24,7 +24,7 @@ except Exception as e:
     print(f"Firebase Error: {e}")
 
 # ২. টেলিগ্রাম বট টোকেন (আপনার নতুন টোকেনটি এখানে বসানো হয়েছে)
-API_TOKEN = '8304215251:AAE8C7uEtHd2LO1l-bHyKPS7CRrINs5OESw' 
+API_TOKEN = '8304215251:AAF0m51VyYqbaWsQNjW5VdF2bR6aZONeWp0' 
 bot = telebot.TeleBot(API_TOKEN)
 
 @bot.message_handler(commands=['start'])
@@ -87,3 +87,4 @@ if __name__ == "__main__":
     # ওয়েব সার্ভার পোর্ট সেট করা
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
+
