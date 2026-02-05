@@ -4,87 +4,57 @@ from firebase_admin import credentials, db
 import os
 from flask import Flask
 import threading
+import time
 
 # ১. ফায়ারবেস কানেকশন
-# আপনার আপলোড করা serviceAccountKey.json ফাইলটি ব্যবহার করা হচ্ছে
 basedir = os.path.dirname(os.path.abspath(__file__))
 cred_path = os.path.join(basedir, "serviceAccountKey.json")
 
-# ফায়ারবেস ফাইল চেক
-if not os.path.exists(cred_path):
-    print("Error: serviceAccountKey.json ফাইলটি পাওয়া যায়নি!")
+if not firebase_admin._apps:
+    cred = credentials.Certificate(cred_path)
+    firebase_admin.initialize_app(cred, {
+        'databaseURL': 'https://earnemoneybot-8836f-default-rtdb.firebaseio.com'
+    })
 
-try:
-    if not firebase_admin._apps:
-        cred = credentials.Certificate(cred_path)
-        firebase_admin.initialize_app(cred, {
-            'databaseURL': 'https://earnmoneybot-8836f-default-rtdb.firebaseio.com'
-        })
-except Exception as e:
-    print(f"Firebase Error: {e}")
-
-# ২. টেলিগ্রাম বট টোকেন (আপনার নতুন টোকেনটি এখানে বসানো হয়েছে)
-API_TOKEN = '8304215251:AAF0m51VyYqbaWsQNjW5VdF2bR6aZONeWp0' 
+# ২. টেলিগ্রাম বট সেটআপ
+# এখানে আপনার একদম নতুন টোকেনটি বসাবেন
+API_TOKEN = '8304215251:AAE8C7uEtHd2LO1l-bHyKPS7CRrINs5OESw' 
 bot = telebot.TeleBot(API_TOKEN)
 
 @bot.message_handler(commands=['start'])
 def handle_start(message):
-    user_id = str(message.from_user.id)
-    name = message.from_user.first_name
-    args = message.text.split()
-    
-    user_ref = db.reference(f'users/{user_id}')
-    user_data = user_ref.get()
+    try:
+        user_id = str(message.from_user.id)
+        name = message.from_user.first_name
+        
+        bot.reply_to(message, f"স্বাগতম {name}!\nআপনার রেফারেল সিস্টেমটি এখন সচল। ইনকাম শুরু করুন।")
+        
+        # ডাটাবেসে ইউজার চেক
+        user_ref = db.reference(f'users/{user_id}')
+        if not user_ref.get():
+            user_ref.set({'balance': 0, 'ref_count': 0, 'name': name})
+    except Exception as e:
+        print(f"Error in start: {e}")
 
-    # নতুন ইউজার হলে ডাটাবেসে এন্ট্রি করা
-    if not user_data:
-        user_ref.set({
-            'balance': 0,
-            'ref_count': 0,
-            'name': name
-        })
-
-        # রেফারেল লজিক (কেউ যদি রেফার লিঙ্কে ক্লিক করে আসে)
-        if len(args) > 1:
-            referrer_id = args[1]
-            if referrer_id != user_id:
-                referrer_ref = db.reference(f'users/{referrer_id}')
-                referrer_data = referrer_ref.get()
-
-                if referrer_data:
-                    new_bal = referrer_data.get('balance', 0) + 10
-                    new_ref = referrer_data.get('ref_count', 0) + 1
-                    
-                    referrer_ref.update({
-                        'balance': new_bal,
-                        'ref_count': new_ref
-                    })
-                    
-                    try:
-                        bot.send_message(referrer_id, f"✅ নতুন সফল রেফার!\n💰 বোনাস: ১০ টাকা যোগ হয়েছে।\n👥 আপনার মোট রেফার: {new_ref}")
-                    except:
-                        pass
-
-    bot.send_message(user_id, f"স্বাগতম {name}!\nআপনার রেফারেল সিস্টেমটি এখন সচল। ইনকাম শুরু করুন।")
-
-# ৩. Render-এ সচল রাখার জন্য Flask Web Server
+# ৩. ওয়েব সার্ভার (Render-এর জন্য)
 app = Flask(__name__)
 
 @app.route('/')
 def health_check():
-    return "Bot is Running!"
+    return "Bot is Alive and Running!"
 
 def run_bot():
-    try:
-        print("Bot is starting...")
-        bot.polling(none_stop=True, interval=0, timeout=20)
-    except Exception as e:
-        print(f"Polling Error: {e}")
+    while True:
+        try:
+            print("Bot is trying to connect to Telegram...")
+            # সেশন ক্লিয়ার করে পোলিং শুরু করা
+            bot.remove_webhook()
+            bot.polling(none_stop=True, interval=1, timeout=20)
+        except Exception as e:
+            print(f"Polling error: {e}")
+            time.sleep(5)
 
 if __name__ == "__main__":
-    # বটকে আলাদা থ্রেডে চালানো
     threading.Thread(target=run_bot, daemon=True).start()
-    # ওয়েব সার্ভার পোর্ট সেট করা
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
-
