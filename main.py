@@ -14,12 +14,16 @@ cred_path = os.path.join(basedir, "serviceAccountKey.json")
 if not os.path.exists(cred_path):
     print("Error: serviceAccountKey.json ফাইলটি পাওয়া যায়নি!")
 
-cred = credentials.Certificate(cred_path)
-firebase_admin.initialize_app(cred, {
-    'databaseURL': 'https://earnmoneybot-8836f-default-rtdb.firebaseio.com'
-})
+try:
+    if not firebase_admin._apps:
+        cred = credentials.Certificate(cred_path)
+        firebase_admin.initialize_app(cred, {
+            'databaseURL': 'https://earnmoneybot-8836f-default-rtdb.firebaseio.com'
+        })
+except Exception as e:
+    print(f"Firebase Error: {e}")
 
-# ২. টেলিগ্রাম বট টোকেন (আপনার দেওয়া আসল টোকেন এখানে বসানো হয়েছে)
+# ২. টেলিগ্রাম বট টোকেন (আপনার নতুন টোকেনটি এখানে বসানো হয়েছে)
 API_TOKEN = '8304215251:AAE8C7uEtHd2LO1l-bHyKPS7CRrINs5OESw' 
 bot = telebot.TeleBot(API_TOKEN)
 
@@ -43,13 +47,11 @@ def handle_start(message):
         # রেফারেল লজিক (কেউ যদি রেফার লিঙ্কে ক্লিক করে আসে)
         if len(args) > 1:
             referrer_id = args[1]
-            # নিজে নিজেকে রেফার করা প্রতিরোধ
             if referrer_id != user_id:
                 referrer_ref = db.reference(f'users/{referrer_id}')
                 referrer_data = referrer_ref.get()
 
                 if referrer_data:
-                    # রেফারারের অ্যাকাউন্টে ১০ টাকা ও ১ রেফার যোগ
                     new_bal = referrer_data.get('balance', 0) + 10
                     new_ref = referrer_data.get('ref_count', 0) + 1
                     
@@ -63,7 +65,7 @@ def handle_start(message):
                     except:
                         pass
 
-    bot.send_message(user_id, f"স্বাগতম {name}!\nনিচের বাটন থেকে আমাদের মিনি অ্যাপ ওপেন করে ইনকাম শুরু করুন।")
+    bot.send_message(user_id, f"স্বাগতম {name}!\nআপনার রেফারেল সিস্টেমটি এখন সচল। ইনকাম শুরু করুন।")
 
 # ৩. Render-এ সচল রাখার জন্য Flask Web Server
 app = Flask(__name__)
@@ -73,12 +75,15 @@ def health_check():
     return "Bot is Running!"
 
 def run_bot():
-    bot.polling(none_stop=True)
+    try:
+        print("Bot is starting...")
+        bot.polling(none_stop=True, interval=0, timeout=20)
+    except Exception as e:
+        print(f"Polling Error: {e}")
 
 if __name__ == "__main__":
     # বটকে আলাদা থ্রেডে চালানো
-    threading.Thread(target=run_bot).start()
+    threading.Thread(target=run_bot, daemon=True).start()
     # ওয়েব সার্ভার পোর্ট সেট করা
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
-
