@@ -1,31 +1,31 @@
 import telebot
 import os
-from flask import Flask, request
+from flask import Flask
+import threading
 
-# আপনার নতুন টোকেন
-API_TOKEN = '8304215251:AAE8C7uEtHd2LO1l-bHyKPS7CRrINs5OESw'
+# ১. এখানে আপনার BotFather থেকে পাওয়া একদম নতুন টোকেনটি বসান
+API_TOKEN = 'আপনার_নতুন_টোকেন_এখানে'
 bot = telebot.TeleBot(API_TOKEN)
+
+# ২. সাধারণ রেসপন্স চেক
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
+    bot.reply_to(message, "আলহামদুলিল্লাহ! আপনার বট এখন সচল হয়েছে।")
+
+# ৩. রেন্ডারের জন্য ফ্লাস্ক সার্ভার
 app = Flask(__name__)
 
-# Render-এর লিঙ্ক (আপনার লিঙ্কটি এখানে দিন)
-WEBHOOK_URL = "https://microtask-1-klj1.onrender.com/"
+@app.route('/')
+def index():
+    return "Bot is Online!"
 
-@app.route('/' + API_TOKEN, methods=['POST'])
-def getMessage():
-    json_string = request.get_data().decode('utf-8')
-    update = telebot.types.Update.de_json(json_string)
-    bot.process_new_updates([update])
-    return "!", 200
-
-@app.route("/")
-def webhook():
+def run_bot():
     bot.remove_webhook()
-    bot.set_webhook(url=WEBHOOK_URL + API_TOKEN)
-    return "Webhook Set Successfully!", 200
-
-@bot.message_handler(commands=['start'])
-def start(message):
-    bot.reply_to(message, "অবশেষে! আপনার বট এখন আমার সাথে কানেক্ট হয়েছে।")
+    bot.polling(none_stop=True)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 10000)))
+    # বটকে আলাদা করে চালানো
+    threading.Thread(target=run_bot).start()
+    # সার্ভার পোর্ট সেট করা
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
