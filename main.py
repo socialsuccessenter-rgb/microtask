@@ -6,15 +6,12 @@ import os
 from flask import Flask, render_template
 import threading
 
-# ফায়ারবেস কানেকশন
+# ফায়ারবেস সেটআপ
 basedir = os.path.dirname(os.path.abspath(__file__))
 cred_path = os.path.join(basedir, "serviceAccountKey.json")
-
 if not firebase_admin._apps:
     cred = credentials.Certificate(cred_path)
-    firebase_admin.initialize_app(cred, {
-        'databaseURL': 'https://earnmoneybot-8836f-default-rtdb.firebaseio.com'
-    })
+    firebase_admin.initialize_app(cred, {'databaseURL': 'https://earnmoneybot-8836f-default-rtdb.firebaseio.com'})
 
 API_TOKEN = '8316197397:AAEZxJA3s7AERJTkp3qN2l0578MgDqFchkI'
 bot = telebot.TeleBot(API_TOKEN)
@@ -29,22 +26,15 @@ def handle_start(message):
     user_id = str(message.from_user.id)
     name = message.from_user.first_name
     
-    # ডাটাবেসে ইউজার এন্ট্রি এবং রেফারেল লজিক আপনার আগের main.py থেকে হুবহু রাখা হয়েছে
-    user_ref = db.reference(f'users/{user_id}')
-    if not user_ref.get():
-        user_ref.set({'balance': 0, 'ref_count': 0, 'name': name})
-
-    # মিনি অ্যাপ ওপেন করার বাটন
+    # মিনি অ্যাপ বাটন সেটআপ
     markup = types.InlineKeyboardMarkup()
-    # এখানে আপনার রেন্ডার ইউআরএলটি দিন
     web_app = types.WebAppInfo(url="https://microtask-earnmoney.onrender.com") 
     btn = types.InlineKeyboardButton("💰 ওপেন ড্যাশবোর্ড", web_app=web_app)
     markup.add(btn)
     
-    bot.send_message(user_id, f"স্বাগতম {name}!\nনিচের বাটন থেকে মিনি অ্যাপ ওপেন করে ইনকাম শুরু করুন।", reply_markup=markup)
+    bot.send_message(user_id, f"স্বাগতম {name}!\nনিচের বাটনটি চেপে কাজ শুরু করুন।", reply_markup=markup)
 
 def run_bot():
-    bot.remove_webhook()
     bot.polling(none_stop=True)
 
 if __name__ == "__main__":
