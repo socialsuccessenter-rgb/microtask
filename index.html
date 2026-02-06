@@ -12,13 +12,14 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
     <style>
-        /* আপনার অরিজিনাল ইন্টারফেসের সব ডিজাইন (ভিডিও অনুযায়ী) */
+        /* আপনার অরিজাল ভিডিওর হুবহু ডিজাইন */
         body { font-family: 'Arial', sans-serif; background: #f4f7f6; margin: 0; padding-bottom: 80px; }
         .page { display: none; padding: 20px; animation: fadein 0.5s; }
         .active-page { display: block; }
         @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
         .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 15px; text-align: center; }
         button { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; transition: 0.3s; }
+        button:active { transform: scale(0.98); }
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; z-index: 1000; }
         .nav-item { text-align: center; font-size: 12px; color: #777; cursor: pointer; flex: 1; }
         .nav-item.active { color: #3498db; font-weight: bold; }
@@ -68,8 +69,7 @@
     <div id="support" class="page">
         <div class="card">
             <h2 style="color: #25d366;">💬 সাপোর্ট সেন্টার</h2>
-            <p>যেকোনো সমস্যা বা পেমেন্ট প্রুফ দেখতে আমাদের চ্যানেলে জয়েন করুন।</p>
-            <button style="background: #0088cc; color: white;" onclick="window.open('https://t.me/your_channel_link', '_blank')">টেলিগ্রাম চ্যানেল</button>
+            <button style="background: #0088cc; color: white;" onclick="window.open('https://t.me/your_link', '_blank')">টেলিগ্রাম চ্যানেল</button>
         </div>
     </div>
 
@@ -92,7 +92,6 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // ফায়ারবেস সেটআপ
         const firebaseConfig = {
             apiKey: "AIzaSyDwjqWl4Qto-n06g2SVGlf4IKKArRnAKBQ",
             authDomain: "earnmoneybot-8836f.firebaseapp.com",
@@ -108,7 +107,6 @@
 
         let currentBalance = 0;
 
-        // ডাটাবেস থেকে রিয়েল-টাইম ব্যালেন্স আপডেট
         database.ref('users/' + userId).on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -122,36 +120,26 @@
         function showMyAd() {
             if (typeof show_10561349 === 'function') {
                 show_10561349().then(() => {
-                    // অ্যাড দেখা শেষ হলে ২ টাকা যোগ হবে
                     updateUserBalance(2, "ভিডিও অ্যাড");
-                }).catch(e => {
-                    tg.showAlert("অ্যাড লোড হয়নি, আবার চেষ্টা করুন।");
-                });
+                }).catch(e => tg.showAlert("অ্যাড লোড হয়নি!"));
             } else {
-                tg.showAlert("অ্যাড সার্ভিস রেডি হচ্ছে, কিছুক্ষণ অপেক্ষা করুন।");
+                tg.showAlert("অ্যাড সার্ভিস রেডি হচ্ছে...");
             }
         }
 
-        // সোশ্যাল টাস্ক (১৫ সেকেন্ড টাইমারসহ)
         function doSocialTask(name, url, reward) {
             window.open(url, '_blank');
-            tg.showConfirm(name + " টাস্ক শুরু হয়েছে। কাজ শেষ করে ১৫ সেকেন্ড অপেক্ষা করুন।", (confirm) => {
+            tg.showConfirm("টাস্ক শেষ করে ১৫ সেকেন্ড অপেক্ষা করুন।", (confirm) => {
                 if(confirm) {
-                    setTimeout(() => {
-                        updateUserBalance(reward, name);
-                    }, 15000);
+                    setTimeout(() => updateUserBalance(reward, name), 15000);
                 }
             });
         }
 
-        // কমন ব্যালেন্স আপডেট ফাংশন
         function updateUserBalance(amount, taskName) {
             const newBalance = currentBalance + amount;
-            database.ref('users/' + userId).update({
-                balance: newBalance
-            }).then(() => {
-                tg.showAlert("অভিনন্দন! " + taskName + " এর জন্য " + amount + "৳ যোগ হয়েছে।");
-            });
+            database.ref('users/' + userId).update({ balance: newBalance })
+            .then(() => tg.showAlert(taskName + " সফল! " + amount + "৳ যোগ হয়েছে।"));
         }
 
         function showPage(pageId, element) {
@@ -165,15 +153,10 @@
             const amt = document.getElementById('withdraw_amount').value;
             const mthd = document.getElementById('withdraw_method').value;
             if(amt >= 700 && currentBalance >= amt) {
-                database.ref('withdraw_requests').push({
-                    userId: userId,
-                    amount: amt,
-                    method: mthd,
-                    status: 'pending'
-                });
+                database.ref('withdraw_requests').push({ userId, amt, mthd, status: 'pending' });
                 tg.showAlert("উইথড্র রিকোয়েস্ট পাঠানো হয়েছে!");
             } else {
-                tg.showAlert("ব্যালেন্স পর্যাপ্ত নয় (মিনিমাম ৭০০৳)।");
+                tg.showAlert("ব্যালেন্স পর্যাপ্ত নয়!");
             }
         }
     </script>
