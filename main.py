@@ -12,15 +12,12 @@ basedir = os.path.dirname(os.path.abspath(__file__))
 cred_path = os.path.join(basedir, "serviceAccountKey.json")
 
 if not firebase_admin._apps:
-    try:
-        cred = credentials.Certificate(cred_path)
-        firebase_admin.initialize_app(cred, {
-            'databaseURL': 'https://earnmoneybot-8836f-default-rtdb.firebaseio.com'
-        })
-    except Exception as e:
-        print(f"Firebase JSON Error: {e}")
+    cred = credentials.Certificate(cred_path)
+    firebase_admin.initialize_app(cred, {
+        'databaseURL': 'https://earnmoneybot-8836f-default-rtdb.firebaseio.com'
+    })
 
-# ২. সঠিক টোকেন
+# ২. আপনার নতুন এপিআই কি
 API_TOKEN = '8316197397:AAFJnkVvRsi1wuQXBtifyB9Wc_DRBZILS-8'
 bot = telebot.TeleBot(API_TOKEN)
 
@@ -33,17 +30,16 @@ def index():
 @bot.message_handler(commands=['start'])
 def handle_start(message):
     markup = types.InlineKeyboardMarkup()
+    # আপনার রেন্ডার ইউআরএল
     web_app = types.WebAppInfo(url="https://microtask-bb30.onrender.com") 
-    markup.add(types.InlineKeyboardButton("💰 ড্যাশবোর্ড", web_app=web_app))
-    bot.send_message(message.chat.id, "ইনকাম শুরু করতে ক্লিক করুন।", reply_markup=markup)
+    markup.add(types.InlineKeyboardButton("💰 ওপেন ড্যাশবোর্ড", web_app=web_app))
+    bot.send_message(message.chat.id, "স্বাগতম! ইনকাম শুরু করতে নিচের বাটনে ক্লিক করুন।", reply_markup=markup)
 
 def run_bot():
-    # Conflict এরর এড়াতে একটু বিরতি
     bot.remove_webhook()
-    time.sleep(1) 
+    time.sleep(1)
     bot.polling(none_stop=True)
 
 if __name__ == "__main__":
     threading.Thread(target=run_bot).start()
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
-
