@@ -6,15 +6,14 @@ import os
 from flask import Flask, render_template
 import threading
 
-# ১. ফায়ারবেস সেটআপ
-basedir = os.path.dirname(os.path.abspath(__file__))
-cred_path = os.path.join(basedir, "serviceAccountKey.json")
-
-if not firebase_admin._apps:
+# main.py এর ফায়ারবেস কানেকশন অংশ
+try:
     cred = credentials.Certificate(cred_path)
     firebase_admin.initialize_app(cred, {
         'databaseURL': 'https://earnmoneybot-8836f-default-rtdb.firebaseio.com'
     })
+except Exception as e:
+    print(f"Error loading Firebase JSON: {e}")
 
 # ২. সঠিক টেলিগ্রাম বট টোকেন
 API_TOKEN = '8316197397:AAEZxJA3s7AERJTkp3qN2l0578MgDqFchkI'
@@ -49,3 +48,4 @@ if __name__ == "__main__":
     threading.Thread(target=run_bot).start()
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
+
