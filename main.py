@@ -16,7 +16,7 @@ if not firebase_admin._apps:
         'databaseURL': 'https://earnmoneybot-8836f-default-rtdb.firebaseio.com'
     })
 
-# ২. টেলিগ্রাম বট টোকেন (আপনার টোকেনটি এখানে ঠিক করা হয়েছে)
+# ২. সঠিক টেলিগ্রাম বট টোকেন
 API_TOKEN = '8316197397:AAEZxJA3s7AERJTkp3qN2l0578MgDqFchkI'
 bot = telebot.TeleBot(API_TOKEN)
 
@@ -25,10 +25,7 @@ app = Flask(__name__, template_folder='.')
 
 @app.route('/')
 def index():
-    try:
-        return render_template('index.html')
-    except:
-        return "index.html file not found!"
+    return render_template('index.html')
 
 # ৪. বট কমান্ড হ্যান্ডলার
 @bot.message_handler(commands=['start'])
