@@ -12,14 +12,13 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
     <style>
-        /* আপনার অরিজাল ভিডিওর হুবহু ডিজাইন */
+        /* আপনার অরিজিনাল ইন্টারফেস ডিজাইন */
         body { font-family: 'Arial', sans-serif; background: #f4f7f6; margin: 0; padding-bottom: 80px; }
         .page { display: none; padding: 20px; animation: fadein 0.5s; }
         .active-page { display: block; }
         @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
         .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 15px; text-align: center; }
-        button { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; transition: 0.3s; }
-        button:active { transform: scale(0.98); }
+        button { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; }
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; z-index: 1000; }
         .nav-item { text-align: center; font-size: 12px; color: #777; cursor: pointer; flex: 1; }
         .nav-item.active { color: #3498db; font-weight: bold; }
@@ -31,61 +30,50 @@
 
     <div id="home" class="page active-page">
         <div class="card">
-            <h2 style="margin:0;">💰 ড্যাশবোর্ড</h2>
-            <p style="color:#666;">আপনার বর্তমান ব্যালেন্স</p>
-            <h1 style="color: #2ecc71; font-size: 40px; margin: 10px 0;"><span id="home_balance">0</span> ৳</h1>
+            <h2>💰 ড্যাশবোর্ড</h2>
+            <h1 style="color: #2ecc71;"><span id="home_balance">0</span> ৳</h1>
         </div>
         <div class="card">
             <h3>ভিডিও দেখে আয়</h3>
-            <button style="background: #e67e22; color: white;" onclick="showMyAd()">📺 ভিডিও অ্যাড দেখুন (২৳)</button>
+            <button style="background: #e67e22; color: white;" onclick="showMyAd()">📺 ভিডিও অ্যাড (২৳)</button>
         </div>
     </div>
 
     <div id="tasks" class="page">
         <div class="card">
-            <h2 style="color: #e91e63;">🎯 সোশ্যাল টাস্ক</h2>
-            <p>টাস্ক পূরণ করে ৫ টাকা বোনাস নিন</p>
-            <button style="background: #3b5998; color: white;" onclick="doSocialTask('Facebook', 'https://facebook.com', 5)">👤 ফেসবুক ফলো করুন</button>
-            <button style="background: #ff0000; color: white;" onclick="doSocialTask('YouTube', 'https://youtube.com', 5)">📺 ইউটিউব সাবস্ক্রাইব</button>
+            <h2>🎯 সোশ্যাল টাস্ক</h2>
+            <button style="background: #3b5998; color: white;" onclick="doSocialTask('Facebook', 'https://facebook.com', 5)">👤 ফেসবুক ফলো (৫৳)</button>
+            <button style="background: #ff0000; color: white;" onclick="doSocialTask('YouTube', 'https://youtube.com', 5)">📺 ইউটিউব সাবস্ক্রাইব (৫৳)</button>
         </div>
     </div>
 
     <div id="profile" class="page">
         <div class="card">
-            <h2 style="color: #3498db;">👤 প্রোফাইল</h2>
+            <h2>👤 প্রোফাইল</h2>
             <p>আইডি: <span id="u_id">লোড হচ্ছে...</span></p>
             <div style="background:#e8f4fd; padding:15px; border-radius:10px;">
-                <p style="margin:0; font-weight:bold;">মোট ব্যালেন্স</p>
-                <h2 style="margin:5px 0; color:#2980b9;"><span id="prof_balance">0</span> ৳</h2>
+                <p>ব্যালেন্স: <span id="prof_balance">0</span> ৳</p>
             </div>
             <hr>
-            <h4>টাকা উত্তোলন (মিনিমাম ৭০০৳)</h4>
-            <input type="number" id="withdraw_amount" placeholder="টাকার পরিমাণ">
-            <input type="text" id="withdraw_method" placeholder="বিকাশ/নগদ নম্বর">
-            <button style="background: #27ae60; color: white;" onclick="requestWithdraw()">উইথড্র রিকোয়েস্ট</button>
+            <h4>উইথড্র রিকোয়েস্ট (মিনিমাম ৭০০৳)</h4>
+            <input type="number" id="amt" placeholder="টাকার পরিমাণ">
+            <input type="text" id="mthd" placeholder="বিকাশ/নগদ নম্বর">
+            <button style="background: #27ae60; color: white;" onclick="requestWithdraw()">উইথড্র দিন</button>
         </div>
     </div>
 
     <div id="support" class="page">
         <div class="card">
-            <h2 style="color: #25d366;">💬 সাপোর্ট সেন্টার</h2>
-            <button style="background: #0088cc; color: white;" onclick="window.open('https://t.me/your_link', '_blank')">টেলিগ্রাম চ্যানেল</button>
+            <h2>💬 সাপোর্ট</h2>
+            <button style="background: #0088cc; color: white;" onclick="window.open('https://t.me/your_channel', '_blank')">টেলিগ্রাম চ্যানেল</button>
         </div>
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item active" onclick="showPage('home', this)">
-            <div class="nav-icon">🏠</div><div>হোম</div>
-        </div>
-        <div class="nav-item" onclick="showPage('tasks', this)">
-            <div class="nav-icon">📋</div><div>টাস্ক</div>
-        </div>
-        <div class="nav-item" onclick="showPage('profile', this)">
-            <div class="nav-icon">👤</div><div>প্রোফাইল</div>
-        </div>
-        <div class="nav-item" onclick="showPage('support', this)">
-            <div class="nav-icon">💬</div><div>সাপোর্ট</div>
-        </div>
+        <div class="nav-item active" onclick="showPage('home', this)"><div class="nav-icon">🏠</div>হোম</div>
+        <div class="nav-item" onclick="showPage('tasks', this)"><div class="nav-icon">📋</div>টাস্ক</div>
+        <div class="nav-item" onclick="showPage('profile', this)"><div class="nav-icon">👤</div>প্রোফাইল</div>
+        <div class="nav-item" onclick="showPage('support', this)"><div class="nav-icon">💬</div>সাপোর্ট</div>
     </div>
 
     <script>
@@ -101,63 +89,40 @@
         };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        const user = tg.initDataUnsafe.user;
-        const userId = user ? user.id.toString() : "test_user";
+        const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id.toString() : "test_user";
         document.getElementById('u_id').innerText = userId;
 
         let currentBalance = 0;
-
-        database.ref('users/' + userId).on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                currentBalance = data.balance || 0;
+        database.ref('users/' + userId).on('value', (snap) => {
+            const val = snap.val();
+            if (val) {
+                currentBalance = val.balance || 0;
                 document.getElementById('home_balance').innerText = currentBalance;
                 document.getElementById('prof_balance').innerText = currentBalance;
             }
         });
 
-        // আপনার মনিট্যাগ রিওয়ার্ডেড অ্যাড ফাংশন
         function showMyAd() {
             if (typeof show_10561349 === 'function') {
-                show_10561349().then(() => {
-                    updateUserBalance(2, "ভিডিও অ্যাড");
-                }).catch(e => tg.showAlert("অ্যাড লোড হয়নি!"));
-            } else {
-                tg.showAlert("অ্যাড সার্ভিস রেডি হচ্ছে...");
-            }
+                show_10561349().then(() => updateUserBalance(2, "অ্যাড"));
+            } else { tg.showAlert("অ্যাড প্রস্তুত নয়"); }
         }
 
         function doSocialTask(name, url, reward) {
             window.open(url, '_blank');
-            tg.showConfirm("টাস্ক শেষ করে ১৫ সেকেন্ড অপেক্ষা করুন।", (confirm) => {
-                if(confirm) {
-                    setTimeout(() => updateUserBalance(reward, name), 15000);
-                }
-            });
+            setTimeout(() => updateUserBalance(reward, name), 15000);
         }
 
         function updateUserBalance(amount, taskName) {
-            const newBalance = currentBalance + amount;
-            database.ref('users/' + userId).update({ balance: newBalance })
-            .then(() => tg.showAlert(taskName + " সফল! " + amount + "৳ যোগ হয়েছে।"));
+            database.ref('users/' + userId).update({ balance: currentBalance + amount })
+            .then(() => tg.showAlert(taskName + " সফল!"));
         }
 
-        function showPage(pageId, element) {
+        function showPage(pId, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active-page');
-            element.classList.add('active');
-        }
-
-        function requestWithdraw() {
-            const amt = document.getElementById('withdraw_amount').value;
-            const mthd = document.getElementById('withdraw_method').value;
-            if(amt >= 700 && currentBalance >= amt) {
-                database.ref('withdraw_requests').push({ userId, amt, mthd, status: 'pending' });
-                tg.showAlert("উইথড্র রিকোয়েস্ট পাঠানো হয়েছে!");
-            } else {
-                tg.showAlert("ব্যালেন্স পর্যাপ্ত নয়!");
-            }
+            document.getElementById(pId).classList.add('active-page');
+            el.classList.add('active');
         }
     </script>
 </body>
