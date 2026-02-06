@@ -12,7 +12,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
     <style>
-        /* আপনার অরিজিনাল ইন্টারফেসের সব ডিজাইন */
+        /* আপনার অরিজিনাল ইন্টারফেসের সব ডিজাইন (ভিডিও অনুযায়ী) */
         body { font-family: 'Arial', sans-serif; background: #f4f7f6; margin: 0; padding-bottom: 80px; }
         .page { display: none; padding: 20px; animation: fadein 0.5s; }
         .active-page { display: block; }
@@ -69,7 +69,7 @@
         <div class="card">
             <h2 style="color: #25d366;">💬 সাপোর্ট সেন্টার</h2>
             <p>যেকোনো সমস্যা বা পেমেন্ট প্রুফ দেখতে আমাদের চ্যানেলে জয়েন করুন।</p>
-            <button style="background: #0088cc; color: white;" onclick="window.open('https://t.me/your_channel', '_blank')">টেলিগ্রাম চ্যানেল</button>
+            <button style="background: #0088cc; color: white;" onclick="window.open('https://t.me/your_channel_link', '_blank')">টেলিগ্রাম চ্যানেল</button>
         </div>
     </div>
 
@@ -108,7 +108,7 @@
 
         let currentBalance = 0;
 
-        // ডাটাবেস থেকে অটো ব্যালেন্স আপডেট
+        // ডাটাবেস থেকে রিয়েল-টাইম ব্যালেন্স আপডেট
         database.ref('users/' + userId).on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -118,31 +118,40 @@
             }
         });
 
-        // ভিডিও অ্যাড ফাংশন (আপনার কোড অনুযায়ী)
+        // আপনার মনিট্যাগ রিওয়ার্ডেড অ্যাড ফাংশন
         function showMyAd() {
             if (typeof show_10561349 === 'function') {
                 show_10561349().then(() => {
+                    // অ্যাড দেখা শেষ হলে ২ টাকা যোগ হবে
                     updateUserBalance(2, "ভিডিও অ্যাড");
-                }).catch(e => tg.showAlert("অ্যাড লোড হয়নি!"));
+                }).catch(e => {
+                    tg.showAlert("অ্যাড লোড হয়নি, আবার চেষ্টা করুন।");
+                });
             } else {
-                tg.showAlert("অ্যাড রেডি হচ্ছে...");
+                tg.showAlert("অ্যাড সার্ভিস রেডি হচ্ছে, কিছুক্ষণ অপেক্ষা করুন।");
             }
         }
 
-        // সোশ্যাল টাস্ক (১৫ সেকেন্ড টাইমার)
+        // সোশ্যাল টাস্ক (১৫ সেকেন্ড টাইমারসহ)
         function doSocialTask(name, url, reward) {
             window.open(url, '_blank');
-            tg.showConfirm("টাস্ক শেষ করে ১৫ সেকেন্ড অপেক্ষা করুন।", (confirm) => {
+            tg.showConfirm(name + " টাস্ক শুরু হয়েছে। কাজ শেষ করে ১৫ সেকেন্ড অপেক্ষা করুন।", (confirm) => {
                 if(confirm) {
-                    setTimeout(() => updateUserBalance(reward, name), 15000);
+                    setTimeout(() => {
+                        updateUserBalance(reward, name);
+                    }, 15000);
                 }
             });
         }
 
+        // কমন ব্যালেন্স আপডেট ফাংশন
         function updateUserBalance(amount, taskName) {
             const newBalance = currentBalance + amount;
-            database.ref('users/' + userId).update({ balance: newBalance })
-            .then(() => tg.showAlert(taskName + " সম্পন্ন! " + amount + "৳ যোগ হয়েছে।"));
+            database.ref('users/' + userId).update({
+                balance: newBalance
+            }).then(() => {
+                tg.showAlert("অভিনন্দন! " + taskName + " এর জন্য " + amount + "৳ যোগ হয়েছে।");
+            });
         }
 
         function showPage(pageId, element) {
@@ -156,10 +165,15 @@
             const amt = document.getElementById('withdraw_amount').value;
             const mthd = document.getElementById('withdraw_method').value;
             if(amt >= 700 && currentBalance >= amt) {
-                database.ref('withdraw_requests').push({ userId, amt, mthd, status: 'pending' });
-                tg.showAlert("রিকোয়েস্ট পাঠানো হয়েছে!");
+                database.ref('withdraw_requests').push({
+                    userId: userId,
+                    amount: amt,
+                    method: mthd,
+                    status: 'pending'
+                });
+                tg.showAlert("উইথড্র রিকোয়েস্ট পাঠানো হয়েছে!");
             } else {
-                tg.showAlert("ব্যালেন্স পর্যাপ্ত নয়!");
+                tg.showAlert("ব্যালেন্স পর্যাপ্ত নয় (মিনিমাম ৭০০৳)।");
             }
         }
     </script>
