@@ -7,7 +7,7 @@ from flask import Flask, render_template
 import threading
 import time
 
-# ১. ফায়ারবেস সেটআপ
+# ফায়ারবেস সেটআপ
 basedir = os.path.dirname(os.path.abspath(__file__))
 cred_path = os.path.join(basedir, "serviceAccountKey.json")
 
@@ -17,7 +17,7 @@ if not firebase_admin._apps:
         'databaseURL': 'https://earnmoneybot-8836f-default-rtdb.firebaseio.com'
     })
 
-# ২. আপনার নতুন এপিআই কি
+# আপনার নতুন এপিআই কি
 API_TOKEN = '8316197397:AAFJnkVvRsi1wuQXBtifyB9Wc_DRBZILS-8'
 bot = telebot.TeleBot(API_TOKEN)
 
@@ -31,18 +31,13 @@ def index():
 def handle_start(message):
     markup = types.InlineKeyboardMarkup()
     web_app = types.WebAppInfo(url="https://microtask-bb30.onrender.com") 
-    markup.add(types.InlineKeyboardButton("💰 ওপেন ড্যাশবোর্ড", web_app=web_app))
+    markup.add(types.InlineKeyboardButton("💰 ড্যাশবোর্ড", web_app=web_app))
     bot.send_message(message.chat.id, "ইনকাম শুরু করতে নিচের বাটনে ক্লিক করুন।", reply_markup=markup)
 
 def run_bot():
-    # Conflict ফিক্স করার জন্য
     bot.remove_webhook()
-    time.sleep(2) 
-    try:
-        bot.polling(none_stop=True, timeout=60)
-    except Exception as e:
-        print(f"Polling Error: {e}")
-        time.sleep(5)
+    time.sleep(2) # Conflict ফিক্স করতে
+    bot.polling(none_stop=True)
 
 if __name__ == "__main__":
     threading.Thread(target=run_bot).start()
