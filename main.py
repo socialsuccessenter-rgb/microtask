@@ -21,7 +21,7 @@ if not firebase_admin._apps:
         print(f"Firebase JSON Error: {e}")
 
 # ২. সঠিক টোকেন
-API_TOKEN = '8316197397:AAEZxJA3s7AERJTkp3qN2l0578MgDqFchkI'
+API_TOKEN = '8316197397:AAFJnkVvRsi1wuQXBtifyB9Wc_DRBZILS-8'
 bot = telebot.TeleBot(API_TOKEN)
 
 app = Flask(__name__, template_folder='.')
@@ -46,3 +46,4 @@ def run_bot():
 if __name__ == "__main__":
     threading.Thread(target=run_bot).start()
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
+
