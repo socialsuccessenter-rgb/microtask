@@ -22,11 +22,6 @@ def send_welcome(message):
     bot.send_message(message.chat.id, "স্বাগতম! কাজ শুরু করতে নিচের বাটনে ক্লিক করুন।", reply_markup=markup)
 
 def run_bot():
-    # কনফ্লিক্ট এরর (409) ফিক্স করার জন্য এটি খুব গুরুত্বপূর্ণ
-    bot.remove_webhook()
+    bot.remove_webhook() # এটি পুরনো সেশন ডিলিট করবে
     time.sleep(2)
     bot.polling(none_stop=True)
-
-if __name__ == "__main__":
-    threading.Thread(target=run_bot).start()
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
