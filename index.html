@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Microtask V3</title>
+    <title>Microtask V5</title>
     <script src='https://alwingulla.com/88/p.js'></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -18,7 +18,7 @@
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #eee; z-index: 100; }
         .nav-item { text-align: center; font-size: 12px; color: #95a5a6; cursor: pointer; flex: 1; padding: 12px 0; }
         .nav-item.active { color: var(--primary); font-weight: bold; }
-        input { width: 85%; padding: 12px; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; text-align: center; background: #f9f9f9; }
+        input { width: 90%; padding: 12px; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; text-align: center; background: #f9f9f9; font-weight: bold; }
         .status-box { font-size: 13px; margin-top: 10px; padding: 10px; border-radius: 8px; font-weight: bold; }
     </style>
 </head>
@@ -26,8 +26,8 @@
 
     <div id="home" class="page active-page">
         <div class="card">
-            <h3>💰 আপনার ব্যালেন্স</h3>
-            <h1 id="bal_v">0.00</h1>
+            <h3>💰 বর্তমান ব্যালেন্স</h3>
+            <h1><span id="bal_v">0.00</span> ৳</h1>
         </div>
         <div class="card">
             <button style="background: #e67e22; color: white;" onclick="watchAd()">📺 ভিডিও অ্যাড দেখুন (২৳)</button>
@@ -37,13 +37,13 @@
     <div id="tasks" class="page">
         <div class="card">
             <h2 style="color: var(--primary);">🎯 সোশ্যাল টাস্ক</h2>
-            <button style="background: #3b5998; color: white;" onclick="doTask('ফেসবুক', 'https://www.facebook.com/share/17wd9LGwXU/', 5)">👤 ফেসবুক ফলো (৫৳)</button>
+            <button style="background: #3b5998; color: white;" onclick="doTask('ফেসবুক', 'https://facebook.com', 5)">👤 ফেসবুক ফলো (৫৳)</button>
         </div>
     </div>
 
     <div id="profile" class="page">
         <div class="card">
-            <h2>👤 ইউজার প্রোফাইল</h2>
+            <h2>👤 প্রোফাইল</h2>
             <p>রেফার সংখ্যা: <span id="ref_v" style="color:var(--primary); font-weight:bold;">0</span>/১০</p>
             <div id="status_v" class="status-box"></div>
             <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
@@ -52,15 +52,16 @@
             <button style="background: var(--primary); color: white;" onclick="copyRef()">🔗 লিংক কপি করুন</button>
         </div>
         <div class="card">
-            <h3>টাকা উত্তোলন</h3>
+            <h4>টাকা উত্তোলন</h4>
             <p style="font-size: 11px;">মিনিমাম উত্তোলন: ৭০০ ৳</p>
-            <button id="withdraw_btn" style="background: #bdc3c7; color: white;" disabled onclick="tg.showAlert('রিকোয়েস্ট সফল!')">💸 উইথড্র দিন</button>
+            <button id="withdraw_btn" style="background: #bdc3c7; color: white;" disabled onclick="tg.showAlert('পেমেন্ট রিকোয়েস্ট পাঠানো হয়েছে!')">💸 উইথড্র দিন</button>
         </div>
     </div>
 
     <div id="support" class="page">
         <div class="card">
-            <button style="background: #0088cc; color: white;" onclick="window.open('https://t.me/microtask_earnmoney')">টেলিগ্রাম সাপোর্ট</button>
+            <h2>💬 সাপোর্ট</h2>
+            <button style="background: #0088cc; color: white;" onclick="window.open('https://t.me/microtask_earnmoney')">টেলিগ্রাম চ্যানেল</button>
         </div>
     </div>
 
@@ -75,12 +76,12 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        const uid = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id.toString() : "000";
+        const uid = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id.toString() : "test_user";
         let balance = parseFloat(localStorage.getItem('bal_' + uid)) || 0;
         let refs = parseInt(localStorage.getItem('ref_' + uid)) || 0;
 
         function updateUI() {
-            document.getElementById('bal_v').innerText = balance.toFixed(2) + " ৳";
+            document.getElementById('bal_v').innerText = balance.toFixed(2);
             document.getElementById('ref_v').innerText = refs;
             document.getElementById('ref_link').value = "https://t.me/microtask_earnmoney_bot?start=" + uid;
 
@@ -106,20 +107,22 @@
 
         function watchAd() {
             if (typeof show_10561349 === 'function') {
-                show_10561349().then(() => addMoney(2));
-            } else { tg.showAlert("অ্যাড প্রস্তুত নয়।"); }
+                show_10561349().then(() => addMoney(2)).catch(() => tg.showAlert("অ্যাড ব্যর্থ হয়েছে।"));
+            } else { tg.showAlert("অ্যাড লোড হচ্ছে..."); }
         }
 
         function doTask(n, u, r) {
             window.open(u, '_blank');
-            setTimeout(() => addMoney(r), 10000);
+            tg.showAlert("১৫ সেকেন্ড পর টাকা যোগ হবে।");
+            setTimeout(() => addMoney(r), 15000);
         }
 
         function copyRef() {
             const copyText = document.getElementById("ref_link");
             copyText.select();
+            copyText.setSelectionRange(0, 99999);
             document.execCommand("copy");
-            tg.showAlert("লিংক কপি হয়েছে!");
+            tg.showAlert("রেফার লিংক কপি হয়েছে!");
         }
 
         function showP(id, el) {
