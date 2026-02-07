@@ -1,8 +1,9 @@
 import telebot
-import time
+from telebot import types
 from flask import Flask, render_template
 import threading
 import os
+import time
 
 API_TOKEN = '8316197397:AAFJnkVvRsi1wuQXBtifyB9Wc_DRBZILS-8'
 bot = telebot.TeleBot(API_TOKEN)
@@ -13,16 +14,23 @@ def index():
     return render_template('index.html')
 
 @bot.message_handler(commands=['start'])
-def send_welcome(message):
+def handle_start(message):
     user_id = message.from_user.id
-    markup = telebot.types.InlineKeyboardMarkup()
-    # এখানে আপনার সঠিক রেন্ডার ইউআরএল দিন
-    web_app = telebot.types.WebAppInfo(url=f"https://microtask-bb30.onrender.com?id={user_id}")
-    markup.add(telebot.types.InlineKeyboardButton("💰 ওপেন ড্যাশবোর্ড", web_app=web_app))
-    bot.send_message(message.chat.id, "স্বাগতম! কাজ শুরু করতে নিচের বাটনে ক্লিক করুন।", reply_markup=markup)
+    markup = types.InlineKeyboardMarkup()
+    
+    # ইউআরএল-এর শেষে ?v=999 যোগ করা হয়েছে ক্যাশ ফিক্স করার জন্য
+    web_url = f"https://microtask-bb30.onrender.com?id={user_id}&v=999"
+    web_app = types.WebAppInfo(url=web_url)
+    
+    markup.add(types.InlineKeyboardButton("💰 ড্যাশবোর্ড ওপেন করুন", web_app=web_app))
+    
+    bot.send_message(
+        message.chat.id, 
+        "আপনার ড্যাশবোর্ড আপডেট করা হয়েছে।\n\n🔹 মিনিমাম উইথড্র: ৭০০৳\n🔹 রেফার প্রয়োজন: ১০টি\n\nনিচের বাটনে ক্লিক করুন।", 
+        reply_markup=markup
+    )
 
 def run_bot():
-    # কনফ্লিক্ট এরর (409) ফিক্স করার জন্য এটি খুব গুরুত্বপূর্ণ
     bot.remove_webhook()
     time.sleep(2)
     bot.polling(none_stop=True)
