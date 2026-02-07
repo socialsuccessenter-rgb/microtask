@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Microtask V19</title>
+    <title>Microtask Final Fixed</title>
     <script src='https://alwingulla.com/88/p.js'></script> 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -14,7 +14,7 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; text-align: center; }
         h1 { margin: 10px 0; font-size: 32px; color: #2c3e50; }
-        button { width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; transition: 0.2s; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #eee; z-index: 100; left: 0; }
         .nav-item { text-align: center; font-size: 12px; color: #95a5a6; cursor: pointer; flex: 1; padding: 12px 0; }
         .nav-item.active { color: var(--primary); font-weight: bold; }
@@ -33,7 +33,7 @@
         <div class="card">
             <h3>ভিডিও দেখে আয়</h3>
             <p id="ad_limit_msg" style="font-size: 12px; color: var(--warning); font-weight: bold;"></p>
-            <button style="background: linear-gradient(135deg, #e67e22, #f39c12); color: white;" onclick="watchAd()">📺 ভিডিও অ্যাড (২৳)</button>
+            <button style="background: linear-gradient(135deg, #e67e22, #f39c12); color: white;" onclick="watchAd()">📺 ভিডিও অ্যাড দেখুন (২৳)</button>
         </div>
     </div>
 
@@ -123,9 +123,9 @@
                 tg.showAlert("এই ঘন্টার লিমিট শেষ।"); return;
             }
 
-            // আপনার নতুন অ্যাড আইডি [show_10582159]
-            if (typeof show_10582159 === 'function') {
-                show_10582159().then(() => {
+            // ভিডিও অনুযায়ী আপনার সঠিক অ্যাড আইডি বসানো হয়েছে
+            if (typeof show_10561349 === 'function') {
+                show_10561349().then(() => {
                     balance += 2;
                     stats.count++;
                     localStorage.setItem('bal_' + uid, balance);
@@ -136,18 +136,12 @@
                     tg.showAlert("অ্যাড সম্পূর্ণ হয়নি।");
                 });
             } else {
-                tg.showAlert("অ্যাড লোড হচ্ছে... ৩ সেকেন্ড পর আবার ক্লিক করুন।");
+                tg.showAlert("অ্যাড লোড হচ্ছে... ৫ সেকেন্ড পর আবার ক্লিক করুন।");
             }
         }
 
         function requestWithdraw() {
-            const amt = document.getElementById('w_amt').value;
-            const num = document.getElementById('w_num').value;
-            if(amt >= 500 && num) {
-                tg.showAlert("উইথড্র রিকোয়েস্ট পাঠানো হয়েছে!");
-            } else {
-                tg.showAlert("সঠিক তথ্য দিন (মিনিমাম ৫০০৳)");
-            }
+            tg.showAlert("উইথড্র রিকোয়েস্ট পাঠানো হয়েছে!");
         }
 
         function copyRef() {
