@@ -5,6 +5,7 @@ import threading
 import os
 import time
 
+# আপনার নতুন এপিআই টোকেন
 API_TOKEN = '8316197397:AAEAa8C8mzFW3beQSez9wN-TXUHkGrlLi0Q'
 bot = telebot.TeleBot(API_TOKEN)
 app = Flask(__name__, template_folder='.')
@@ -18,15 +19,15 @@ def handle_start(message):
     user_id = message.from_user.id
     markup = types.InlineKeyboardMarkup()
     
-    # ইউআরএল-এর শেষে ?v=999 যোগ করা হয়েছে ক্যাশ ফিক্স করার জন্য
-    web_url = f"https://microtask-bb30.onrender.com?id={user_id}&v=999"
+    # ক্যাশ সমস্যা এড়াতে v=102 যোগ করা হয়েছে
+    web_url = f"https://microtask-bb30.onrender.com?id={user_id}&v=102"
     web_app = types.WebAppInfo(url=web_url)
     
     markup.add(types.InlineKeyboardButton("💰 ড্যাশবোর্ড ওপেন করুন", web_app=web_app))
     
     bot.send_message(
         message.chat.id, 
-        "আপনার ড্যাশবোর্ড আপডেট করা হয়েছে।\n\n🔹 মিনিমাম উইথড্র: ৭০০৳\n🔹 রেফার প্রয়োজন: ১০টি\n\nনিচের বাটনে ক্লিক করুন।", 
+        "আপনার ড্যাশবোর্ড আপডেট করা হয়েছে।\n\n🔹 মিনিমাম উইথড্র: ৭০০৳\n🔹 রেফার প্রয়োজন: ১০টি", 
         reply_markup=markup
     )
 
@@ -38,4 +39,3 @@ def run_bot():
 if __name__ == "__main__":
     threading.Thread(target=run_bot).start()
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
-
