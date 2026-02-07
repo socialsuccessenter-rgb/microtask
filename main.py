@@ -15,7 +15,7 @@ def run():
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
 
 # আপনার বটের টোকেন
-TOKEN = '8316197397:AAGdoaHnt8vPBrcytx5fN6jTF3-90R7dliI'
+TOKEN = '8316197397:AAFLdurYzD6IaFYKv0xQT1zb7rZKMvX1N7w'
 bot = telebot.TeleBot(TOKEN)
 
 # আপনার রেন্ডার ওয়েব অ্যাপ লিংক
@@ -59,3 +59,4 @@ if __name__ == "__main__":
     t.start()
     # Start the Bot
     start_bot()
+
