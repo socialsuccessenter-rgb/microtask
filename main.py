@@ -5,7 +5,7 @@ import threading
 import os
 import time
 
-API_TOKEN = '8316197397:AAFJnkVvRsi1wuQXBtifyB9Wc_DRBZILS-8'
+API_TOKEN = '8316197397:AAEAa8C8mzFW3beQSez9wN-TXUHkGrlLi0Q'
 bot = telebot.TeleBot(API_TOKEN)
 app = Flask(__name__, template_folder='.')
 
@@ -38,3 +38,4 @@ def run_bot():
 if __name__ == "__main__":
     threading.Thread(target=run_bot).start()
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
+
