@@ -2,128 +2,134 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Microtask Earn Money</title>
-    
-    <script src='https://alwingulla.com/88/p.js'></script> 
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Microtask V3</title>
+    <script src='https://alwingulla.com/88/p.js'></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    
     <style>
-        /* আপনার অরিজিনাল ইন্টারফেস ডিজাইন */
-        body { font-family: 'Arial', sans-serif; background: #f4f7f6; margin: 0; padding-bottom: 80px; }
-        .page { display: none; padding: 20px; animation: fadein 0.5s; }
+        :root { --primary: #3498db; --success: #2ecc71; --warning: #f39c12; --danger: #e74c3c; --bg: #f8f9fa; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; user-select: none; }
+        .page { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
         .active-page { display: block; }
-        @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
-        .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 15px; text-align: center; }
-        button { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; z-index: 1000; }
-        .nav-item { text-align: center; font-size: 12px; color: #777; cursor: pointer; flex: 1; }
-        .nav-item.active { color: #3498db; font-weight: bold; }
-        .nav-icon { font-size: 20px; margin-bottom: 2px; }
-        input { width: 90%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; text-align: center; }
+        h1 { margin: 10px 0; font-size: 32px; color: #2c3e50; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #eee; z-index: 100; }
+        .nav-item { text-align: center; font-size: 12px; color: #95a5a6; cursor: pointer; flex: 1; padding: 12px 0; }
+        .nav-item.active { color: var(--primary); font-weight: bold; }
+        input { width: 85%; padding: 12px; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; text-align: center; background: #f9f9f9; }
+        .status-box { font-size: 13px; margin-top: 10px; padding: 10px; border-radius: 8px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="home" class="page active-page">
         <div class="card">
-            <h2>💰 ড্যাশবোর্ড</h2>
-            <h1 style="color: #2ecc71;"><span id="home_balance">0</span> ৳</h1>
+            <h3>💰 আপনার ব্যালেন্স</h3>
+            <h1 id="bal_v">0.00</h1>
         </div>
         <div class="card">
-            <h3>ভিডিও দেখে আয়</h3>
-            <button style="background: #e67e22; color: white;" onclick="showMyAd()">📺 ভিডিও অ্যাড (২৳)</button>
+            <button style="background: #e67e22; color: white;" onclick="watchAd()">📺 ভিডিও অ্যাড দেখুন (২৳)</button>
         </div>
     </div>
 
     <div id="tasks" class="page">
         <div class="card">
-            <h2>🎯 সোশ্যাল টাস্ক</h2>
-            <button style="background: #3b5998; color: white;" onclick="doSocialTask('Facebook', 'https://facebook.com', 5)">👤 ফেসবুক ফলো (৫৳)</button>
-            <button style="background: #ff0000; color: white;" onclick="doSocialTask('YouTube', 'https://youtube.com', 5)">📺 ইউটিউব সাবস্ক্রাইব (৫৳)</button>
+            <h2 style="color: var(--primary);">🎯 সোশ্যাল টাস্ক</h2>
+            <button style="background: #3b5998; color: white;" onclick="doTask('ফেসবুক', 'https://www.facebook.com/share/17wd9LGwXU/', 5)">👤 ফেসবুক ফলো (৫৳)</button>
         </div>
     </div>
 
     <div id="profile" class="page">
         <div class="card">
-            <h2>👤 প্রোফাইল</h2>
-            <p>আইডি: <span id="u_id">লোড হচ্ছে...</span></p>
-            <div style="background:#e8f4fd; padding:15px; border-radius:10px;">
-                <p>ব্যালেন্স: <span id="prof_balance">0</span> ৳</p>
-            </div>
-            <hr>
-            <h4>উইথড্র রিকোয়েস্ট (মিনিমাম ৭০০৳)</h4>
-            <input type="number" id="amt" placeholder="টাকার পরিমাণ">
-            <input type="text" id="mthd" placeholder="বিকাশ/নগদ নম্বর">
-            <button style="background: #27ae60; color: white;" onclick="requestWithdraw()">উইথড্র দিন</button>
+            <h2>👤 ইউজার প্রোফাইল</h2>
+            <p>রেফার সংখ্যা: <span id="ref_v" style="color:var(--primary); font-weight:bold;">0</span>/১০</p>
+            <div id="status_v" class="status-box"></div>
+            <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
+            <p style="font-size: 12px;">আপনার রেফারেল লিংক:</p>
+            <input type="text" id="ref_link" readonly>
+            <button style="background: var(--primary); color: white;" onclick="copyRef()">🔗 লিংক কপি করুন</button>
+        </div>
+        <div class="card">
+            <h3>টাকা উত্তোলন</h3>
+            <p style="font-size: 11px;">মিনিমাম উত্তোলন: ৭০০ ৳</p>
+            <button id="withdraw_btn" style="background: #bdc3c7; color: white;" disabled onclick="tg.showAlert('রিকোয়েস্ট সফল!')">💸 উইথড্র দিন</button>
         </div>
     </div>
 
     <div id="support" class="page">
         <div class="card">
-            <h2>💬 সাপোর্ট</h2>
-            <button style="background: #0088cc; color: white;" onclick="window.open('https://t.me/your_channel', '_blank')">টেলিগ্রাম চ্যানেল</button>
+            <button style="background: #0088cc; color: white;" onclick="window.open('https://t.me/microtask_earnmoney')">টেলিগ্রাম সাপোর্ট</button>
         </div>
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item active" onclick="showPage('home', this)"><div class="nav-icon">🏠</div>হোম</div>
-        <div class="nav-item" onclick="showPage('tasks', this)"><div class="nav-icon">📋</div>টাস্ক</div>
-        <div class="nav-item" onclick="showPage('profile', this)"><div class="nav-icon">👤</div>প্রোফাইল</div>
-        <div class="nav-item" onclick="showPage('support', this)"><div class="nav-icon">💬</div>সাপোর্ট</div>
+        <div class="nav-item active" onclick="showP('home', this)">🏠 হোম</div>
+        <div class="nav-item" onclick="showP('tasks', this)">📋 টাস্ক</div>
+        <div class="nav-item" onclick="showP('profile', this)">👤 প্রোফাইল</div>
+        <div class="nav-item" onclick="showP('support', this)">💬 সাপোর্ট</div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDwjqWl4Qto-n06g2SVGlf4IKKArRnAKBQ",
-            authDomain: "earnmoneybot-8836f.firebaseapp.com",
-            databaseURL: "https://earnmoneybot-8836f-default-rtdb.firebaseio.com",
-            projectId: "earnmoneybot-8836f",
-            appId: "1:953591788516:web:f284c6d083d5ca872bcdf1"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id.toString() : "test_user";
-        document.getElementById('u_id').innerText = userId;
+        const uid = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id.toString() : "000";
+        let balance = parseFloat(localStorage.getItem('bal_' + uid)) || 0;
+        let refs = parseInt(localStorage.getItem('ref_' + uid)) || 0;
 
-        let currentBalance = 0;
-        database.ref('users/' + userId).on('value', (snap) => {
-            const val = snap.val();
-            if (val) {
-                currentBalance = val.balance || 0;
-                document.getElementById('home_balance').innerText = currentBalance;
-                document.getElementById('prof_balance').innerText = currentBalance;
+        function updateUI() {
+            document.getElementById('bal_v').innerText = balance.toFixed(2) + " ৳";
+            document.getElementById('ref_v').innerText = refs;
+            document.getElementById('ref_link').value = "https://t.me/microtask_earnmoney_bot?start=" + uid;
+
+            const btn = document.getElementById('withdraw_btn');
+            const st = document.getElementById('status_v');
+
+            if(refs >= 10 && balance >= 700) {
+                btn.disabled = false; btn.style.background = "var(--success)";
+                st.innerText = "উইথড্র অপশন আনলক হয়েছে!"; st.style.color = "var(--success)";
+            } else if (refs >= 10 && balance < 700) {
+                st.innerText = "ব্যালেন্স ৭০০৳ হলে বাটন খুলবে।"; st.style.color = "var(--warning)";
+            } else {
+                st.innerText = "উইথড্র করতে ১০টি রেফার লাগবে।"; st.style.color = "var(--danger)";
             }
-        });
+        }
 
-        function showMyAd() {
+        function addMoney(n) {
+            balance += n;
+            localStorage.setItem('bal_' + uid, balance);
+            updateUI();
+            tg.showAlert(n + "৳ যোগ হয়েছে!");
+        }
+
+        function watchAd() {
             if (typeof show_10561349 === 'function') {
-                show_10561349().then(() => updateUserBalance(2, "অ্যাড"));
-            } else { tg.showAlert("অ্যাড প্রস্তুত নয়"); }
+                show_10561349().then(() => addMoney(2));
+            } else { tg.showAlert("অ্যাড প্রস্তুত নয়।"); }
         }
 
-        function doSocialTask(name, url, reward) {
-            window.open(url, '_blank');
-            setTimeout(() => updateUserBalance(reward, name), 15000);
+        function doTask(n, u, r) {
+            window.open(u, '_blank');
+            setTimeout(() => addMoney(r), 10000);
         }
 
-        function updateUserBalance(amount, taskName) {
-            database.ref('users/' + userId).update({ balance: currentBalance + amount })
-            .then(() => tg.showAlert(taskName + " সফল!"));
+        function copyRef() {
+            const copyText = document.getElementById("ref_link");
+            copyText.select();
+            document.execCommand("copy");
+            tg.showAlert("লিংক কপি হয়েছে!");
         }
 
-        function showPage(pId, el) {
+        function showP(id, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.getElementById(pId).classList.add('active-page');
+            document.getElementById(id).classList.add('active-page');
             el.classList.add('active');
         }
+
+        updateUI();
     </script>
 </body>
 </html>
