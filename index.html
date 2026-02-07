@@ -165,3 +165,66 @@
     </script>
 </body>
 </html>
+            if(refs >= 10 && balance >= 700) {
+                btn.disabled = false; btn.style.background = "var(--success)";
+                st.innerText = "উইথড্র করার জন্য আপনি যোগ্য!"; st.style.color = "var(--success)";
+            } else {
+                btn.disabled = true; btn.style.background = "#bdc3c7";
+                st.innerText = refs < 10 ? "বাকি রেফার: " + (10 - refs) + " টি" : "৭০০৳ হতে আরও কিছু আয় করুন।";
+                st.style.color = refs < 10 ? "var(--danger)" : "var(--warning)";
+            }
+        }
+
+        // --- আপনার মনিট্যাগ অ্যাড ফাংশন এখানে সেট করা হলো ---
+        function watchAd() {
+            if (typeof show_10561349 === 'function') {
+                show_10561349().then(() => {
+                    // অ্যাড দেখা শেষ হলে এই অংশটি চলবে
+                    balance += 2;
+                    localStorage.setItem('bal_' + uid, balance);
+                    updateUI();
+                    tg.showAlert("অভিনন্দন! আপনি ২৳ রিওয়ার্ড পেয়েছেন।");
+                }).catch((err) => {
+                    tg.showAlert("অ্যাডটি সম্পূর্ণ দেখা হয়নি।");
+                });
+            } else { 
+                tg.showAlert("অ্যাড এখনো লোড হয়নি। ৫ সেকেন্ড পর আবার চেষ্টা করুন।"); 
+            }
+        }
+
+        function confirmTask(n, u, r) {
+            tg.showConfirm("আপনি কি নিশ্চিত যে আপনি " + n + " টাস্কটি করবেন?", (ok) => {
+                if(ok) {
+                    window.open(u, '_blank');
+                    tg.showAlert("কাজটি করে ১৫ সেকেন্ড অপেক্ষা করুন...");
+                    setTimeout(() => {
+                        balance += r;
+                        fbDone = true;
+                        localStorage.setItem('bal_' + uid, balance);
+                        localStorage.setItem('fb_done_' + uid, 'true');
+                        updateUI();
+                        tg.showAlert("টাস্ক সফল! " + r + "৳ যোগ হয়েছে।");
+                    }, 15000);
+                }
+            });
+        }
+
+        function copyRef() {
+            const copyText = document.getElementById("ref_link");
+            copyText.select();
+            document.execCommand("copy");
+            tg.showAlert("লিংক কপি হয়েছে!");
+        }
+
+        function showP(id, el) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById(id).classList.add('active-page');
+            el.classList.add('active');
+        }
+
+        updateUI();
+    </script>
+</body>
+</html>
+
