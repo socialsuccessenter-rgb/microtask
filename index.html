@@ -3,27 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Microtask V8</title>
-    
+    <title>Microtask V9</title>
     <script src='https://alwingulla.com/88/p.js'></script> 
-    
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root { --primary: #3498db; --success: #2ecc71; --warning: #f39c12; --danger: #e74c3c; --bg: #f8f9fa; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; user-select: none; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; user-select: none; overflow-x: hidden; }
         .page { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
         .active-page { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; text-align: center; }
         h1 { margin: 10px 0; font-size: 32px; color: #2c3e50; }
         button { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; transition: 0.3s; }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #eee; z-index: 100; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #eee; z-index: 100; left: 0; }
         .nav-item { text-align: center; font-size: 12px; color: #95a5a6; cursor: pointer; flex: 1; padding: 12px 0; }
         .nav-item.active { color: var(--primary); font-weight: bold; }
         input { width: 90%; padding: 12px; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; text-align: center; background: #f9f9f9; }
         .status-box { font-size: 13px; margin-top: 10px; padding: 10px; border-radius: 8px; font-weight: bold; }
         .done-btn { background: #95a5a6 !important; color: white !important; cursor: not-allowed; }
-        .support-card { background: linear-gradient(135deg, #ffffff 0%, #f1f7ff 100%); border-left: 5px solid var(--primary); }
     </style>
 </head>
 <body>
@@ -41,7 +38,7 @@
     <div id="tasks" class="page">
         <div class="card">
             <h2 style="color: var(--primary);">🎯 সোশ্যাল টাস্ক</h2>
-            <p style="font-size: 12px; color: #e74c3c; margin-bottom: 15px;">⚠️ নিয়ম: পেজ ফলো না করে সাবমিট করলে পেমেন্ট বাতিল হবে।</p>
+            <p id="task_warning" style="font-size: 12px; color: #e74c3c; margin-bottom: 15px;">⚠️ নিয়ম: পেজ ফলো না করে সাবমিট করলে পেমেন্ট বাতিল হবে।</p>
             <button id="fb_task_btn" style="background: #3b5998; color: white;" onclick="confirmTask('ফেসবুক', 'https://facebook.com', 5)">👤 ফেসবুক ফলো করুন (৫৳)</button>
         </div>
     </div>
@@ -52,23 +49,20 @@
             <p>মোট রেফার: <span id="ref_v" style="color:var(--primary); font-weight:bold;">0</span>/১০</p>
             <div id="status_v" class="status-box"></div>
             <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
-            <p style="font-size: 12px;">আপনার রেফারেল লিংক:</p>
+            <p style="font-size: 12px;">রেফারেল লিংক:</p>
             <input type="text" id="ref_link" readonly>
-            <button style="background: var(--primary); color: white;" onclick="copyRef()">🔗 লিংক কপি করুন</button>
+            <button style="background: var(--primary); color: white; width: auto; padding: 10px 20px;" onclick="copyRef()">🔗 লিংক কপি</button>
         </div>
         <div class="card">
             <h4>টাকা উত্তোলন</h4>
-            <p style="font-size: 11px;">মিনিমাম ৭০০৳ ব্যালেন্স ও ১০টি রেফার প্রয়োজন।</p>
-            <button id="withdraw_btn" style="background: #bdc3c7; color: white;" disabled onclick="tg.showAlert('আপনার রিকোয়েস্টটি পেন্ডিং আছে।')">💸 উইথড্র দিন</button>
+            <button id="withdraw_btn" style="background: #bdc3c7; color: white;" disabled onclick="tg.showAlert('রিকোয়েস্ট পেন্ডিং!')">💸 উইথড্র দিন</button>
         </div>
     </div>
 
     <div id="support" class="page">
-        <div class="card support-card">
+        <div class="card">
             <h2 style="color: #2c3e50;">🆘 হেল্প সেন্টার</h2>
-            <p style="color: #7f8c8d; font-size: 14px;">পেমেন্ট পেতে সমস্যা হলে বা কোনো প্রশ্ন থাকলে আমাদের টেলিগ্রামে মেসেজ দিন।</p>
-            <button style="background: #0088cc; color: white; box-shadow: 0 4px 12px rgba(0,136,204,0.3);" onclick="window.open('https://t.me/microtask_earnmoney')">💬 আমাদের টেলিগ্রাম চ্যানেল</button>
-            <p style="font-size: 11px; margin-top: 15px; color: #95a5a6;">আমরা সবসময় আপনার সাহায্যে নিয়োজিত।</p>
+            <button style="background: #0088cc; color: white;" onclick="window.open('https://t.me/microtask_earnmoney')">💬 টেলিগ্রাম চ্যানেল</button>
         </div>
     </div>
 
@@ -83,7 +77,7 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        const uid = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id.toString() : "user_1";
+        const uid = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id.toString() : "user_test";
         let balance = parseFloat(localStorage.getItem('bal_' + uid)) || 0;
         let refs = parseInt(localStorage.getItem('ref_' + uid)) || 0;
         let fbDone = localStorage.getItem('fb_done_' + uid) === 'true';
@@ -98,7 +92,7 @@
             const fbtn = document.getElementById('fb_task_btn');
 
             if(fbDone) {
-                fbtn.innerText = "✅ টাস্ক সম্পন্ন হয়েছে";
+                fbtn.innerText = "✅ টাস্ক সম্পন্ন";
                 fbtn.classList.add('done-btn');
                 fbtn.onclick = null;
             }
@@ -108,40 +102,33 @@
                 st.innerText = "উইথড্র করার জন্য আপনি যোগ্য!"; st.style.color = "var(--success)";
             } else {
                 btn.disabled = true; btn.style.background = "#bdc3c7";
-                st.innerText = refs < 10 ? "বাকি রেফার: " + (10 - refs) + " টি" : "৭০০৳ হতে আরও কিছু আয় করুন।";
-                st.style.color = refs < 10 ? "var(--danger)" : "var(--warning)";
+                st.innerText = refs < 10 ? "বাকি রেফার: " + (10 - refs) : "ব্যালেন্স ৭০০৳ প্রয়োজন।";
+                st.style.color = "var(--danger)";
             }
         }
 
-        // --- আপনার মনিট্যাগ অ্যাড ফাংশন এখানে সেট করা হলো ---
         function watchAd() {
             if (typeof show_10561349 === 'function') {
                 show_10561349().then(() => {
-                    // অ্যাড দেখা শেষ হলে এই অংশটি চলবে
                     balance += 2;
                     localStorage.setItem('bal_' + uid, balance);
                     updateUI();
-                    tg.showAlert("অভিনন্দন! আপনি ২৳ রিওয়ার্ড পেয়েছেন।");
-                }).catch((err) => {
-                    tg.showAlert("অ্যাডটি সম্পূর্ণ দেখা হয়নি।");
-                });
-            } else { 
-                tg.showAlert("অ্যাড এখনো লোড হয়নি। ৫ সেকেন্ড পর আবার চেষ্টা করুন।"); 
-            }
+                    tg.showAlert("২৳ যোগ হয়েছে!");
+                }).catch(() => tg.showAlert("অ্যাড ব্যর্থ হয়েছে।"));
+            } else { tg.showAlert("অ্যাড লোড হচ্ছে..."); }
         }
 
         function confirmTask(n, u, r) {
-            tg.showConfirm("আপনি কি নিশ্চিত যে আপনি " + n + " টাস্কটি করবেন?", (ok) => {
+            tg.showConfirm(n + " টাস্কটি করতে চান?", (ok) => {
                 if(ok) {
                     window.open(u, '_blank');
-                    tg.showAlert("কাজটি করে ১৫ সেকেন্ড অপেক্ষা করুন...");
                     setTimeout(() => {
                         balance += r;
                         fbDone = true;
                         localStorage.setItem('bal_' + uid, balance);
                         localStorage.setItem('fb_done_' + uid, 'true');
                         updateUI();
-                        tg.showAlert("টাস্ক সফল! " + r + "৳ যোগ হয়েছে।");
+                        tg.showAlert(r + "৳ যোগ হয়েছে!");
                     }, 15000);
                 }
             });
@@ -165,66 +152,3 @@
     </script>
 </body>
 </html>
-            if(refs >= 10 && balance >= 700) {
-                btn.disabled = false; btn.style.background = "var(--success)";
-                st.innerText = "উইথড্র করার জন্য আপনি যোগ্য!"; st.style.color = "var(--success)";
-            } else {
-                btn.disabled = true; btn.style.background = "#bdc3c7";
-                st.innerText = refs < 10 ? "বাকি রেফার: " + (10 - refs) + " টি" : "৭০০৳ হতে আরও কিছু আয় করুন।";
-                st.style.color = refs < 10 ? "var(--danger)" : "var(--warning)";
-            }
-        }
-
-        // --- আপনার মনিট্যাগ অ্যাড ফাংশন এখানে সেট করা হলো ---
-        function watchAd() {
-            if (typeof show_10561349 === 'function') {
-                show_10561349().then(() => {
-                    // অ্যাড দেখা শেষ হলে এই অংশটি চলবে
-                    balance += 2;
-                    localStorage.setItem('bal_' + uid, balance);
-                    updateUI();
-                    tg.showAlert("অভিনন্দন! আপনি ২৳ রিওয়ার্ড পেয়েছেন।");
-                }).catch((err) => {
-                    tg.showAlert("অ্যাডটি সম্পূর্ণ দেখা হয়নি।");
-                });
-            } else { 
-                tg.showAlert("অ্যাড এখনো লোড হয়নি। ৫ সেকেন্ড পর আবার চেষ্টা করুন।"); 
-            }
-        }
-
-        function confirmTask(n, u, r) {
-            tg.showConfirm("আপনি কি নিশ্চিত যে আপনি " + n + " টাস্কটি করবেন?", (ok) => {
-                if(ok) {
-                    window.open(u, '_blank');
-                    tg.showAlert("কাজটি করে ১৫ সেকেন্ড অপেক্ষা করুন...");
-                    setTimeout(() => {
-                        balance += r;
-                        fbDone = true;
-                        localStorage.setItem('bal_' + uid, balance);
-                        localStorage.setItem('fb_done_' + uid, 'true');
-                        updateUI();
-                        tg.showAlert("টাস্ক সফল! " + r + "৳ যোগ হয়েছে।");
-                    }, 15000);
-                }
-            });
-        }
-
-        function copyRef() {
-            const copyText = document.getElementById("ref_link");
-            copyText.select();
-            document.execCommand("copy");
-            tg.showAlert("লিংক কপি হয়েছে!");
-        }
-
-        function showP(id, el) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.getElementById(id).classList.add('active-page');
-            el.classList.add('active');
-        }
-
-        updateUI();
-    </script>
-</body>
-</html>
-
