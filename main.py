@@ -19,22 +19,29 @@ def handle_start(message):
     user_id = message.from_user.id
     markup = types.InlineKeyboardMarkup()
     
-    # ক্যাশ সমস্যা এড়াতে v=102 যোগ করা হয়েছে
-    web_url = f"https://microtask-bb30.onrender.com?id={user_id}&v=102"
+    # ক্যাশ সমস্যা এড়াতে v=105 যোগ করা হয়েছে
+    web_url = f"https://microtask-bb30.onrender.com?id={user_id}&v=105"
     web_app = types.WebAppInfo(url=web_url)
     
     markup.add(types.InlineKeyboardButton("💰 ড্যাশবোর্ড ওপেন করুন", web_app=web_app))
     
     bot.send_message(
         message.chat.id, 
-        "আপনার ড্যাশবোর্ড আপডেট করা হয়েছে।\n\n🔹 মিনিমাম উইথড্র: ৭০০৳\n🔹 রেফার প্রয়োজন: ১০টি", 
+        "আপনার নতুন ড্যাশবোর্ড প্রস্তুত!\n\n🔹 মিনিমাম উইথড্র: ৭০০৳\n🔹 প্রয়োজনীয় রেফার: ১০টি\n\nনিচের বাটনে ক্লিক করুন।", 
         reply_markup=markup
     )
 
 def run_bot():
-    bot.remove_webhook()
-    time.sleep(2)
-    bot.polling(none_stop=True)
+    # ৪০৯ কনফ্লিক্ট এরর ফিক্স করার মূল হাতিয়ার
+    try:
+        bot.remove_webhook()
+        time.sleep(2)
+        print("Bot is starting...")
+        bot.polling(none_stop=True, interval=0, timeout=20)
+    except Exception as e:
+        print(f"Error: {e}")
+        time.sleep(5)
+        run_bot()
 
 if __name__ == "__main__":
     threading.Thread(target=run_bot).start()
