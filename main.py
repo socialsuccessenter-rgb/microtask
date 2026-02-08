@@ -4,11 +4,12 @@ import os
 from flask import Flask
 from threading import Thread
 
-# Flask server
+# Flask server setup
 app = Flask(__name__)
 
 @app.route('/')
 def home():
+    # এটি নিশ্চিত করবে যে সার্ভারটি সচল আছে
     return "Bot is alive and running!"
 
 def run():
@@ -28,19 +29,19 @@ def send_welcome(message):
 
     markup = types.InlineKeyboardMarkup(row_width=1)
     
-    # ব্রাউজারে কাজ করা ড্যাশবোর্ড লিংক
+    # ব্রাউজারে আলাদাভাবে ড্যাশবোর্ড ওপেন করার লিংক
     dashboard_button = types.InlineKeyboardButton(
-        text="🚀 Open Dashboard (External)", 
+        text="🚀 Open Dashboard", 
         url="https://microtask-bb30.onrender.com"
     )
     
-    # মনিট্যাগ ডিরেক্ট লিংক (সরাসরি কাজ করার জন্য)
+    # আপনার মনিট্যাগ ডিরেক্ট লিংক এখানে বসান
     task_button = types.InlineKeyboardButton(
-        text="💰 Start Earning Now", 
-        url="আপনার_মনিট্যাগ_ডিরেক্ট_লিংক_এখানে"
+        text="💰 Start Task & Earn", 
+        url="https://www.highrevenuegate.com/example_link" 
     )
     
-    # কমিউনিটি বাটন
+    # টেলিগ্রাম কমিউনিটি লিংক
     support_button = types.InlineKeyboardButton(
         text="💬 Join Community", 
         url="https://t.me/microtask_earnmoney"
@@ -51,13 +52,18 @@ def send_welcome(message):
     try:
         bot.send_message(message.chat.id, welcome_text, parse_mode="Markdown", reply_markup=markup)
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error sending message: {e}")
 
 def start_bot():
+    print("Bot is starting...")
+    # কোনো সেশন আটকে থাকলে তা ক্লিয়ার করবে
     bot.remove_webhook()
-    bot.infinity_polling(timeout=20)
+    bot.infinity_polling(timeout=20, long_polling_timeout=10)
 
 if __name__ == "__main__":
+    # Flask সার্ভার চালু করা হচ্ছে
     t = Thread(target=run)
+    t.daemon = True
     t.start()
+    # বট পোলিং চালু করা হচ্ছে
     start_bot()
