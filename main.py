@@ -1,4 +1,10 @@
-# --- ১. ড্যাশবোর্ড বা চেহারার অংশ (HTML) ---
+import telebot
+from telebot import types
+import os
+from flask import Flask # এই লাইনটি খুব গুরুত্বপূর্ণ!
+from threading import Thread
+
+# ১. ড্যাশবোর্ড বা চেহারার অংশ (HTML)
 app = Flask(__name__)
 
 @app.route('/')
@@ -27,3 +33,32 @@ def home():
     </body>
     </html>
     """
+
+def run():
+    port = int(os.environ.get('PORT', 8080))
+    app.run(host='0.0.0.0', port=port)
+
+# ২. বটের মস্তিষ্ক (আপনার নতুন টোকেনটি এখানে বসানো হয়েছে)
+TOKEN = '8316197397:AAE0e7fmbYNCtPv7pBgRk6WI1AktYtvQKrg'
+bot = telebot.TeleBot(TOKEN)
+RENDER_URL = "https://microtask-bb30.onrender.com"
+
+@bot.message_handler(commands=['start'])
+def start(message):
+    markup = types.InlineKeyboardMarkup()
+    webapp = types.WebAppInfo(url=RENDER_URL)
+    btn = types.InlineKeyboardButton("🚀 Open Dashboard", web_app=webapp)
+    markup.add(btn)
+    
+    reply = f"সালাম {message.from_user.first_name}! 👋\nআপনার বট এখন নতুন টোকেনে একদম সচল। কাজ শুরু করতে নিচে ক্লিক করুন।"
+    bot.send_message(message.chat.id, reply, reply_markup=markup)
+
+# ৩. বট চালু করা
+if __name__ == "__main__":
+    t = Thread(target=run)
+    t.daemon = True
+    t.start()
+    
+    bot.remove_webhook()
+    print("বট নতুন টোকেন নিয়ে চালু হচ্ছে...")
+    bot.infinity_polling()
