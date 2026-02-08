@@ -2,25 +2,6 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>MicroTask V33 - Earn Money Online</title>
-    
-    <meta property="https://i.ibb.co.com/FLhY69gK/IMG-20260208-005607.png" content="MicroTask V33 - অনলাইন ইনকাম বট">
-    <meta property="og:description" content="ছোট ছোট কাজ করে ১০০% পেমেন্ট বুঝে নিন। ২৪ ঘন্টার মধ্যে নিশ্চিত পেমেন্ট! 💰">
-    <meta property="og:image" content="এখানে_আপনার_ছবির_লিংক_বসান"> 
-    <meta property="og:url" content="https://microtask-bb30.onrender.com">
-    <meta property="og:type" content="website">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="এখানে_আপনার_ছবির_লিংক_বসান">
-
-    <style>
-        /* আপনার আগের সব ডিজাইন এখানে থাকবে */
-    </style>
-</head>
-    <head>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Microtask Final V33</title>
     
@@ -110,6 +91,24 @@
             <input type="text" id="ref_link" readonly>
             <button style="background: var(--primary); color: white; width: auto; padding: 10px 25px;" onclick="copyRef()">🔗 লিংক কপি</button>
         </div>
+        
+        <div class="card">
+            <h4>💸 উত্তোলন (মিনিমাম ৭০০৳)</h4>
+            <select id="w_method">
+                <option value="">পেমেন্ট মেথড সিলেক্ট করুন</option>
+                <option value="বিকাশ">বিকাশ</option>
+                <option value="নগদ">নগদ</option>
+                <option value="রকেট">রকেট</option>
+            </select>
+            <input type="number" id="w_amt" placeholder="টাকার পরিমাণ">
+            <input type="text" id="w_num" placeholder="মোবাইল নম্বর">
+            <button id="withdraw_btn" style="background: #bdc3c7; color: white;" disabled onclick="requestWithdraw()">উইথড্র দিন</button>
+        </div>
+    </div>
+
+    <div id="support" class="page">
+        <div class="card">
+            <h2 style="color: #c0392b;">🆘 হেল্প সেন্টার</h2>        </div>
         
         <div class="card">
             <h4>💸 উত্তোলন (মিনিমাম ৭০০৳)</h4>
@@ -357,5 +356,6 @@
     </script>
 </body>
 </html>
+
 
 
