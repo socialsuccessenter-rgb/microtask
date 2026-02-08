@@ -4,12 +4,12 @@ import os
 from flask import Flask
 from threading import Thread
 
-# Flask setup
+# Flask setup for Render
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    # এটি আপনার ড্যাশবোর্ডের লেখা এবং ডিজাইন ঠিক করবে
+    # ড্যাশবোর্ডের ডিজাইন
     return """
     <!DOCTYPE html>
     <html lang="bn">
@@ -19,7 +19,7 @@ def home():
         <title>MicroTask V33</title>
         <style>
             body { background: #0f172a; color: white; text-align: center; font-family: sans-serif; padding-top: 50px; }
-            .card { background: #1e293b; padding: 30px; border-radius: 20px; border: 1px solid #38bdf8; display: inline-block; }
+            .card { background: #1e293b; padding: 30px; border-radius: 20px; border: 2px solid #38bdf8; display: inline-block; }
             h1 { color: #38bdf8; }
             .balance { font-size: 24px; color: #4ade80; margin: 20px 0; }
             .btn { background: #38bdf8; color: #0f172a; padding: 12px 25px; border-radius: 10px; text-decoration: none; font-weight: bold; }
@@ -30,7 +30,7 @@ def home():
             <h1>🚀 MicroTask V33</h1>
             <p>আপনার আর্নিং পোর্টালে স্বাগতম</p>
             <div class="balance">ব্যালেন্স: $0.018</div>
-            <a href="আপনার_মনিট্যাগ_ডিরেক্ট_লিংক_এখানে" class="btn">কাজ শুরু করুন 💰</a>
+            <a href="আপনার_মনিট্যাগ_লিংক" class="btn">কাজ শুরু করুন 💰</a>
         </div>
     </body>
     </html>
@@ -52,22 +52,20 @@ def start(message):
     dashboard_url = "https://microtask-bb30.onrender.com"
     btn1 = types.InlineKeyboardButton("🚀 Open Dashboard", web_app=types.WebAppInfo(url=dashboard_url))
     
-    # হারিয়ে যাওয়া কমিউনিটি বাটন যোগ করা হলো
-    btn2 = types.InlineKeyboardButton("👥 Join Community", url="https://t.me/your_community_link") # আপনার লিংকটি দিন
+    # কমিউনিটি বাটন (আপনার লিংকটি বসান)
+    btn2 = types.InlineKeyboardButton("👥 Join Community", url="https://t.me/microtask_earnmoney")
     
-    # মনিট্যাগ ডিরেক্ট লিংক (বটে সরাসরি কাজ করার জন্য)
-    btn3 = types.InlineKeyboardButton("💰 Direct Task", url="আপনার_মনিট্যাগ_ডিরেক্ট_লিংক_এখানে")
-    
-    markup.add(btn1, btn2, btn3)
+    markup.add(btn1, btn2)
     
     welcome_text = (
         "MicroTask V33-এ আপনাকে স্বাগতম! 👋\n\n"
-        "নিচের বাটনগুলো ব্যবহার করে কাজ শুরু করুন এবং আমাদের কমিউনিটিতে যুক্ত থাকুন।"
+        "নিচের বাটনগুলো ব্যবহার করে আপনার ড্যাশবোর্ড ওপেন করুন।"
     )
     bot.send_message(message.chat.id, welcome_text, reply_markup=markup)
 
 def start_bot():
     print("Bot is starting...")
+    # Conflict এরর এড়াতে আগের সেশন ক্লিয়ার করা
     bot.remove_webhook()
     bot.infinity_polling(timeout=20, long_polling_timeout=10)
 
