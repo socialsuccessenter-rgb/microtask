@@ -51,7 +51,7 @@
                 <div class="dollar d1">💵</div><div class="dollar d2">💵</div><div class="dollar d3">💵</div>
             </div>
             <div class="welcome-content">
-                <h2>WELCOME💐!</h2>
+                <h2>  WELCOME💐</h2>
                 <p>সহজ কাজ করুন, প্রতিদিন আয় করুন</p>
             </div>
         </div>
@@ -62,7 +62,7 @@
         </div>
 
         <div class="card">
-            <button id="ad_btn" style="background: linear-gradient(135deg, #e67e22, #f39c12); color: white;" onclick="watchAd()">📺 ভিডিও অ্যাড দেখুন (5৳)</button>
+            <button id="ad_btn" style="background: linear-gradient(135deg, #e67e22, #f39c12); color: white;" onclick="watchAd()">📺 ভিডিও অ্যাড দেখুন (3৳)</button>
             <div class="ad-status">
                 <span id="ad_limit_text">বাকি অ্যাড: 10/10</span><br>
                 <span id="lock_timer" style="color:var(--danger); font-weight:bold;"></span>
@@ -87,7 +87,7 @@
                 <span style="font-size: 18px;">ব্যালেন্স: <span id="bal_p" style="font-weight:bold;">0.00</span> ৳</span>
             </div>
             <p>মোট রেফার: <span id="ref_v" style="font-weight:bold; color: var(--success);">0</span>/15</p>
-            <p style="font-size: 12px; color: var(--warning);">*(প্রতি রেফারে 20৳ বোনাস। টাকা তুলতে 15টি রেফার বাধ্যতামূলক।)</p>
+            <p style="font-size: 12px; color: var(--warning);">*(প্রতি রেফারে 20৳ বোনাস। টাকা তুলতে 15টি এ্যাকটিভ ইউজার রেফার করা বাধ্যতামূলক।)</p>
             <input type="text" id="ref_link" readonly>
             <button style="background: var(--primary); color: white; width: auto; padding: 10px 25px;" onclick="copyRef()">🔗 লিংক কপি</button>
         </div>
@@ -156,24 +156,24 @@
 
             // অ্যাড লিমিট ও টাইমার লজিক
             const now = Date.now();
-            const timeLeft = (lastAdTime + 7200000) - now;
+            const timeLeft = (lastAdTime + 3600000) - now;
 
             if (timeLeft > 0 && adCount >= 10) {
                 document.getElementById('ad_btn').disabled = true;
                 document.getElementById('ad_btn').style.background = "#bdc3c7";
-                document.getElementById('ad_limit_text').innerText = (10/10)";
+                document.getElementById('ad_limit_text').innerText = "অ্যাড লিমিট শেষ (10/10)";
                 startTimer(timeLeft);
             } else {
                 if (timeLeft <= 0) { adCount = 0; localStorage.setItem('ad_count_' + uid, 0); }
                 document.getElementById('ad_btn').disabled = false;
                 document.getElementById('ad_btn').style.background = "linear-gradient(135deg, #e67e22, #f39c12)";
-                document.getElementById('ad_limit_text').innerText = "বাকি অ্যাড: " + (10 - adCount) + "10/";
+                document.getElementById('ad_limit_text').innerText = "বাকি অ্যাড: " + (10 - adCount) + "/10";
                 document.getElementById('lock_timer').innerText = "";
             }
         }
 
         function startTimer(duration) {
-            let timer = Math.floor(duration / 1334);
+            let timer = Math.floor(duration / 1000);
             const interval = setInterval(() => {
                 let mins = Math.floor(timer / 60);
                 let secs = timer % 60;
@@ -185,13 +185,13 @@
         function watchAd() {
             if (typeof show_10582159 === 'function') {
                 show_10582159().then(() => {
-                    balance += 5;
+                    balance += 3;
                     adCount++;
                     if (adCount === 1) { lastAdTime = Date.now(); localStorage.setItem('last_time_' + uid, lastAdTime); }
                     localStorage.setItem('bal_' + uid, balance);
                     localStorage.setItem('ad_count_' + uid, adCount);
                     updateUI();
-                    tg.showAlert("অভিনন্দন! 5৳ যোগ হয়েছে।");
+                    tg.showAlert("অভিনন্দন! 3৳ যোগ হয়েছে।");
                 }).catch(() => { tg.showAlert("অ্যাড সম্পূর্ণ হয়নি।"); });
             } else { tg.showAlert("অ্যাড লোড হচ্ছে..."); }
         }
@@ -201,7 +201,7 @@
             window.open('https://www.facebook.com/profile.php?id=61585605224547', '_blank');
             tg.showConfirm("আপনি কি ফলো করেছেন?", (confirmed) => {
                 if(confirmed) {
-                    balance += 5; isFBDone = true;
+                    balance += 10; isFBDone = true;
                     localStorage.setItem('bal_' + uid, balance);
                     localStorage.setItem('fb_task_' + uid, 'done');
                     updateUI();
@@ -226,5 +226,4 @@
         updateUI();
     </script>
 </body>
-
-
+</html>
