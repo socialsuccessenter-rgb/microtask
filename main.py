@@ -2,7 +2,7 @@ import telebot
 from telebot import types
 
 # আপনার সঠিক বটের টোকেন
-TOKEN = '8316197397:AAEvxOwBbJhlVDTBHAcDUCTLFAc_mh2P30g'
+TOKEN = '8316197397:AAFNu5QAyc5xOlUUjhfEY-ziySR2FHDtYFc'
 bot = telebot.TeleBot(TOKEN)
 
 # আপনার রেন্ডার ওয়েব অ্যাপ লিংক
@@ -55,3 +55,4 @@ def send_welcome(message):
 if __name__ == "__main__":
     print("Bot is running perfectly...")
     bot.infinity_polling()
+
