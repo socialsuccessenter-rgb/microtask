@@ -1,55 +1,56 @@
 import telebot
 from telebot import types
+import os
+from flask import Flask
+from threading import Thread
 
-# আপনার সঠিক বটের টোকেন
+# ১. Flask সার্ভার (যাতে রেন্ডার 'Not Found' বা 'Timed Out' না দেখায়)
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    # এটি নিশ্চিত করবে আপনার সার্ভার লাইভ আছে
+    return "MicroTask V33 is officially LIVE!"
+
+def run_flask():
+    port = int(os.environ.get('PORT', 8080))
+    app.run(host='0.0.0.0', port=port)
+
+# ২. আপনার এপিআই টোকেন
 TOKEN = '8316197397:AAHEXMyxtorkxnYx-Q574Vi_aeiFt2VUspg'
 bot = telebot.TeleBot(TOKEN)
 
-# আপনার রেন্ডার ওয়েব অ্যাপ লিংক
-WEB_APP_URL = "https://microtask-bb30.onrender.com"
-
+# ৩. বটের মেসেজ হ্যান্ডলার
 @bot.message_handler(commands=['start'])
-def send_welcome(message):
-    user_id = message.chat.id
+def welcome(message):
+    markup = types.InlineKeyboardMarkup(row_width=1)
     
-    # আকর্ষণীয় এবং রহস্যময় স্বাগতম মেসেজ
-    welcome_text = (
-        "🌟 **আপনার ডিজিটাল আয়ের নতুন যাত্রা শুরু হোক এখানে!**\n\n"
-        "সবচেয়ে সহজ এবং আধুনিক পদ্ধতিতে ঘরে বসে কাজ করার সুযোগ নিয়ে এলো **MicroTask V33**। 🚀\n\n"
-        "প্রতিটি সেকেন্ডকে কাজে লাগিয়ে নিজেকে বদলে ফেলার সময় এখন। আমাদের বিশেষ ইন্টারফেস আপনার কাজের অভিজ্ঞতাকে করবে আরও আনন্দদায়ক। ✨\n\n"
-        "নিচের ম্যাজিক বাটনে ক্লিক করে আপনার ব্যক্তিগত ড্যাশবোর্ডটি আনলক করুন! 🗝️"
+    # আপনার ড্যাশবোর্ড লিংক (ব্রাউজারে কাজ করার জন্য)
+    dashboard_url = "https://microtask-bb30.onrender.com"
+    btn1 = types.InlineKeyboardButton("🚀 Open Dashboard", url=dashboard_url)
+    
+    # কমিউনিটি বাটন
+    btn2 = types.InlineKeyboardButton("👥 Join Community", url="https://t.me/microtask_earnmoney")
+    
+    markup.add(btn1, btn2)
+    
+    bot.send_message(
+        message.chat.id, 
+        "সালাম ভাই! বট এখন সচল। নিচের বাটন থেকে ড্যাশবোর্ড দেখুন।", 
+        reply_markup=markup
     )
 
-    # ইনলাইন কিবোর্ড বাটন তৈরি
-    markup = types.InlineKeyboardMarkup()
-    
-    # বাটনের নামও আকর্ষণীয় করা হয়েছে
-    dashboard_button = types.InlineKeyboardButton(
-        text="🚀 ড্যাশবোর্ড আনলক করুন", 
-        web_app=types.WebAppInfo(url=WEB_APP_URL)
-    )
-    
-    # সাপোর্ট বাটন
-    support_button = types.InlineKeyboardButton(
-        text="💬 অফিসিয়াল কমিউনিটি", 
-        url="https://t.me/microtask_earnmoney"
-    )
-    
-    markup.add(dashboard_button)
-    markup.add(support_button)
+def start_bot():
+    # কনফ্লিক্ট বা Error 409 এড়াতে এই ধাপটি জরুরি
+    bot.remove_webhook()
+    print("Bot is starting to poll...")
+    bot.infinity_polling(timeout=20, long_polling_timeout=10)
 
-    # মেসেজ সেন্ড করা
-    try:
-        bot.send_message(
-            user_id, 
-            welcome_text, 
-            parse_mode="Markdown", 
-            reply_markup=markup
-        )
-    except Exception as e:
-        print(f"Error sending message: {e}")
-
-# বটটি সচল রাখার জন্য পোলিং
 if __name__ == "__main__":
-    print("Bot is running perfectly...")
-    bot.infinity_polling()
+    # Flask চালু করা
+    t = Thread(target=run_flask)
+    t.daemon = True
+    t.start()
+    
+    # বট চালু করা
+    start_bot()
