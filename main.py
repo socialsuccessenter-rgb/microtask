@@ -4,58 +4,74 @@ import os
 from flask import Flask
 from threading import Thread
 
-# ১. ড্যাশবোর্ড বা চেহারার অংশ
-app = Flask(__name__)
-
+# Flask server for Render
+app = Flask('')
 @app.route('/')
 def home():
-    return """
-    <!DOCTYPE html>
-    <html lang="bn">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <script src="https://telegram.org/js/telegram-web-app.js"></script>
-        <style>
-            body { background: #0f172a; color: white; text-align: center; font-family: sans-serif; margin:0; padding: 20px; }
-            .card { background: #1e293b; padding: 30px; border-radius: 20px; border: 2px solid #38bdf8; display: block; margin-top: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-            h1 { color: #38bdf8; font-size: 24px; }
-            .balance { font-size: 40px; color: #4ade80; font-weight: bold; margin: 20px 0; }
-            .btn { background: #38bdf8; color: #0f172a; padding: 15px; border-radius: 12px; text-decoration: none; font-weight: bold; display: block; width: 100%; border: none; font-size: 18px; }
-        </style>
-    </head>
-    <body onload="window.Telegram.WebApp.expand()">
-        <div class="card">
-            <h1>🚀 MicroTask V33</h1>
-            <p>আপনার ব্যক্তিগত মিনি অ্যাপ</p>
-            <div class="balance">$0.018</div>
-            <a href="https://microtask-bb30.onrender.com" class="btn">কাজ শুরু করুন 💰</a>
-        </div>
-        <script>
-            const webapp = window.Telegram.WebApp;
-            webapp.ready();
-            webapp.expand();
-        </script>
-    </body>
-    </html>
-    """
+    return "MicroTask Bot is Online!"
 
 def run():
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
 
-# ২. বটের মস্তিষ্ক (আপনার নতুন টোকেন ও লিংক)
-TOKEN = '8316197397:AAE0e7fmbYNCtPv7pBgRk6WI1AktYtvQKrg'
+# আপনার বটের টোকেন
+TOKEN = '8316197397:AAEL-0RFuJmC2VVM6V_1Yb5zkFoyXnY3rtU'
 bot = telebot.TeleBot(TOKEN)
-URL = "https://microtask-bb30.onrender.com"
+
+# আপনার রেন্ডার ওয়েব অ্যাপ লিংক
+WEB_APP_URL = "https://microtask-bb30.onrender.com"
 
 @bot.message_handler(commands=['start'])
-def start(message):
-    markup = types.InlineKeyboardMarkup()
-    # WebApp সরাসরি ওপেন করার সঠিক নিয়ম
-    markup.add(types.InlineKeyboardButton("🚀 Open Dashboard", web_app=types.WebAppInfo(url=URL)))
-    bot.send_message(message.chat.id, "সালাম ভাই! এবার সব ঠিক আছে। নিচের বাটনে ক্লিক করুন।", reply_markup=markup)
+def send_welcome(message):
+    user_id = message.chat.id
+    username = message.from_user.first_name
+    
+    # রেফারেল চেক (যদি কেউ লিংকের মাধ্যমে আসে)
+    text_args = message.text.split()
+    if len(text_args) > 1:
+        referrer_id = text_args[1]
+        if str(referrer_id) != str(user_id):
+            print(f"User {user_id} was referred by {referrer_id}")
+            # এখানে আপনি ডাটাবেসে পয়েন্ট যোগ করার কোড রাখতে পারেন
+
+    welcome_text = (
+        f"👋 **Hello {username}!**\n\n"
+        "Welcome to **MicroTask V33**. Start earning by completing simple tasks! 🚀"
+    )
+
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    
+    # প্রধান বাটনগুলো
+    btn_dashboard = types.InlineKeyboardButton("🚀 Unlock Dashboard", web_app=types.WebAppInfo(url=WEB_APP_URL))
+    
+    # রেফারেল বাটন (ইউজারের নিজস্ব আইডি দিয়ে লিংক তৈরি হবে)
+    refer_link = f"https://t.me/MicroTask_V33_earning_bot?start={user_id}"
+    btn_refer = types.InlineKeyboardButton("🎁 Refer & Earn", callback_data="refer_info")
+    
+    btn_support = types.InlineKeyboardButton("💬 Join Community", url="https://t.me/microtask_earnmoney")
+    
+    markup.add(btn_dashboard, btn_refer, btn_support)
+
+    bot.send_message(user_id, welcome_text, parse_mode="Markdown", reply_markup=markup)
+
+# রেফার বাটনে ক্লিক করলে কি হবে
+@bot.callback_query_handler(func=lambda call: call.data == "refer_info")
+def refer_details(call):
+    user_id = call.from_user.id
+    refer_link = f"https://t.me/MicroTask_V33_earning_bot?start={user_id}"
+    
+    refer_msg = (
+        "📢 **Referral Program**\n\n"
+        "Invite your friends and earn bonus points for every active user! 💸\n\n"
+        f"🔗 **Your Referral Link:**\n`{refer_link}`\n\n"
+        "Copy and share this link to start earning!"
+    )
+    bot.answer_callback_query(call.id)
+    bot.send_message(user_id, refer_msg, parse_mode="Markdown")
+
+def start_bot():
+    bot.infinity_polling()
 
 if __name__ == "__main__":
-    Thread(target=run).start()
-    bot.remove_webhook()
-    bot.infinity_polling()
+    t = Thread(target=run)
+    t.start()
+    start_bot()
