@@ -6,7 +6,7 @@ from threading import Thread
 
 app = Flask(__name__)
 
-# এটিই আপনার সেই সুন্দর ড্যাশবোর্ড যা এখন সরাসরি ওপেন হবে
+# এই অংশটি আপনার সেই সুন্দর ড্যাশবোর্ডটি দেখাবে
 @app.route('/')
 def home():
     return """
@@ -46,11 +46,11 @@ WEB_APP_URL = "https://microtask-bb30.onrender.com"
 @bot.message_handler(commands=['start'])
 def start(message):
     markup = types.InlineKeyboardMarkup()
-    # Mini App হিসেবে ওপেন করার জন্য সঠিক কনফিগারেশন
+    # টেলিগ্রাম মিনি অ্যাপ হিসেবে ওপেন হবে
     web_app = types.WebAppInfo(url=WEB_APP_URL)
     btn1 = types.InlineKeyboardButton("🚀 Open Dashboard", web_app=web_app)
     markup.add(btn1)
-    bot.send_message(message.chat.id, "MicroTask V33-এ স্বাগতম! ড্যাশবোর্ড ওপেন করতে নিচের বাটনে ক্লিক করুন:", reply_markup=markup)
+    bot.send_message(message.chat.id, "MicroTask V33-এ স্বাগতম! নিচের বাটনে ক্লিক করে কাজ শুরু করুন:", reply_markup=markup)
 
 def start_bot():
     bot.remove_webhook()
