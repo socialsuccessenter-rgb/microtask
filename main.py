@@ -4,90 +4,54 @@ import os
 from flask import Flask
 from threading import Thread
 
-# Flask server setting for Render
+# 1. Setup Flask for the Dashboard
 app = Flask('')
 
 @app.route('/')
 def home():
-    # এটি আপনার ড্যাশবোর্ডের ডিজাইন, যা কালো স্ক্রিন সমস্যার সমাধান করবে
+    # This HTML is what users see when they click "Open Dashboard"
     return """
     <!DOCTYPE html>
-    <html lang="en">
+    <html>
     <head>
-        <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>MicroTask V33 Dashboard</title>
         <style>
-            body { 
-                background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
-                color: white; font-family: 'Segoe UI', sans-serif; 
-                text-align: center; padding: 20px; margin: 0;
-                display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;
-            }
-            .container { background: rgba(255, 255, 255, 0.05); padding: 30px; border-radius: 20px; border: 1px solid #38bdf8; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 80%; }
-            h1 { color: #38bdf8; margin-bottom: 10px; }
-            .balance { font-size: 24px; margin: 20px 0; color: #4ade80; }
-            .btn { 
-                background: #38bdf8; color: #0f172a; padding: 12px 25px; 
-                text-decoration: none; border-radius: 10px; font-weight: bold; 
-                display: inline-block; transition: 0.3s;
-            }
-            .btn:hover { transform: scale(1.05); background: #7dd3fc; }
+            body { background: #0f172a; color: white; font-family: sans-serif; text-align: center; padding: 50px 20px; }
+            .card { background: #1e293b; padding: 30px; border-radius: 20px; border: 1px solid #38bdf8; }
+            .btn { background: #38bdf8; color: #0f172a; padding: 15px 30px; border-radius: 10px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 20px; }
         </style>
     </head>
     <body>
-        <div class="container">
+        <div class="card">
             <h1>MicroTask V33</h1>
-            <p>Welcome to your official earning portal!</p>
-            <div class="balance">Current Balance: $0.00</div>
-            <a href="আপনার_মনিট্যাগ_ডিরেক্ট_লিংক_এখানে_দিন" class="btn">Start Earning Now 💸</a>
+            <p>Welcome to your active dashboard!</p>
+            <div style="font-size: 24px; color: #4ade80; margin: 20px 0;">Balance: $0.018</div>
+            <a href="YOUR_MONETAG_DIRECT_LINK_HERE" class="btn">START EARNING</a>
         </div>
     </body>
     </html>
     """
 
 def run():
+    # Port binding for Render to avoid "Timed Out"
     port = int(os.environ.get('PORT', 8080))
     app.run(host='0.0.0.0', port=port)
 
-# আপনার দেওয়া নতুন এপিআই টোকেন
+# 2. Setup Telegram Bot
 TOKEN = '8316197397:AAFLdurYzD6IaFYKv0xQT1zb7rZKMvX1N7w'
 bot = telebot.TeleBot(TOKEN)
-
-# আপনার রেন্ডার ওয়েব অ্যাপ লিংক
 WEB_APP_URL = "https://microtask-bb30.onrender.com"
 
 @bot.message_handler(commands=['start'])
-def send_welcome(message):
-    user_id = message.chat.id
-    welcome_text = (
-        "🌟 **MicroTask V33-এ আপনাকে স্বাগতম!**\n\n"
-        "সবচেয়ে সহজ পদ্ধতিতে অনলাইনে আয়ের দুনিয়ায় প্রবেশ করুন। 🚀\n\n"
-        "নিচের বাটনে ক্লিক করে আপনার পার্সোনাল ড্যাশবোর্ডটি ওপেন করুন।"
-    )
-
+def start(message):
     markup = types.InlineKeyboardMarkup()
-    # ড্যাশবোর্ড বাটন
-    dashboard_button = types.InlineKeyboardButton(
-        text="🚀 Open Dashboard", 
-        web_app=types.WebAppInfo(url=WEB_APP_URL)
-    )
-    # কমিউনিটি বাটন
-    support_button = types.InlineKeyboardButton(
-        text="💬 Join Community", 
-        url="https://t.me/microtask_earnmoney"
-    )
+    # This button opens the WebApp Dashboard
+    web_button = types.InlineKeyboardButton("🚀 Open Dashboard", web_app=types.WebAppInfo(url=WEB_APP_URL))
+    markup.add(web_button)
     
-    markup.add(dashboard_button)
-    markup.add(support_button)
-
-    try:
-        bot.send_message(user_id, welcome_text, parse_mode="Markdown", reply_markup=markup)
-    except Exception as e:
-        print(f"Error: {e}")
+    bot.send_message(message.chat.id, "Welcome! Click below to start.", reply_markup=markup)
 
 def start_bot():
-    print("Bot is running...")
     bot.remove_webhook()
     bot.infinity_polling()
 
