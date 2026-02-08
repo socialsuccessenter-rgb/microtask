@@ -1,52 +1,64 @@
 import telebot
 from telebot import types
-from flask import Flask, render_template, make_response
 import os
+from flask import Flask
+from threading import Thread
 
-# ১. আপনার বটের টোকেন
-TOKEN = '8316197397:AAFNu5QAyc5xOlUUjhfEY-ziySR2FHDtYFc'
-bot = telebot.TeleBot(TOKEN)
-WEB_APP_URL = "https://microtask-bb30.onrender.com"
-
-# ২. Flask সেটআপ
 app = Flask(__name__)
 
-# --- বটের কমান্ড হ্যান্ডলার ---
-@bot.message_handler(commands=['start'])
-def send_welcome(message):
-    markup = types.InlineKeyboardMarkup()
-    # সরাসরি আপনার ওয়েব অ্যাপ ওপেন করবে
-    dashboard_button = types.InlineKeyboardButton(
-        text="💰 কাজ শুরু করুন / ড্যাশবোর্ড", 
-        web_app=types.WebAppInfo(url=WEB_APP_URL)
-    )
-    markup.add(dashboard_button)
-    
-    bot.send_message(
-        message.chat.id, 
-        "স্বাগতম! ড্যাশবোর্ড ওপেন করতে নিচের বাটনে ক্লিক করুন।", 
-        reply_markup=markup
-    )
-
-# --- Flask এর রুট (যেখানে HTML লোড হবে) ---
+# এই অংশটিই আপনার ড্যাশবোর্ড বা মিনি অ্যাপের চেহারা
 @app.route('/')
-def index():
-    # আপনার অরিজিনাল HTML ফাইলটি 'templates/index.html' হিসেবে থাকতে হবে
-    response = make_response(render_template('index.html'))
-    
-    # সিকিউরিটি হেডার যা টেলিগ্রামে পেজ লোড করতে সাহায্য করবে
-    response.headers['Content-Security-Policy'] = "frame-ancestors https://t.me https://web.telegram.org;"
-    response.headers['X-Frame-Options'] = 'ALLOWALL'
-    return response
+def home():
+    return """
+    <!DOCTYPE html>
+    <html lang="bn">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <script src="https://telegram.org/js/telegram-web-app.js"></script>
+        <style>
+            body { background: #0f172a; color: white; text-align: center; font-family: sans-serif; margin:0; padding: 20px; overflow: hidden; }
+            .card { background: #1e293b; padding: 30px; border-radius: 20px; border: 2px solid #38bdf8; display: block; margin-top: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+            .rocket { font-size: 50px; }
+            h1 { color: #38bdf8; font-size: 24px; margin: 10px 0; }
+            .balance { font-size: 40px; color: #4ade80; font-weight: bold; margin: 20px 0; }
+            .btn { background: #38bdf8; color: #0f172a; padding: 15px; border-radius: 12px; text-decoration: none; font-weight: bold; display: block; width: 100%; border: none; font-size: 18px; cursor: pointer; }
+        </style>
+    </head>
+    <body onload="window.Telegram.WebApp.expand()">
+        <div class="card">
+            <div class="rocket">🚀</div>
+            <h1>MicroTask V33</h1>
+            <p>আপনার ব্যক্তিগত মিনি অ্যাপ</p>
+            <div class="balance">$0.018</div>
+            <button class="btn" onclick="location.reload()">কাজ শুরু করুন 💰</button>
+        </div>
+        <script>
+            const webapp = window.Telegram.WebApp;
+            webapp.ready();
+            webapp.expand(); // এটি অ্যাপটিকে সরাসরি বড় করে খুলবে
+        </script>
+    </body>
+    </html>
+    """
 
-# --- রেন্ডারের জন্য বট এবং সার্ভার ম্যানেজমেন্ট ---
-# টেলিগ্রাম বটের জন্য ওয়েব হুক বা থ্রেডিং ঝামেলা এড়াতে রেন্ডারে একটি নির্দিষ্ট রুট ব্যবহার করা হয়
-@app.route('/' + TOKEN, methods=['POST'])
-def getMessage():
-    bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
-    return "!", 200
+def run():
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
+
+# আপনার দেওয়া একদম নতুন টোকেন এখানে বসানো হয়েছে
+TOKEN = '8316197397:AAHEr61mYN9wF5wzGh3SpLbM-UUcGP-TrPc'
+bot = telebot.TeleBot(TOKEN)
+URL = "https://microtask-bb30.onrender.com"
+
+@bot.message_handler(commands=['start'])
+def start(message):
+    markup = types.InlineKeyboardMarkup()
+    # এই বাটনটি চাপলে সরাসরি উপরের HTML পেজটি ওপেন হবে
+    markup.add(types.InlineKeyboardButton("🚀 ড্যাশবোর্ড আনলক করুন", web_app=types.WebAppInfo(url=URL)))
+    
+    bot.send_message(message.chat.id, "সালাম! আপনার ড্যাশবোর্ড তৈরি। নিচের বাটনে ক্লিক করুন।", reply_markup=markup)
 
 if __name__ == "__main__":
-    # Render এর দেওয়া পোর্টে রান হবে
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    Thread(target=run).start()
+    bot.remove_webhook()
+    bot.infinity_polling()
