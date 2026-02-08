@@ -3,7 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
     <title>Microtask Final V33</title>
+    <meta name="description" content="সহজ কাজ করুন, প্রতিদিন আয় করুন। ২৪ ঘন্টার মধ্যে নিশ্চিত পেমেন্ট! 💰">
+    <meta property="og:title" content="MicroTask V33 - অনলাইন ইনকাম বট">
+    <meta property="og:description" content="প্রতিদিন ছোট ছোট কাজ করে ১০০% পেমেন্ট বুঝে নিন। এখনই জয়েন করুন! 🚀">
+    <meta property="og:image" content="https://i.ibb.co.com/FLhY69gK/IMG-20260208-005607.png">
+    <meta property="og:url" content="https://microtask-bb30.onrender.com">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://i.ibb.co.com/FLhY69gK/IMG-20260208-005607.png">
     
     <script src='//libtl.com/sdk.js' data-zone='10582159' data-sdk='show_10582159'></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -51,7 +60,7 @@
                 <div class="dollar d1">💵</div><div class="dollar d2">💵</div><div class="dollar d3">💵</div>
             </div>
             <div class="welcome-content">
-                <h2>  WELCOME💐</h2>
+                <h2>   WELCOME💐!</h2>
                 <p>সহজ কাজ করুন, প্রতিদিন আয় করুন</p>
             </div>
         </div>
@@ -62,7 +71,7 @@
         </div>
 
         <div class="card">
-            <button id="ad_btn" style="background: linear-gradient(135deg, #e67e22, #f39c12); color: white;" onclick="watchAd()">📺 ভিডিও অ্যাড দেখুন (3৳)</button>
+            <button id="ad_btn" style="background: linear-gradient(135deg, #e67e22, #f39c12); color: white;" onclick="watchAd()">📺 ভিডিও অ্যাড দেখুন (2৳)</button>
             <div class="ad-status">
                 <span id="ad_limit_text">বাকি অ্যাড: 10/10</span><br>
                 <span id="lock_timer" style="color:var(--danger); font-weight:bold;"></span>
@@ -86,8 +95,8 @@
             <div style="background: #ebf5fb; padding: 12px; border-radius: 10px; margin: 10px 0;">
                 <span style="font-size: 18px;">ব্যালেন্স: <span id="bal_p" style="font-weight:bold;">0.00</span> ৳</span>
             </div>
-            <p>মোট রেফার: <span id="ref_v" style="font-weight:bold; color: var(--success);">0</span>/15</p>
-            <p style="font-size: 12px; color: var(--warning);">*(প্রতি রেফারে 20৳ বোনাস। টাকা তুলতে 15টি এ্যাকটিভ ইউজার রেফার করা বাধ্যতামূলক।)</p>
+            <p>মোট রেফার: <span id="ref_v" style="font-weight:bold; color: var(--success);">0</span>/13</p>
+            <p style="font-size: 12px; color: var(--warning);">*(প্রতি রেফারে 20৳ বোনাস। টাকা তুলতে 13টি রেফার বাধ্যতামূলক।)</p>
             <input type="text" id="ref_link" readonly>
             <button style="background: var(--primary); color: white; width: auto; padding: 10px 25px;" onclick="copyRef()">🔗 লিংক কপি</button>
         </div>
@@ -109,3 +118,138 @@
     <div id="support" class="page">
         <div class="card">
             <h2 style="color: #c0392b;">🆘 হেল্প সেন্টার</h2>
+            <p style="font-size: 14px; color: #7f8c8d; line-height: 1.6; text-align: left; padding: 0 10px;">
+                পেমেন্ট পেতে সমস্যা হলে বা কোনো প্রশ্ন থাকলে আমাদের টেলিগ্রাম চ্যানেলে যুক্ত হোন। আমরা ২৪ ঘণ্টার মধ্যে সকল পেমেন্ট ক্লিয়ার করে থাকি। <br><br>
+                <b>সাপোর্ট সময়:</b> সকাল ১০টা - রাত ১০টা।
+            </p>
+            <button style="background: #0088cc; color: white;" onclick="window.open('https://t.me/microtask_earnmoney')">💬 আমাদের টেলিগ্রাম চ্যানেল</button>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="showP('home', this)">🏠 হোম</div>
+        <div class="nav-item" onclick="showP('tasks', this)">📋 টাস্ক</div>
+        <div class="nav-item" onclick="showP('profile', this)">👤 প্রোফাইল</div>
+        <div class="nav-item" onclick="showP('support', this)">💬 সাপোর্ট</div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        const uid = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id.toString() : "user_test";
+        document.getElementById('u_id').innerText = uid;
+
+        let balance = parseFloat(localStorage.getItem('bal_' + uid)) || 0;
+        let refs = parseInt(localStorage.getItem('ref_' + uid)) || 0;
+        let adCount = parseInt(localStorage.getItem('ad_count_' + uid)) || 0;
+        let lastAdTime = parseInt(localStorage.getItem('last_time_' + uid)) || 0;
+        let isFBDone = localStorage.getItem('fb_task_' + uid) === 'done';
+
+        function updateUI() {
+            document.getElementById('bal_v').innerText = balance.toFixed(2);
+            document.getElementById('bal_p').innerText = balance.toFixed(2);
+            document.getElementById('ref_v').innerText = refs;
+            document.getElementById('ref_link').value = "https://t.me/microtask_earnmoney_bot?start=" + uid;
+
+            if(isFBDone) {
+                document.getElementById('fb_task_area').innerHTML = "<p style='color:var(--success); font-weight:bold;'>✅ ফেসবুক টাস্ক সম্পন্ন হয়েছে</p>";
+            }
+
+            const wBtn = document.getElementById('withdraw_btn');
+            if(refs >= 13 && balance >= 700) {
+                wBtn.disabled = false; wBtn.style.background = "var(--success)";
+            } else {
+                wBtn.disabled = true; wBtn.style.background = "#bdc3c7";
+            }
+
+            const now = Date.now();
+            const timeLeft = (lastAdTime + 14400000) - now;
+
+            if (timeLeft > 0 && adCount >= 10) {
+                document.getElementById('ad_btn').disabled = true;
+                document.getElementById('ad_btn').style.background = "#bdc3c7";
+                document.getElementById('ad_limit_text').innerText = "অ্যাড লিমিট শেষ (10/10)";
+                startTimer(timeLeft);
+            } else {
+                if (timeLeft <= 0) { adCount = 0; localStorage.setItem('ad_count_' + uid, 0); }
+                document.getElementById('ad_btn').disabled = false;
+                document.getElementById('ad_btn').style.background = "linear-gradient(135deg, #e67e22, #f39c12)";
+                document.getElementById('ad_limit_text').innerText = "বাকি অ্যাড: " + (10 - adCount) + "/10";
+                document.getElementById('lock_timer').innerText = "";
+            }
+        }
+
+        function startTimer(duration) {
+            let timer = Math.floor(duration / 1000);
+            const interval = setInterval(() => {
+                let mins = Math.floor(timer / 60);
+                let secs = timer % 60;
+                document.getElementById('lock_timer').innerText = "আবার চালু হবে: " + mins + "মিঃ " + secs + "সেঃ পর";
+                if (--timer < 0) { clearInterval(interval); updateUI(); }
+            }, 1000);
+        }
+
+        // 🟢 ২০ সেকেন্ড টাইমারসহ আপডেট করা watchAd ফাংশন 🟢
+        function watchAd() {
+            if (typeof show_10582159 === 'function') {
+                const btn = document.getElementById('ad_btn');
+                btn.disabled = true;
+                btn.innerText = "অ্যাড চলছে (২০সেঃ)...";
+
+                show_10582159().then(() => {
+                    // ২০ সেকেন্ড (২০০০ মি.সে.) অপেক্ষা লজিক
+                    setTimeout(() => {
+                        balance += 2;
+                        adCount++;
+                        if (adCount === 1) { 
+                            lastAdTime = Date.now(); 
+                            localStorage.setItem('last_time_' + uid, lastAdTime); 
+                        }
+                        localStorage.setItem('bal_' + uid, balance);
+                        localStorage.setItem('ad_count_' + uid, adCount);
+                        
+                        btn.innerText = "📺 ভিডিও অ্যাড দেখুন (2৳)";
+                        updateUI();
+                        tg.showAlert("Congratulations! ২০ সেকেন্ড সফলভাবে দেখা হয়েছে এবং ২৳ যোগ হয়েছে।");
+                    }, 20000); 
+                }).catch(() => { 
+                    btn.disabled = false;
+                    btn.innerText = "📺 ভিডিও অ্যাড দেখুন (2৳)";
+                    tg.showAlert("অ্যাড সম্পূর্ণ হয়নি।"); 
+                });
+            } else { 
+                tg.showAlert("অ্যাড লোড হচ্ছে..."); 
+            }
+        }
+
+        function doFBTask() {
+            if(isFBDone) return;
+            window.open('https://www.facebook.com/profile.php?id=61585605224547', '_blank');
+            tg.showConfirm("আপনি কি ফলো করেছেন?", (confirmed) => {
+                if(confirmed) {
+                    balance += 5; isFBDone = true;
+                    localStorage.setItem('bal_' + uid, balance);
+                    localStorage.setItem('fb_task_' + uid, 'done');
+                    updateUI();
+                }
+            });
+        }
+
+        function requestWithdraw() { tg.showAlert("আপনার উইথড্র রিকোয়েস্টটি পেন্ডিং আছে। ২৪ ঘণ্টার মধ্যে পেমেন্ট পাবেন।"); }
+        function copyRef() { 
+            document.getElementById('ref_link').select();
+            document.execCommand('copy');
+            tg.showAlert("লিংক কপি হয়েছে! বন্ধুদের ইনভাইট করুন।"); 
+        }
+
+        function showP(id, el) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById(id).classList.add('active-page');
+            el.classList.add('active');
+        }
+
+        updateUI();
+    </script>
+</body>
+</html>
