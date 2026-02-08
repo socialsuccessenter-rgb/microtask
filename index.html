@@ -1,6 +1,118 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
+    <!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Microtask Final V33</title>
+    
+    <script src='//libtl.com/sdk.js' data-zone='10582159' data-sdk='show_10582159'></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <style>
+        :root { --primary: #3498db; --success: #2ecc71; --warning: #f39c12; --danger: #e74c3c; --bg: #f8f9fa; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; user-select: none; }
+        .page { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
+        .active-page { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* এনিমেটেড কার্ড ও ডলার রেইন */
+        .welcome-card {
+            position: relative; width: 100%; height: 160px;
+            background: linear-gradient(-45deg, #2575fc, #6a11cb, #2ecc71, #3498db);
+            background-size: 400% 400%; animation: gradientBG 10s ease infinite;
+            border-radius: 20px; overflow: hidden; margin-bottom: 20px;
+            display: flex; align-items: center; justify-content: center; color: white;
+            box-shadow: 0 10px 20px rgba(37, 117, 252, 0.3);
+        }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        .dollar-rain { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .dollar { position: absolute; top: -50px; font-size: 24px; animation: fall linear infinite; }
+        @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(200px) rotate(360deg); opacity: 0; } }
+        .d1 { left: 15%; animation-duration: 3s; } .d2 { left: 45%; animation-duration: 4s; } .d3 { left: 75%; animation-duration: 2.5s; }
+
+        .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; text-align: center; }
+        h1 { margin: 10px 0; font-size: 32px; color: #2c3e50; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        
+        select, input { width: 95%; padding: 12px; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; text-align: center; font-size: 14px; }
+        .ad-status { font-size: 14px; margin-top: 10px; padding: 10px; border-radius: 10px; background: #f0f3f5; color: #555; }
+        
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #eee; z-index: 100; left: 0; }
+        .nav-item { text-align: center; font-size: 12px; color: #95a5a6; cursor: pointer; flex: 1; padding: 12px 0; }
+        .nav-item.active { color: var(--primary); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="home" class="page active-page">
+        <div class="welcome-card">
+            <div class="dollar-rain">
+                <div class="dollar d1">💵</div><div class="dollar d2">💵</div><div class="dollar d3">💵</div>
+            </div>
+            <div class="welcome-content">
+                <h2>  WELCOME💐</h2>
+                <p>সহজ কাজ করুন, প্রতিদিন আয় করুন</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>💰 বর্তমান ইনকাম</h3>
+            <h1><span id="bal_v">0.00</span> ৳</h1>
+        </div>
+
+        <div class="card">
+            <button id="ad_btn" style="background: linear-gradient(135deg, #e67e22, #f39c12); color: white;" onclick="watchAd()">📺 ভিডিও অ্যাড দেখুন (3৳)</button>
+            <div class="ad-status">
+                <span id="ad_limit_text">বাকি অ্যাড: 10/10</span><br>
+                <span id="lock_timer" style="color:var(--danger); font-weight:bold;"></span>
+            </div>
+        </div>
+    </div>
+
+    <div id="tasks" class="page">
+        <div class="card">
+            <h2 style="color: var(--primary);">🎯 সোশ্যাল টাস্ক</h2>
+            <div id="fb_task_area">
+                <button style="background: #3b5998; color: white;" onclick="doFBTask()">👤 ফেসবুক ফলো করুন (10৳)</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="profile" class="page">
+        <div class="card">
+            <h2>👤 প্রোফাইল</h2>
+            <p>আইডি: <span id="u_id" style="font-weight:bold; color: var(--primary);"></span></p>
+            <div style="background: #ebf5fb; padding: 12px; border-radius: 10px; margin: 10px 0;">
+                <span style="font-size: 18px;">ব্যালেন্স: <span id="bal_p" style="font-weight:bold;">0.00</span> ৳</span>
+            </div>
+            <p>মোট রেফার: <span id="ref_v" style="font-weight:bold; color: var(--success);">0</span>/15</p>
+            <p style="font-size: 12px; color: var(--warning);">*(প্রতি রেফারে 20৳ বোনাস। টাকা তুলতে 15টি এ্যাকটিভ ইউজার রেফার করা বাধ্যতামূলক।)</p>
+            <input type="text" id="ref_link" readonly>
+            <button style="background: var(--primary); color: white; width: auto; padding: 10px 25px;" onclick="copyRef()">🔗 লিংক কপি</button>
+        </div>
+        
+        <div class="card">
+            <h4>💸 উত্তোলন (মিনিমাম ৭০০৳)</h4>
+            <select id="w_method">
+                <option value="">পেমেন্ট মেথড সিলেক্ট করুন</option>
+                <option value="বিকাশ">বিকাশ</option>
+                <option value="নগদ">নগদ</option>
+                <option value="রকেট">রকেট</option>
+            </select>
+            <input type="number" id="w_amt" placeholder="টাকার পরিমাণ">
+            <input type="text" id="w_num" placeholder="মোবাইল নম্বর">
+            <button id="withdraw_btn" style="background: #bdc3c7; color: white;" disabled onclick="requestWithdraw()">উইথড্র দিন</button>
+        </div>
+    </div>
+
+    <div id="support" class="page">
+        <div class="card">
+            <h2 style="color: #c0392b;">🆘 হেল্প সেন্টার</h2>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Microtask Final V33</title>
@@ -227,3 +339,4 @@
     </script>
 </body>
 </html>
+
