@@ -1,10 +1,9 @@
 import telebot
 from telebot import types
 import os
-from flask import Flask # এই লাইনটি খুব গুরুত্বপূর্ণ!
+from flask import Flask
 from threading import Thread
 
-# ১. ড্যাশবোর্ড বা চেহারার অংশ (HTML)
 app = Flask(__name__)
 
 @app.route('/')
@@ -26,39 +25,30 @@ def home():
     <body>
         <div class="card">
             <h1>🚀 MicroTask V33</h1>
-            <p>আপনার আর্নিং ড্যাশবোর্ড</p>
+            <p>আপনার ব্যক্তিগত মিনি অ্যাপ</p>
             <div class="balance">$0.018</div>
-            <a href="https://www.highrevenuegate.com/example" class="btn">Start Working 💰</a>
+            <a href="https://microtask-bb30.onrender.com" class="btn">কাজ শুরু করুন 💰</a>
         </div>
     </body>
     </html>
     """
 
 def run():
-    port = int(os.environ.get('PORT', 8080))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
 
-# ২. বটের মস্তিষ্ক (আপনার নতুন টোকেনটি এখানে বসানো হয়েছে)
+# আপনার নতুন টোকেনটি এখানে
 TOKEN = '8316197397:AAE0e7fmbYNCtPv7pBgRk6WI1AktYtvQKrg'
 bot = telebot.TeleBot(TOKEN)
-RENDER_URL = "https://microtask-bb30.onrender.com"
+URL = "https://microtask-bb30.onrender.com"
 
 @bot.message_handler(commands=['start'])
 def start(message):
     markup = types.InlineKeyboardMarkup()
-    webapp = types.WebAppInfo(url=RENDER_URL)
-    btn = types.InlineKeyboardButton("🚀 Open Dashboard", web_app=webapp)
+    btn = types.InlineKeyboardButton("🚀 Open Mini App", web_app=types.WebAppInfo(url=URL))
     markup.add(btn)
-    
-    reply = f"সালাম {message.from_user.first_name}! 👋\nআপনার বট এখন নতুন টোকেনে একদম সচল। কাজ শুরু করতে নিচে ক্লিক করুন।"
-    bot.send_message(message.chat.id, reply, reply_markup=markup)
+    bot.send_message(message.chat.id, "আপনার মিনি অ্যাপটি তৈরি! নিচের বাটনে ক্লিক করুন।", reply_markup=markup)
 
-# ৩. বট চালু করা
 if __name__ == "__main__":
-    t = Thread(target=run)
-    t.daemon = True
-    t.start()
-    
+    Thread(target=run).start()
     bot.remove_webhook()
-    print("বট নতুন টোকেন নিয়ে চালু হচ্ছে...")
     bot.infinity_polling()
