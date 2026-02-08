@@ -226,4 +226,66 @@
         updateUI();
     </script>
 </body>
-</html>
+<body onload="window.Telegram.WebApp.expand()">
+    <div class="card">
+        <div class="rocket">🚀</div>
+        <h1>MicroTask V33</h1>
+        <p>আপনার ব্যক্তিগত মিনি অ্যাপ</p>
+        <div id="balance-display" class="balance">$0.018</div>
+        
+        <div id="task-section">
+            <p id="status-text">আপনি আজকে ৫টি এ্যাড দেখতে পারবেন।</p>
+            <button id="ad-btn" class="btn" onclick="watchAd()">এ্যাড দেখুন 💰</button>
+        </div>
+
+        <div id="wait-section" style="display:none;">
+            <p style="color: #ff4444;">আপনার লিমিট শেষ!</p>
+            <p>আবার কাজ করতে <span id="timer">60:00</span> মিনিট অপেক্ষা করুন।</p>
+        </div>
+    </div>
+
+    <script>
+        let adCount = 0;
+        const maxAds = 5; // আপনার চাওয়া ৫টি এ্যাড
+        const waitTimeMinutes = 60; // আপনার চাওয়া ১ ঘণ্টা বা ৬০ মিনিট
+
+        function watchAd() {
+            if (adCount < maxAds) {
+                adCount++;
+                alert("এ্যাড দেখা সফল! আপনার ৫টির মধ্যে " + adCount + "টি দেখা হয়েছে।");
+                
+                if (adCount >= maxAds) {
+                    startTimer();
+                }
+            }
+        }
+
+        function startTimer() {
+            document.getElementById('task-section').style.display = 'none';
+            document.getElementById('wait-section').style.display = 'block';
+            
+            let totalSeconds = waitTimeMinutes * 60;
+            const timerElement = document.getElementById('timer');
+
+            const interval = setInterval(() => {
+                let minutes = Math.floor(totalSeconds / 60);
+                let seconds = totalSeconds % 60;
+                
+                timerElement.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                
+                if (totalSeconds <= 0) {
+                    clearInterval(interval);
+                    adCount = 0;
+                    document.getElementById('task-section').style.display = 'block';
+                    document.getElementById('wait-section').style.display = 'none';
+                }
+                totalSeconds--;
+            }, 1000);
+        }
+
+        const webapp = window.Telegram.WebApp;
+        webapp.ready();
+        webapp.expand();
+    </script>
+</body>
+
