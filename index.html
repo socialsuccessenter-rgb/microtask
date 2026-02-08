@@ -6,6 +6,7 @@
     
     <title>Microtask Final V33</title>
     <meta name="description" content="সহজ কাজ করুন, প্রতিদিন আয় করুন। ২৪ ঘন্টার মধ্যে নিশ্চিত পেমেন্ট! 💰">
+    
     <meta property="og:title" content="MicroTask V33 - অনলাইন ইনকাম বট">
     <meta property="og:description" content="প্রতিদিন ছোট ছোট কাজ করে ১০০% পেমেন্ট বুঝে নিন। এখনই জয়েন করুন! 🚀">
     <meta property="og:image" content="https://i.ibb.co.com/FLhY69gK/IMG-20260208-005607.png">
@@ -13,7 +14,6 @@
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://i.ibb.co.com/FLhY69gK/IMG-20260208-005607.png">
-    
     <script src='//libtl.com/sdk.js' data-zone='10582159' data-sdk='show_10582159'></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
@@ -40,7 +40,7 @@
         @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(200px) rotate(360deg); opacity: 0; } }
         .d1 { left: 15%; animation-duration: 3s; } .d2 { left: 45%; animation-duration: 4s; } .d3 { left: 75%; animation-duration: 2.5s; }
 
-        .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; text-align: center; }
+        .card { background: white; border-radius: 15px; rgba(0,0,0,0.05); margin-bottom: 15px; text-align: center; }
         h1 { margin: 10px 0; font-size: 32px; color: #2c3e50; }
         button { width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
         
@@ -53,7 +53,6 @@
     </style>
 </head>
 <body>
-
     <div id="home" class="page active-page">
         <div class="welcome-card">
             <div class="dollar-rain">
@@ -189,37 +188,18 @@
             }, 1000);
         }
 
-        // 🟢 ২০ সেকেন্ড টাইমারসহ আপডেট করা watchAd ফাংশন 🟢
         function watchAd() {
             if (typeof show_10582159 === 'function') {
-                const btn = document.getElementById('ad_btn');
-                btn.disabled = true;
-                btn.innerText = "অ্যাড চলছে (২০সেঃ)...";
-
                 show_10582159().then(() => {
-                    // ২০ সেকেন্ড (২০০০ মি.সে.) অপেক্ষা লজিক
-                    setTimeout(() => {
-                        balance += 2;
-                        adCount++;
-                        if (adCount === 1) { 
-                            lastAdTime = Date.now(); 
-                            localStorage.setItem('last_time_' + uid, lastAdTime); 
-                        }
-                        localStorage.setItem('bal_' + uid, balance);
-                        localStorage.setItem('ad_count_' + uid, adCount);
-                        
-                        btn.innerText = "📺 ভিডিও অ্যাড দেখুন (2৳)";
-                        updateUI();
-                        tg.showAlert("Congratulations! ২০ সেকেন্ড সফলভাবে দেখা হয়েছে এবং ২৳ যোগ হয়েছে।");
-                    }, 20000); 
-                }).catch(() => { 
-                    btn.disabled = false;
-                    btn.innerText = "📺 ভিডিও অ্যাড দেখুন (2৳)";
-                    tg.showAlert("অ্যাড সম্পূর্ণ হয়নি।"); 
-                });
-            } else { 
-                tg.showAlert("অ্যাড লোড হচ্ছে..."); 
-            }
+                    balance += 2;
+                    adCount++;
+                    if (adCount === 1) { lastAdTime = Date.now(); localStorage.setItem('last_time_' + uid, lastAdTime); }
+                    localStorage.setItem('bal_' + uid, balance);
+                    localStorage.setItem('ad_count_' + uid, adCount);
+                    updateUI();
+                    tg.showAlert("Congratulations! 2 ৳ added.");
+                }).catch(() => { tg.showAlert("অ্যাড সম্পূর্ণ হয়নি।"); });
+            } else { tg.showAlert("অ্যাড লোড হচ্ছে..."); }
         }
 
         function doFBTask() {
@@ -227,7 +207,7 @@
             window.open('https://www.facebook.com/profile.php?id=61585605224547', '_blank');
             tg.showConfirm("আপনি কি ফলো করেছেন?", (confirmed) => {
                 if(confirmed) {
-                    balance += 5; isFBDone = true;
+                    balance += 10; isFBDone = true;
                     localStorage.setItem('bal_' + uid, balance);
                     localStorage.setItem('fb_task_' + uid, 'done');
                     updateUI();
