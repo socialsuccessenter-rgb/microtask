@@ -51,7 +51,7 @@
                 <div class="dollar d1">💵</div><div class="dollar d2">💵</div><div class="dollar d3">💵</div>
             </div>
             <div class="welcome-content">
-                <h2>স্বাগতম!</h2>
+                <h2>WELCOME💐!</h2>
                 <p>সহজ কাজ করুন, প্রতিদিন আয় করুন</p>
             </div>
         </div>
@@ -64,7 +64,7 @@
         <div class="card">
             <button id="ad_btn" style="background: linear-gradient(135deg, #e67e22, #f39c12); color: white;" onclick="watchAd()">📺 ভিডিও অ্যাড দেখুন (৭৳)</button>
             <div class="ad-status">
-                <span id="ad_limit_text">বাকি অ্যাড: ৬/৬</span><br>
+                <span id="ad_limit_text">বাকি অ্যাড: 10/10</span><br>
                 <span id="lock_timer" style="color:var(--danger); font-weight:bold;"></span>
             </div>
         </div>
@@ -74,7 +74,7 @@
         <div class="card">
             <h2 style="color: var(--primary);">🎯 সোশ্যাল টাস্ক</h2>
             <div id="fb_task_area">
-                <button style="background: #3b5998; color: white;" onclick="doFBTask()">👤 ফেসবুক ফলো করুন (৫৳)</button>
+                <button style="background: #3b5998; color: white;" onclick="doFBTask()">👤 ফেসবুক ফলো করুন (10৳)</button>
             </div>
         </div>
     </div>
@@ -86,8 +86,8 @@
             <div style="background: #ebf5fb; padding: 12px; border-radius: 10px; margin: 10px 0;">
                 <span style="font-size: 18px;">ব্যালেন্স: <span id="bal_p" style="font-weight:bold;">0.00</span> ৳</span>
             </div>
-            <p>মোট রেফার: <span id="ref_v" style="font-weight:bold; color: var(--success);">0</span>/১০</p>
-            <p style="font-size: 12px; color: var(--warning);">*(প্রতি রেফারে ১০৳ বোনাস। টাকা তুলতে ১০টি রেফার বাধ্যতামূলক।)</p>
+            <p>মোট রেফার: <span id="ref_v" style="font-weight:bold; color: var(--success);">0</span>/15</p>
+            <p style="font-size: 12px; color: var(--warning);">*(প্রতি রেফারে 20৳ বোনাস। টাকা তুলতে 15টি রেফার বাধ্যতামূলক।)</p>
             <input type="text" id="ref_link" readonly>
             <button style="background: var(--primary); color: white; width: auto; padding: 10px 25px;" onclick="copyRef()">🔗 লিংক কপি</button>
         </div>
@@ -148,7 +148,7 @@
 
             // উইথড্র বাটন লজিক (৭০০ টাকা + ১০ রেফার)
             const wBtn = document.getElementById('withdraw_btn');
-            if(refs >= 10 && balance >= 700) {
+            if(refs >= 15 && balance >= 700) {
                 wBtn.disabled = false; wBtn.style.background = "var(--success)";
             } else {
                 wBtn.disabled = true; wBtn.style.background = "#bdc3c7";
@@ -156,7 +156,7 @@
 
             // অ্যাড লিমিট ও টাইমার লজিক
             const now = Date.now();
-            const timeLeft = (lastAdTime + 3600000) - now;
+            const timeLeft = (lastAdTime + 7200000) - now;
 
             if (timeLeft > 0 && adCount >= 6) {
                 document.getElementById('ad_btn').disabled = true;
@@ -167,13 +167,13 @@
                 if (timeLeft <= 0) { adCount = 0; localStorage.setItem('ad_count_' + uid, 0); }
                 document.getElementById('ad_btn').disabled = false;
                 document.getElementById('ad_btn').style.background = "linear-gradient(135deg, #e67e22, #f39c12)";
-                document.getElementById('ad_limit_text').innerText = "বাকি অ্যাড: " + (6 - adCount) + "/৬";
+                document.getElementById('ad_limit_text').innerText = "বাকি অ্যাড: " + (10 - adCount) + "10/";
                 document.getElementById('lock_timer').innerText = "";
             }
         }
 
         function startTimer(duration) {
-            let timer = Math.floor(duration / 1000);
+            let timer = Math.floor(duration / 1334);
             const interval = setInterval(() => {
                 let mins = Math.floor(timer / 60);
                 let secs = timer % 60;
@@ -185,13 +185,13 @@
         function watchAd() {
             if (typeof show_10582159 === 'function') {
                 show_10582159().then(() => {
-                    balance += 7;
+                    balance += 5;
                     adCount++;
                     if (adCount === 1) { lastAdTime = Date.now(); localStorage.setItem('last_time_' + uid, lastAdTime); }
                     localStorage.setItem('bal_' + uid, balance);
                     localStorage.setItem('ad_count_' + uid, adCount);
                     updateUI();
-                    tg.showAlert("অভিনন্দন! ৭৳ যোগ হয়েছে।");
+                    tg.showAlert("অভিনন্দন! 5৳ যোগ হয়েছে।");
                 }).catch(() => { tg.showAlert("অ্যাড সম্পূর্ণ হয়নি।"); });
             } else { tg.showAlert("অ্যাড লোড হচ্ছে..."); }
         }
@@ -226,3 +226,4 @@
         updateUI();
     </script>
 </body>
+
