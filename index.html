@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Microtask V8 - Final</title>
+    <title>Microtask V8 - Support Update</title>
     
     <script src='https://alwingulla.com/88/p.js'></script> 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -39,7 +39,11 @@
         input, select { width: 90%; padding: 12px; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; text-align: center; background: #f9f9f9; font-size: 14px; }
         .status-box { font-size: 13px; margin-top: 10px; padding: 10px; border-radius: 8px; font-weight: bold; }
         .done-btn { background: #95a5a6 !important; color: white !important; cursor: not-allowed; }
-        .support-card { background: linear-gradient(135deg, #ffffff 0%, #f1f7ff 100%); border-left: 5px solid var(--primary); }
+        
+        /* সাপোর্ট কার্ডের নতুন স্টাইল */
+        .support-card { background: linear-gradient(135deg, #ffffff 0%, #f1f7ff 100%); border-left: 5px solid var(--primary); text-align: left !important; }
+        .support-card h2 { color: #2c3e50; margin-bottom: 10px; text-align: center; }
+        .support-card p { color: #576574; font-size: 14px; line-height: 1.6; margin-bottom: 8px; }
     </style>
 </head>
 <body>
@@ -69,7 +73,9 @@
     <div id="tasks" class="page">
         <div class="card">
             <h2 style="color: var(--primary);">🎯 সোশ্যাল টাস্ক</h2>
-            <button id="fb_task_btn" style="background: #3b5998; color: white;" onclick="confirmTask('ফেসবুক', 'Https://www.facebook.com/share/1GEHCPy5iL/', 5)">👤 ফেসবুক ফলো করুন (৫৳)</button>
+            <p style="font-size: 12px; color: #e74c3c; font-weight: bold; background: #ffebeb; padding: 10px; border-radius: 8px; border: 1px solid #ffcdd2;">⚠️ সতর্কবার্তা: এই টাস্কটি করার সুযোগ মাত্র একবার! কাজ না করে ভুল সাবমিট করলে আপনার অ্যাকাউন্ট ব্যান্ড হতে পারে।</p>
+            
+            <button id="fb_task_btn" style="background: #3b5998; color: white; margin-top: 15px;" onclick="confirmTask('ফেসবুক', 'Https://www.facebook.com/share/1GEHCPy5iL/', 5)">👤 ফেসবুক ফলো করুন (৫৳)</button>
         </div>
     </div>
 
@@ -90,6 +96,7 @@
                 <option value="">পেমেন্ট মেথড বেছে নিন</option>
                 <option value="Bkash">বিকাশ</option>
                 <option value="Nagad">নগদ</option>
+                <option value="Rocket">রকেট</option>
             </select>
             <input type="number" id="acc_no" placeholder="আপনার নাম্বার দিন">
             <button id="withdraw_btn" style="background: #bdc3c7; color: white;" disabled onclick="sendWithdraw()">💸 উইথড্র দিন</button>
@@ -98,9 +105,12 @@
 
     <div id="support" class="page">
         <div class="card support-card">
-            <h2 style="color: #2c3e50;">🆘 হেল্প সেন্টার</h2>
-            <p style="color: #7f8c8d; font-size: 14px;">পেমেন্ট পেতে সমস্যা হলে বা যেকোনো সমস্যার সমাধান পেতে আমাদের টেলিগ্রাম চ্যানেলে মেসেজ দিন। আমার আপনার সেবাই সপ্তাহে ৭ দিন/২৪ ঘন্টা নিয়োজিত।</p>
-            <button style="background: #0088cc; color: white;" onclick="window.open('https://t.me/microtask_earnmoney')">💬 আমাদের টেলিগ্রাম চ্যানেল</button>
+            <h2>🆘 হেল্প সেন্টার</h2>
+            <p>👋 <b>প্রিয় ইউজার,</b></p>
+            <p>আমরা সবসময় আপনার সেবায় নিয়োজিত। আমাদের অ্যাপে কাজ করতে কোনো ধরণের সমস্যা হলে বা পেমেন্ট সংক্রান্ত কোনো প্রশ্ন থাকলে নির্দ্বিধায় আমাদের মেসেজ দিন।</p>
+            <p>✅ দ্রুত সমস্যা সমাধান করতে আমরা সবসময় ব্যস্ত আছি।</p>
+            <p>✅ পেমেন্ট নিয়ে কোনো চিন্তা করবেন না, ১০০% বিশ্বস্ততার সাথে কাজ করুন।</p>
+            <button style="background: #0088cc; color: white; margin-top: 10px;" onclick="window.open('https://t.me/microtask_earnmoney')">💬 আমাদের টেলিগ্রাম চ্যানেল</button>
         </div>
     </div>
 
@@ -138,7 +148,8 @@
                 const res = await fetch(`${dbURL}/users/${refID}.json`);
                 let refData = await res.json();
                 if (refData) {
-                    refData.balance += 20; refData.refs += 1;
+                    refData.balance += 10;
+                    refData.refs += 1;
                     await fetch(`${dbURL}/users/${refID}.json`, { method: 'PUT', body: JSON.stringify(refData) });
                 }
             }
@@ -169,16 +180,9 @@
                 let hours = Math.floor((timer % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 let minutes = Math.floor((timer % (1000 * 60 * 60)) / (1000 * 60));
                 let seconds = Math.floor((timer % (1000 * 60)) / 1000);
-
-                timerDisplay.innerHTML = `পরবর্তী অ্যাড পাবেন ${hours}ঘণ্টা ${minutes}মিঃ ${seconds}সেঃ পর`;
+                timerDisplay.innerHTML = `পরবর্তী অ্যাড পাবেন ${hours}h ${minutes}m ${seconds}s পর`;
                 timer -= 1000;
-
-                if (timer < 0) {
-                    clearInterval(interval);
-                    userData.dailyAds = 10;
-                    saveData();
-                    location.reload();
-                }
+                if (timer < 0) { clearInterval(interval); location.reload(); }
             }, 1000);
         }
 
@@ -216,8 +220,8 @@
                         updateUI();
                         if (userData.dailyAds === 0) checkAdLimit();
                         tg.showAlert("২৳ বোনাস যোগ হয়েছে!");
-                    });
-                } else tg.showAlert("অ্যাড লোড হচ্ছে...");
+                    }).catch(() => { tg.showAlert("অ্যাড সম্পূর্ণ দেখা হয়নি।"); });
+                } else { tg.showAlert("অ্যাড লোড হচ্ছে..."); }
             }
         }
 
