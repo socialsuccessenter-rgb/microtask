@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Microtask V8 - Final</title>
+    <title>Microtask V8 - Fixed Buttons</title>
     
     <script src='//libtl.com/sdk.js' data-zone='10561349' data-sdk='show_10561349'></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -65,7 +65,7 @@
     <div id="tasks" class="page">
         <div class="card">
             <h2 style="color: var(--primary);">🎯 সোশ্যাল টাস্ক</h2>
-            <p style="font-size: 12px; color: #e74c3c; font-weight: bold; background: #ffebeb; padding: 10px; border-radius: 8px; border: 1px solid #ffcdd2;">⚠️ সতর্কবার্তা: এই টাস্কটি করার সুযোগ মাত্র একবার!</p>
+            <p style="font-size: 12px; color: #e74c3c; font-weight: bold; background: #ffebeb; padding: 10px; border-radius: 8px; border: 1px solid #ffcdd2;">⚠️ সতর্কবার্তা: এই টাস্কটি করার সুযোগ মাত্র একবার! কাজ না করে ভুল সাবমিট করলে আপনার অ্যাকাউন্ট ব্যান হতে পারে।</p>
             <button id="fb_task_btn" style="background: #3b5998; color: white; margin-top: 15px;" onclick="confirmTask('ফেসবুক', 'Https://www.facebook.com/share/1GEHCPy5iL/', 5)">👤 ফেসবুক ফলো করুন (৫৳)</button>
         </div>
     </div>
@@ -116,12 +116,14 @@
         let userData = { balance: 0, refs: 0, fbDone: false, lastAdTime: 0, dailyAds: 10 };
 
         async function loadData() {
-            const res = await fetch(`${dbURL}/users/${uid}.json`);
-            const data = await res.json();
-            if (data) userData = {...userData, ...data};
-            else { await saveData(); await checkReferral(); }
-            checkAdLimit();
-            updateUI();
+            try {
+                const res = await fetch(`${dbURL}/users/${uid}.json`);
+                const data = await res.json();
+                if (data) userData = {...userData, ...data};
+                else { await saveData(); await checkReferral(); }
+                checkAdLimit();
+                updateUI();
+            } catch (e) { console.error(e); }
         }
 
         async function saveData() {
@@ -143,8 +145,9 @@
         }
 
         function checkAdLimit() {
+            const now = Date.now();
             if (userData.dailyAds <= 0) {
-                const diff = (3 * 60 * 60 * 1000) - (Date.now() - userData.lastAdTime);
+                const diff = (3 * 60 * 60 * 1000) - (now - userData.lastAdTime);
                 if (diff <= 0) { userData.dailyAds = 10; saveData(); } 
                 else { startTimer(diff); }
             }
@@ -189,10 +192,7 @@
                 st.innerText = `আরো ${10 - userData.refs} টি রেফার লাগবে।`;
                 st.style.color = "var(--danger)";
             }
-            if(userData.fbDone) { 
-                const fbBtn = document.getElementById('fb_task_btn');
-                fbBtn.innerText = "✅ সম্পন্ন"; fbBtn.onclick = null;
-            }
+            if(userData.fbDone) { document.getElementById('fb_task_btn').innerText = "✅ সম্পন্ন"; }
         }
 
         function watchAd() {
@@ -235,12 +235,14 @@
         function showP(id, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.getElementById(id).classList.add('active-page'); el.classList.add('active');
+            document.getElementById(id).classList.add('active-page');
+            el.classList.add('active');
         }
 
         function copyRef() {
             const el = document.getElementById('ref_link_home');
-            el.select(); document.execCommand("copy");
+            el.select();
+            document.execCommand("copy");
             tg.showAlert("লিংক কপি হয়েছে!");
         }
 
