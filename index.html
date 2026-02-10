@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Microtask V8 - Fixed Everything</title>
+    <title>Microtask V8 - Final Fix</title>
     
     <script src='//libtl.com/sdk.js' data-zone='10582159' data-sdk='show_10582159'></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -189,20 +189,18 @@
             }
         }
 
+        // --- আপনার সেই সঠিক এবং অরিজিনাল Rewarded Interstitial অ্যাড ফাংশন ---
         function watchAd() {
             if (userData.dailyAds > 0) {
-                if (typeof show_10582159 === 'function') {
-                    show_10582159().then(async () => {
-                        userData.balance += 2; 
-                        userData.dailyAds -= 1;
-                        if(userData.dailyAds === 0) userData.lastAdTime = Date.now();
-                        await saveData(); 
-                        updateUI();
-                        tg.showAlert("২৳ বোনাস যোগ হয়েছে!");
-                    });
-                } else {
-                    tg.showAlert("অ্যাড সিস্টেম লোড হচ্ছে...");
-                }
+                // সরাসরি আপনার দেওয়া ওই কোড ফরম্যাটটি এখানে ব্যবহার করা হয়েছে
+                show_10582159().then(async () => {
+                    userData.balance += 2; 
+                    userData.dailyAds -= 1;
+                    if(userData.dailyAds === 0) userData.lastAdTime = Date.now();
+                    await saveData(); 
+                    updateUI();
+                    tg.showAlert('২৳ বোনাস যোগ হয়েছে!');
+                });
             }
         }
 
