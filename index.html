@@ -270,8 +270,26 @@
             document.execCommand("copy");
             tg.showAlert("লিংক কপি হয়েছে!");
         }
-
+async function completeTask(type, reward, link) {
+    if (userData.tasks[type]) {
+        tg.showAlert("এই টাস্ক আগেই করেছেন!");
+        return;
+    }
+    
+    // এই লাইনটিই আসল ম্যাজিক:
+    tg.openLink(link); 
+    
+    tg.showAlert("লিঙ্ক ওপেন হয়েছে! কাজ শেষ করে ৫ সেকেন্ড অপেক্ষা করুন...");
+    setTimeout(async () => {
+        userData.balance += reward;
+        userData.tasks[type] = true;
+        await saveToDB();
+        updateUI();
+        tg.showAlert("অভিনন্দন! " + reward + " টাকা যোগ হয়েছে।");
+    }, 5000);
+}
         loadData();
     </script>
 </body>
 </html>
+
