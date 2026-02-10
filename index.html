@@ -147,23 +147,23 @@
             }
         }
 
-        function watchAd() {
-            if (userData.dailyAds > 0) {
-                if (typeof show_10582159 === 'function') {
-                    // এটি আপনার দেওয়া অরিজিনাল স্ক্রিপ্ট
-                    show_10582159().then(async () => {
-                        userData.balance += 2; 
-                        userData.dailyAds -= 1;
-                        await saveData(); 
-                        updateUI();
-                        tg.showAlert("২৳ বোনাস যোগ হয়েছে!");
-                    }).catch(() => tg.showAlert("অ্যাড সম্পূর্ণ হয়নি।"));
-                } else {
-                    tg.showAlert("অ্যাড লোড হচ্ছে, আবার চেষ্টা করুন।");
-                }
-            }
-        }
-
+        show_10582159().then(async () => {
+    // ১. ইউজারের ব্যালেন্স ২ টাকা বাড়ানো
+    userData.balance += 2; 
+    
+    // ২. প্রতিদিনের ১০টি অ্যাডের একটি কমিয়ে দেওয়া
+    userData.dailyAds -= 1; 
+    
+    // ৩. নতুন ব্যালেন্স ডাটাবেজে (Firebase) সেভ করা
+    await saveData(); 
+    
+    // ৪. স্ক্রিনে নতুন ব্যালেন্স আপডেট করে দেখানো
+    updateUI(); 
+    
+    // ৫. ইউজারকে একটি নোটিফিকেশন দেওয়া
+    tg.showAlert("২৳ বোনাস যোগ হয়েছে!"); 
+});
+        
         function showP(id, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -180,3 +180,4 @@
     </script>
 </body>
 </html>
+
