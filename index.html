@@ -12,13 +12,19 @@
         :root { --primary: #3498db; --success: #2ecc71; --danger: #e74c3c; --bg: #f0f2f5; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; overflow-x: hidden; }
 
+        /* রেইন কার্ডের স্পেশাল ডিজাইন - ৩-৪ কালার প্রিমিয়াম এনিমেশন */
         .rain-card { 
             position: relative;
             background: linear-gradient(-45deg, #23a6d5, #23d5ab, #8e44ad, #2980b9);
             background-size: 400% 400%;
             animation: colorShift 10s ease infinite;
-            color: white; border-radius: 20px; padding: 30px 25px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 20px; text-align: center; overflow: hidden; 
+            color: white; 
+            border-radius: 20px; 
+            padding: 30px 25px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            margin-bottom: 20px; 
+            text-align: center;
+            overflow: hidden; 
         }
 
         @keyframes colorShift {
@@ -28,11 +34,20 @@
         }
 
         .card-money {
-            position: absolute; top: -20px; color: rgba(255, 255, 255, 0.7);
-            font-size: 20px; pointer-events: none; z-index: 1; animation: cardFall linear forwards;
+            position: absolute;
+            top: -20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 20px;
+            pointer-events: none;
+            z-index: 1;
+            animation: cardFall linear forwards;
         }
 
-        @keyframes cardFall { to { transform: translateY(250px); opacity: 0; } }
+        @keyframes cardFall {
+            to { transform: translateY(250px); opacity: 0; }
+        }
+
+        .card-info { position: relative; z-index: 2; }
 
         .page { display: none; padding: 20px; }
         .active-page { display: block; }
@@ -44,11 +59,6 @@
         .nav-item.active { color: var(--primary); font-weight: bold; }
         .warning { color: var(--danger); font-size: 12px; font-weight: bold; margin-top: 5px; }
         input, select { width: 95%; padding: 15px; margin-top: 10px; border: 1px solid #ddd; border-radius: 10px; text-align: center; }
-
-        #referred_by_box { 
-            display: none; background: #ebf5ff; padding: 15px; border-radius: 12px; 
-            margin-bottom: 15px; border: 2px dashed var(--primary); color: #2c3e50;
-        }
     </style>
 </head>
 <body>
@@ -56,14 +66,16 @@
     <div id="home" class="page active-page">
         <div class="rain-card" id="main-rain-card">
             <div class="card-info">
-                <div style="font-size:18px; font-weight:bold;">👋 স্বাগতম, <span id="user_name">...</span>!</div>
+                <div style="font-size:18px; font-weight:bold; text-shadow: 1px 1px 4px rgba(0,0,0,0.3);">👋 স্বাগতম, <span id="user_name">...</span>!</div>
                 <p style="opacity:0.9; margin: 5px 0;">💰 আপনার ব্যালেন্স 💰</p>
-                <h1 id="bal_v">0.00 ৳</h1>
+                <h1 id="bal_v" style="font-size: 45px; margin: 10px 0; text-shadow: 2px 2px 5px rgba(0,0,0,0.2);">0.00 ৳</h1>
                 <p style="font-size: 12px; opacity: 0.8;">🌧️ ছোট ছোট কাজ করে টাকা ইনকাম করুন 🌧️</p>
             </div>
         </div>
+
         <div class="card">
-            <p>বাকি অ্যাড: <span id="ad_count">...</span>/5</p>
+            <p>বাকি অ্যাড: <span id="ad_count" style="font-weight:bold; color:var(--primary);">...</span>/5</p>
+            <p id="timer_box" style="display:none; color:var(--danger); font-weight:bold;">পরবর্তী ৫টি অ্যাড আসবে: <span id="time_left"></span> মিনিট পর</p>
             <button class="btn-ad" id="ad_btn" onclick="watchAd()">📺 ভিডিও অ্যাড দেখুন (২৳)</button>
         </div>
     </div>
@@ -80,15 +92,11 @@
     <div id="refer" class="page">
         <div class="card">
             <h2>👥 রেফারেল বোনাস</h2>
-            <div id="referred_by_box">
-                <span style="font-size:12px;">✅ আপনি যার রেফারে জয়েন করেছেন:</span><br>
-                <strong id="referrer_id_display" style="color:var(--primary); font-size:16px;"></strong>
-            </div>
             <p style="color:#2ecc71; font-weight:bold;">প্রতি রেফারে ১৩ টাকা!</p>
-            <p class="warning">মিনিমাম ১০টি রেফার বাধ্যতামূলক</p>
+            <p style="color:#2ecc71; font-weight:bold;">টাকা তুলতে সর্বনিম্ন ১০টি রেফার বাধ্যতামূলক </p>
             <input type="text" id="ref_link" readonly>
             <button style="background:var(--primary); color:white;" onclick="copyRef()">লিংক কপি</button>
-            <p style="margin-top:20px;">মোট রেফার: <span id="ref_v" style="font-weight:bold; color:var(--success);">0</span></p>
+            <p style="margin-top:20px;">মোট রেফার: <span id="ref_v">0</span></p>
         </div>
     </div>
 
@@ -99,15 +107,15 @@
             <select id="method">
                 <option value="bkash">বিকাশ</option>
                 <option value="nagad">নগদ</option>
-                <option value="rocket">রকেট</option>
+                <option value="nagad">রকেট</option>
             </select>
             <input type="number" id="phone" placeholder="নাম্বার দিন">
             <input type="number" id="amount" placeholder="পরিমাণ (মিনিমাম ৭০০৳)">
-            <button id="withdraw_btn" style="background:#dfe6e9; color:#b2bec3;" disabled>টাকা উত্তোলন করুন</button>
+            <button id="withdraw_btn" style="background:#dfe6e9; color:#b2bec3;" disabled onclick="withdraw()">টাকা উত্তোলন করুন</button>
         </div>
         <div class="card">
             <h2>📢 সাপোর্ট চ্যানেল</h2>
-            <button style="background:#0088cc; color:white;" onclick="tg.openTelegramLink('https://t.me/microtask_earnmoney')">টেলিগ্রাম সাপোর্ট</button>
+            <button style="background:#0088cc; color:white;" onclick="window.open('https://t.me/microtask_earnmoney', '_blank')">টেলিগ্রাম সাপোর্ট</button>
         </div>
     </div>
 
@@ -120,18 +128,17 @@
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand();
         const uid = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id.toString() : "test_user";
         const dbURL = "https://earnmoneybot-8836f-default-rtdb.firebaseio.com/";
 
-        let userData = { balance: 0, refs: 0, dailyAds: 5, tasks: {} };
+        let userData = { balance: 0, refs: 0, dailyAds: 5, lastReset: 0, tasks: {} };
 
-        // রেইন এনিমেশন
         function createCardRain() {
             const card = document.getElementById('main-rain-card');
             if(!card) return;
             const drop = document.createElement('div');
-            drop.innerText = '৳'; drop.classList.add('card-money');
+            drop.innerText = '৳';
+            drop.classList.add('card-money');
             drop.style.left = Math.random() * 90 + '%';
             drop.style.animationDuration = Math.random() * 1 + 1.5 + 's';
             card.appendChild(drop);
@@ -142,101 +149,112 @@
         async function loadData() {
             const res = await fetch(`${dbURL}/users/${uid}.json`);
             const data = await res.json();
-            
-            // রেফার বক্স আপডেট
-            handleRefBox(data ? true : false);
-
             if (data) {
                 userData = data;
+                checkTimeLimit();
             } else {
-                await handleReferralMoney();
-                userData = { balance: 0, refs: 0, dailyAds: 5, tasks: {} };
                 await saveToDB();
+                handleRef();
             }
             updateUI();
         }
-
-        function handleRefBox(isOld) {
-            const refID = new URLSearchParams(window.location.search).get('start');
-            if (refID) {
-                const box = document.getElementById('referred_by_box');
-                const display = document.getElementById('referrer_id_display');
-                if(box && display) {
-                    box.style.display = "block";
-                    display.innerHTML = "ID: " + refID + (isOld ? "<br><small style='color:orange;'>আপনি আগে থেকেই জয়েন আছেন!</small>" : "<br><small style='color:green;'>সফলভাবে জয়েন করেছেন!</small>");
-                }
-            }
-        }
-
-        async function handleReferralMoney() {
-            const refID = new URLSearchParams(window.location.search).get('start');
-            if (refID && refID !== uid) {
-                try {
-                    const r = await fetch(`${dbURL}/users/${refID}.json`);
-                    let boss = await r.json();
-                    if (boss) {
-                        boss.balance = (boss.balance || 0) + 13;
-                        boss.refs = (boss.refs || 0) + 1;
-                        await fetch(`${dbURL}/users/${refID}.json`, { method: 'PUT', body: JSON.stringify(boss) });
-                    }
-                } catch(e) { console.log("Ref Error"); }
-            }
-        }
-
-        // বাটন ফিক্স: tg.openLink ব্যবহার করা হয়েছে
-                async function completeTask(type, reward, link) {
-            if (userData.tasks[type]) {
-                tg.showAlert("এই টাস্ক আগেই করেছেন!");
-                return;
-            }
-            
-            // পদ্ধতি ১: টেলিগ্রামের নিজস্ব লিঙ্ক ওপেনার (সবচেয়ে শক্তিশালী)
-            if (tg.openLink) {
-                tg.openLink(link);
-            } 
-            // পদ্ধতি ২: যদি প্রথমটা কাজ না করে তবে সরাসরি লোকেশন চেঞ্জ (ব্যাকআপ)
-            else {
-                window.location.href = link;
-            }
-            
-            tg.showAlert("লিঙ্ক ওপেন হচ্ছে... ৫ সেকেন্ড অপেক্ষা করুন!");
-            
-            setTimeout(async () => {
-                userData.balance += reward;
-                userData.tasks[type] = true;
-                await saveToDB();
-                updateUI();
-                tg.showAlert("অভিনন্দন! " + reward + " টাকা বোনাস যোগ হয়েছে।");
-            }, 5000);
-        }
-
 
         async function saveToDB() {
             await fetch(`${dbURL}/users/${uid}.json`, { method: 'PUT', body: JSON.stringify(userData) });
         }
 
+        function checkTimeLimit() {
+            const now = Date.now();
+            const waitTime = 3 * 60 * 60 * 1000; // ৩ ঘণ্টা
+            if (userData.dailyAds === 0 && (now - userData.lastReset > waitTime)) {
+                userData.dailyAds = 5;
+                userData.lastReset = now;
+                saveToDB();
+            }
+        }
+
         function watchAd() {
             if (userData.dailyAds > 0 && typeof show_10582159 === 'function') {
-                show_10582159().then(async () => {
-                    userData.balance += 2;
-                    userData.dailyAds -= 1;
-                    await saveToDB();
-                    updateUI();
-                    tg.showAlert("২ টাকা যোগ হয়েছে!");
+                show_10582159().then(() => {
+                    tg.showAlert("অ্যাড সম্পন্ন হয়েছে! ৫ সেকেন্ড অপেক্ষা করুন...");
+                    setTimeout(async () => {
+                        userData.balance += 2;
+                        userData.dailyAds -= 1;
+                        if(userData.dailyAds === 0) userData.lastReset = Date.now();
+                        await saveToDB();
+                        updateUI();
+                        tg.showAlert("২ টাকা যোগ হয়েছে!");
+                    }, 5000); // ২০ সেকেন্ড থেকে কমিয়ে ৫ সেকেন্ড করা হয়েছে
                 }).catch(() => tg.showAlert("অ্যাড ব্যর্থ!"));
             }
         }
 
+        async function completeTask(type, reward, link) {
+            if (!userData.tasks[type]) {
+                window.open(link, '_blank');
+                tg.showAlert("৫ সেকেন্ড পর বোনাস যোগ হবে...");
+                setTimeout(async () => {
+                    userData.balance += reward;
+                    userData.tasks[type] = true;
+                    await saveToDB();
+                    updateUI();
+                    tg.showAlert(reward + " টাকা যোগ হয়েছে!");
+                }, 5000); // টাস্কের ক্ষেত্রেও ৫ সেকেন্ড করা হয়েছে
+            } else {
+                tg.showAlert("এই টাস্ক আগেই করেছেন!");
+            }
+        }
+
         function updateUI() {
-            document.getElementById('bal_v').innerText = userData.balance.toFixed(2) + " ৳";
+            document.getElementById('bal_v').innerText = userData.balance.toFixed(2);
             document.getElementById('ad_count').innerText = userData.dailyAds;
             document.getElementById('ref_v').innerText = userData.refs || 0;
             document.getElementById('user_name').innerText = tg.initDataUnsafe.user?.first_name || "ইউজার";
             document.getElementById('ref_link').value = "https://t.me/microtask_earnmoney_bot?start=" + uid;
 
+            const adBtn = document.getElementById('ad_btn');
+            const timerBox = document.getElementById('timer_box');
+            const timeLeftSpan = document.getElementById('time_left');
+
+            const now = Date.now();
+            const waitTime = 3 * 60 * 60 * 1000; // ৩ ঘণ্টা (১৮০ মিনিট)
+            const timePassed = now - userData.lastReset;
+
+            if (userData.dailyAds === 0) {
+                if (timePassed >= waitTime) {
+                    userData.dailyAds = 5;
+                    saveToDB();
+                    adBtn.style.display = "block";
+                    timerBox.style.display = "none";
+                } else {
+                    adBtn.style.display = "none";
+                    timerBox.style.display = "block";
+                    const diffMin = Math.ceil((waitTime - timePassed) / 60000);
+                    timeLeftSpan.innerText = diffMin > 0 ? diffMin : 0;
+                }
+            } else {
+                adBtn.style.display = "block";
+                timerBox.style.display = "none";
+            }
+
             const wBtn = document.getElementById('withdraw_btn');
             if (userData.balance >= 700 && userData.refs >= 10) {
                 wBtn.disabled = false; wBtn.style.background = "#2ecc71"; wBtn.style.color = "white";
+            }
+        }
+
+        setInterval(updateUI, 30000); // ৩০ সেকেন্ড পরপর রিফ্রেশ হবে
+
+        async function handleRef() {
+            const params = new URLSearchParams(window.location.search);
+            const refID = params.get('start');
+            if (refID && refID !== uid) {
+                const res = await fetch(`${dbURL}/users/${refID}.json`);
+                let boss = await res.json();
+                if (boss) {
+                    boss.balance += 13; boss.refs += 1;
+                    await fetch(`${dbURL}/users/${refID}.json`, { method: 'PUT', body: JSON.stringify(boss) });
+                }
             }
         }
 
@@ -248,15 +266,12 @@
         }
 
         function copyRef() {
-            const copyText = document.getElementById("ref_link");
-            copyText.select();
-            copyText.setSelectionRange(0, 99999);
+            document.getElementById("ref_link").select();
             document.execCommand("copy");
-            tg.showAlert("লিঙ্ক কপি হয়েছে!");
+            tg.showAlert("লিংক কপি হয়েছে!");
         }
 
         loadData();
     </script>
 </body>
 </html>
-
