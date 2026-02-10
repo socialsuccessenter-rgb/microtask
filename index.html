@@ -24,7 +24,7 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
             margin-bottom: 20px; 
             text-align: center;
-            overflow: hidden; /* এর ফলে ডলার কার্ডের বাইরে যাবে না */
+            overflow: hidden; 
         }
 
         @keyframes colorShift {
@@ -33,7 +33,6 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* কার্ডের ভেতরের ডলার রেইন */
         .card-money {
             position: absolute;
             top: -20px;
@@ -48,7 +47,7 @@
             to { transform: translateY(250px); opacity: 0; }
         }
 
-        .card-info { position: relative; z-index: 2; } /* লেখাগুলোকে ডলারের উপরে রাখার জন্য */
+        .card-info { position: relative; z-index: 2; }
 
         .page { display: none; padding: 20px; }
         .active-page { display: block; }
@@ -132,7 +131,6 @@
 
         let userData = { balance: 0, refs: 0, dailyAds: 5, lastReset: 0, tasks: {} };
 
-        // ২. কার্ডের ভেতরে ডলার ঝরানোর স্পেশাল লজিক
         function createCardRain() {
             const card = document.getElementById('main-rain-card');
             if(!card) return;
@@ -165,8 +163,8 @@
 
         function checkTimeLimit() {
             const now = Date.now();
-            const hours2 = 2 * 60 * 60 * 1000;
-            if (now - userData.lastReset > hours2) {
+            const waitTime = 2 * 60 * 60 * 1000;
+            if (userData.dailyAds === 0 && (now - userData.lastReset > waitTime)) {
                 userData.dailyAds = 5;
                 userData.lastReset = now;
                 saveToDB();
@@ -214,11 +212,24 @@
 
             const adBtn = document.getElementById('ad_btn');
             const timerBox = document.getElementById('timer_box');
-            if(userData.dailyAds === 0) {
-                adBtn.style.display = "none";
-                timerBox.style.display = "block";
-                const diff = Math.ceil((2 * 60 * 60 * 1000 - (Date.now() - userData.lastReset)) / 60000);
-                document.getElementById('time_left').innerText = diff > 0 ? diff : 0;
+            const timeLeftSpan = document.getElementById('time_left');
+
+            const now = Date.now();
+            const waitTime = 2 * 60 * 60 * 1000;
+            const timePassed = now - userData.lastReset;
+
+            if (userData.dailyAds === 0) {
+                if (timePassed >= waitTime) {
+                    userData.dailyAds = 5;
+                    saveToDB();
+                    adBtn.style.display = "block";
+                    timerBox.style.display = "none";
+                } else {
+                    adBtn.style.display = "none";
+                    timerBox.style.display = "block";
+                    const diffMin = Math.ceil((waitTime - timePassed) / 60000);
+                    timeLeftSpan.innerText = diffMin > 0 ? diffMin : 0;
+                }
             } else {
                 adBtn.style.display = "block";
                 timerBox.style.display = "none";
@@ -229,6 +240,9 @@
                 wBtn.disabled = false; wBtn.style.background = "#2ecc71"; wBtn.style.color = "white";
             }
         }
+
+        // টাইমার ১ মিনিট পরপর চেক করবে
+        setInterval(updateUI, 60000);
 
         async function handleRef() {
             const params = new URLSearchParams(window.location.search);
