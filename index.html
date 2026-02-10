@@ -189,28 +189,24 @@
             if(userData.fbDone) document.getElementById('fb_task_btn').innerText = "✅ সম্পন্ন";
         }
 
-        // --- আপনার দেওয়া অরিজিনাল স্ক্রিপ্ট অনুযায়ী watchAd ---
-        function watchAd() {
-            if (userData.dailyAds > 0) {
-                if (typeof show_10582159 === 'function') {
-                    
-                    // আপনার দেওয়া অরিজিনাল স্ক্রিপ্ট হুবহু এখানে:
-                    show_10582159().then(async () => {
-                        // রিওয়ার্ড লজিক (আপনার অ্যাপের জন্য)
-                        userData.balance += 2; 
-                        userData.dailyAds -= 1;
-                        if(userData.dailyAds === 0) userData.lastAdTime = Date.now();
-                        await saveData(); 
-                        updateUI();
-                        tg.showAlert('২৳ বোনাস যোগ হয়েছে!');
-                    });
-
-                } else {
-                    tg.showAlert("অ্যাড লোড হচ্ছে...");
-                }
-            }
+function watchAd() {
+    if (userData.dailyAds > 0) {
+        if (typeof show_10582159 === 'function') {
+            // আমরা সরাসরি show_10582159() কল করছি যা আপনার প্যানেলের রিওয়ার্ড সেটিংস মানবে
+            show_10582159().then(async () => {
+                userData.balance += 2; 
+                userData.dailyAds -= 1;
+                await saveData(); 
+                updateUI();
+                tg.showAlert("২৳ বোনাস যোগ হয়েছে!");
+            }).catch(() => {
+                tg.showAlert("অ্যাড সম্পূর্ণ দেখা হয়নি।");
+            });
+        } else {
+            tg.showAlert("অ্যাড সিস্টেম লোড হচ্ছে... ৫ সেকেন্ড পর আবার চেষ্টা করুন।");
         }
-
+    }
+    }
         function showP(id, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -227,3 +223,4 @@
     </script>
 </body>
 </html>
+
