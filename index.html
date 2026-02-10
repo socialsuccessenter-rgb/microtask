@@ -3,170 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Microtask V10 - Final Fix</title>
+    <title>Microtask V12 - Rain Edition</title>
     
     <script src='//libtl.com/sdk.js' data-zone='10582159' data-sdk='show_10582159'></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
     <style>
         :root { --primary: #3498db; --success: #2ecc71; --bg: #f0f2f5; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; }
-        .page { display: none; padding: 20px; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; overflow-x: hidden; }
+        
+        /* টাকা পড়ার অ্যানিমেশন */
+        .money-rain { position: fixed; top: -50px; color: green; font-size: 20px; z-index: 999; pointer-events: none; animation: fall linear forwards; }
+        @keyframes fall { to { transform: translateY(105vh); } }
+
+        .page { display: none; padding: 20px; animation: fadeIn 0.5s; }
         .active-page { display: block; }
-        .card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 20px; text-align: center; }
-        h1 { font-size: 40px; color: #2c3e50; margin: 15px 0; }
-        .balance-label { font-weight: bold; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; }
-        button { width: 100%; padding: 18px; border: none; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; transition: all 0.3s ease; }
-        .btn-ad { background: linear-gradient(135deg, #f39c12, #e67e22); color: white; box-shadow: 0 5px 15px rgba(230, 126, 34, 0.4); }
-        .btn-ad:active { transform: scale(0.98); }
-        .btn-nav { background: var(--primary); color: white; margin-top: 15px; }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #eee; height: 75px; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 20px; text-align: center; position: relative; overflow: hidden; }
+        
+        /* রেইন কার্ড ডিজাইন */
+        .rain-card { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; }
+        .welcome-msg { font-size: 16px; font-weight: bold; margin-bottom: 10px; opacity: 0.9; }
+
+        h1 { font-size: 40px; margin: 10px 0; }
+        button { width: 100%; padding: 18px; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-ad { background: linear-gradient(135deg, #f39c12, #e67e22); color: white; }
+        
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #eee; height: 75px; z-index: 1000; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; color: #bdc3c7; cursor: pointer; }
         .nav-item.active { color: var(--primary); font-weight: bold; }
-        input { width: 90%; padding: 15px; margin-top: 15px; border: 2px solid #edf2f7; border-radius: 10px; text-align: center; font-size: 14px; outline: none; }
-        input:focus { border-color: var(--primary); }
+        
+        input { width: 90%; padding: 15px; margin-top: 10px; border: 1px solid #ddd; border-radius: 10px; text-align: center; }
+        .status-msg { font-size: 12px; margin-top: 10px; color: #e74c3c; font-weight: bold; }
     </style>
 </head>
 <body>
 
+    <div id="rain-container"></div>
+
     <div id="home" class="page active-page">
-        <div class="card">
-            <p class="balance-label">💰 আপনার ব্যালেন্স</p>
-            <h1><span id="bal_v">লোড হচ্ছে...</span> ৳</h1>
+        <div class="card rain-card">
+            <div class="welcome-msg">👋 স্বাগতম, <span id="user_name">ইউজার</span>!</div>
+            <p>🌧️ Dollar Rain Card</p>
+            <h1 id="bal_v">0.00 ৳</h1>
         </div>
         <div class="card">
-            <p style="color: #34495e;">বাকি অ্যাড: <span id="ad_count" style="font-weight: bold; color: var(--primary);">...</span>/10</p>
-            <button class="btn-ad" onclick="watchAd()">📺 ভিডিও অ্যাড দেখুন (২৳)</button>
+            <p>বাকি অ্যাড: <span id="ad_count" style="color: var(--primary); font-weight: bold;">...</span>/5</p>
+            <p id="timer_text" style="color: red; font-weight: bold; display: none;">আবার অ্যাড আসবে: <span id="time_left"></span> মিনিট পর</p>
+            <button class="btn-ad" id="ad_btn" onclick="watchAd()">📺 ভিডিও অ্যাড দেখুন (২৳)</button>
+        </div>
+    </div>
+
+    <div id="tasks" class="page">
+        <div class="card">
+            <h2>🎯 সোশ্যাল টাস্ক</h2>
+            <button style="background:#1877F2; color:white;" onclick="window.open('আপনার_ফেসবুক_লিংক')">Facebook পেজ ফলো (৫৳)</button>
+            <button style="background:#0088cc; color:white;" onclick="window.open('আপনার_টেলিগ্রাম_লিংক')">Telegram চ্যানেল জয়েন (৩৳)</button>
         </div>
     </div>
 
     <div id="refer" class="page">
         <div class="card">
             <h2>👥 বন্ধুদের রেফার করুন</h2>
-            <p style="color: #27ae60; font-weight: bold;">প্রতি রেফারে পাবেন ১৩ টাকা বোনাস!</p>
+            <p style="color: #27ae60; font-weight: bold;">প্রতি রেফারে ১৩ টাকা!</p>
             <input type="text" id="ref_link" readonly>
-            <button class="btn-nav" onclick="copyRef()">লিংক কপি করুন</button>
-            <div style="margin-top: 20px; font-size: 18px;">মোট রেফার: <span id="ref_v" style="color: var(--success); font-weight: bold;">0</span></div>
+            <button style="background:var(--primary); color:white;" onclick="copyRef()">লিংক কপি</button>
+            <p style="margin-top: 20px;">মোট রেফার: <span id="ref_v" style="font-weight:bold;">0</span></p>
         </div>
     </div>
 
     <div id="profile" class="page">
         <div class="card">
             <h2>💸 টাকা উত্তোলন</h2>
-            <input type="number" id="phone" placeholder="বিকাশ/নগদ নাম্বার দিন">
-            <input type="number" id="amount" placeholder="টাকার পরিমাণ (মিনিমাম ৭০০৳)">
-            <button id="withdraw_btn" style="background:#dfe6e9; color:#b2bec3; margin-top:15px;" disabled onclick="withdraw()">টাকা উত্তোলন করুন</button>
+            <input type="number" id="phone" placeholder="বিকাশ/নগদ নাম্বার">
+            <input type="number" id="amount" placeholder="পরিমাণ (মিনিমাম ৭০০৳)">
+            <div id="withdraw_status" class="status-msg">উইথড্রর জন্য ১০টি রেফার বাধ্যতামুলক</div>
+            <button id="withdraw_btn" style="background:#dfe6e9; color:#b2bec3;" disabled onclick="withdraw()">টাকা উত্তোলন করুন</button>
+        </div>
+        <div class="card">
+            <h2>📢 সাপোর্ট চ্যানেল</h2>
+            <button style="background:#0088cc; color:white;" onclick="window.open('আপনার_টেলিগ্রাম_সাপোর্ট_লিংক')">টেলিগ্রাম চ্যানেলে জয়েন করুন</button>
         </div>
     </div>
 
     <div class="bottom-nav">
         <div class="nav-item active" onclick="showP('home', this)">🏠<br>হোম</div>
+        <div class="nav-item" onclick="showP('tasks', this)">🎯<br>টাস্ক</div>
         <div class="nav-item" onclick="showP('refer', this)">👥<br>রেফার</div>
-        <div class="nav-item" onclick="showP('profile', this)">👤<br>উইথড্র</div>
+        <div class="nav-item" onclick="showP('profile', this)">👤<br>প্রোফাইল</div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand();
-        const uid = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id.toString() : "test_user";
+        const user = tg.initDataUnsafe.user;
+        const uid = user ? user.id.toString() : "test_user";
+        const uName = user ? (user.first_name + " " + (user.last_name || "")) : "ব্যার্থ প্রেমি";
         const dbURL = "https://earnmoneybot-8836f-default-rtdb.firebaseio.com/";
 
         let userData = null;
 
-        // ১. ডাটা লোড করা (সবচেয়ে নিরাপদ পদ্ধতি)
+        // টাকা পড়ার অ্যানিমেশন তৈরি
+        function createMoney() {
+            const rain = document.getElementById('rain-container');
+            const money = document.createElement('div');
+            money.innerText = '৳';
+            money.classList.add('money-rain');
+            money.style.left = Math.random() * 100 + 'vw';
+            money.style.animationDuration = Math.random() * 2 + 3 + 's';
+            rain.appendChild(money);
+            setTimeout(() => money.remove(), 5000);
+        }
+        setInterval(createMoney, 500);
+
         async function loadAppData() {
-            try {
-                const res = await fetch(`${dbURL}/users/${uid}.json`);
-                const data = await res.json();
-                
-                if (data) {
-                    userData = data;
-                } else {
-                    // একদম নতুন ইউজার হলে ডাটা তৈরি হবে
-                    userData = { balance: 0, refs: 0, dailyAds: 10, lastAdTime: 0 };
+            document.getElementById('user_name').innerText = uName;
+            const res = await fetch(`${dbURL}/users/${uid}.json`);
+            const data = await res.json();
+            if (data) {
+                userData = data;
+                const now = Date.now();
+                if (now - (userData.lastAdTime || 0) > 3600000) {
+                    userData.dailyAds = 5;
                     await saveToDB();
-                    await runReferralCheck(); // প্রথমবার রেফার চেক হবে
                 }
-                refreshUI();
-            } catch (error) {
-                document.getElementById('bal_v').innerText = "ত্রুটি!";
+            } else {
+                userData = { balance: 0, refs: 0, dailyAds: 5, lastAdTime: 0 };
+                await saveToDB();
+                await runReferralCheck();
             }
+            refreshUI();
         }
 
-        // ২. রেফার সিস্টেম (বোনাস কাউন্ট)
-        async function runReferralCheck() {
-            const params = new URLSearchParams(window.location.search);
-            const bossID = params.get('start');
-            
-            if (bossID && bossID !== uid) {
-                try {
-                    const res = await fetch(`${dbURL}/users/${bossID}.json`);
-                    let bossData = await res.json();
-                    if (bossData) {
-                        bossData.balance = (bossData.balance || 0) + 13;
-                        bossData.refs = (bossData.refs || 0) + 1;
-                        await fetch(`${dbURL}/users/${bossID}.json`, { 
-                            method: 'PUT', 
-                            body: JSON.stringify(bossData) 
-                        });
-                    }
-                } catch (e) { console.log("Referral error"); }
-            }
-        }
-
-        // ৩. অ্যাড দেখা এবং টাকা যোগ হওয়া
-        // এই ফাংশনটি আপনার কোডে রিপ্লেস করুন
-// আপনার স্ক্রিনশটের মতো অ্যাড দেখানোর ফাংশন
-function watchAd() {
-    if (userData && userData.dailyAds > 0) {
-        // মনিট্যাগ থেকে Rewarded Interstitial কল করা হচ্ছে
-        if (typeof show_10582159 === 'function') {
-            show_10582159().then(async () => {
-                // এই অংশটি তখনই চলবে যখন ইউজার "Continue" বাটনে ক্লিক করে অ্যাড শেষ করবে
-                userData.balance += 2;
-                userData.dailyAds -= 1;
-                
-                // টাকা যেন জিরো না হয় তাই আগে ডাটাবেজে সেভ হবে
-                await saveData(); 
-                
-                updateUI();
-                tg.showAlert("অভিনন্দন! ২ টাকা যোগ হয়েছে।");
-            }).catch(() => {
-                tg.showAlert("অ্যাড পুরোপুরি দেখা হয়নি।");
-            });
-        } else {
-            tg.showAlert("অ্যাড সিস্টেম লোড হচ্ছে, ৫ সেকেন্ড পর আবার চেষ্টা করুন।");
-        }
-    } else {
-        tg.showAlert("আপনার আজকের ১০টি অ্যাড দেখা শেষ!");
-    }
-}
-
-
-
-        // ৪. ডাটাবেজে ডাটা পাঠানো
         async function saveToDB() {
             if (userData) {
-                await fetch(`${dbURL}/users/${uid}.json`, { 
-                    method: 'PUT', 
-                    body: JSON.stringify(userData) 
-                });
+                await fetch(`${dbURL}/users/${uid}.json`, { method: 'PUT', body: JSON.stringify(userData) });
             }
         }
 
-        // ৫. স্ক্রিন আপডেট করা
+        function watchAd() {
+            if (userData && userData.dailyAds > 0) {
+                if (typeof show_10582159 === 'function') {
+                    show_10582159().then(async () => {
+                        userData.balance += 2;
+                        userData.dailyAds -= 1;
+                        if(userData.dailyAds === 0) userData.lastAdTime = Date.now();
+                        await saveToDB();
+                        refreshUI();
+                        tg.showAlert("২ টাকা যোগ হয়েছে!");
+                    });
+                }
+            }
+        }
+
         function refreshUI() {
             if (!userData) return;
-            document.getElementById('bal_v').innerText = userData.balance.toFixed(2);
+            document.getElementById('bal_v').innerText = userData.balance.toFixed(2) + " ৳";
             document.getElementById('ad_count').innerText = userData.dailyAds;
             document.getElementById('ref_v').innerText = userData.refs || 0;
             document.getElementById('ref_link').value = "https://t.me/microtask_earnmoney_bot?start=" + uid;
 
+            const adBtn = document.getElementById('ad_btn');
+            const timerTxt = document.getElementById('timer_text');
+            if(userData.dailyAds === 0) {
+                adBtn.style.display = "none";
+                timerTxt.style.display = "block";
+                const diff = Math.ceil((3600000 - (Date.now() - userData.lastAdTime)) / 60000);
+                document.getElementById('time_left').innerText = diff > 0 ? diff : 0;
+            } else {
+                adBtn.style.display = "block";
+                timerTxt.style.display = "none";
+            }
+
             const wBtn = document.getElementById('withdraw_btn');
+            const wStatus = document.getElementById('withdraw_status');
             if (userData.balance >= 700 && userData.refs >= 10) {
                 wBtn.disabled = false;
-                wBtn.style.background = "var(--success)";
+                wBtn.style.background = "#2ecc71";
                 wBtn.style.color = "white";
+                wStatus.style.display = "none";
+            } else {
+                wBtn.disabled = true;
+                wStatus.style.display = "block";
+            }
+        }
+
+        async function runReferralCheck() {
+            const params = new URLSearchParams(window.location.search);
+            const bossID = params.get('start');
+            if (bossID && bossID !== uid) {
+                const res = await fetch(`${dbURL}/users/${bossID}.json`);
+                let bossData = await res.json();
+                if (bossData) {
+                    bossData.balance = (bossData.balance || 0) + 13;
+                    bossData.refs = (bossData.refs || 0) + 1;
+                    await fetch(`${dbURL}/users/${bossID}.json`, { method: 'PUT', body: JSON.stringify(bossData) });
+                }
             }
         }
 
@@ -178,23 +210,13 @@ function watchAd() {
         }
 
         function copyRef() {
-            const copyText = document.getElementById("ref_link");
-            copyText.select();
+            document.getElementById("ref_link").select();
             document.execCommand("copy");
-            tg.showAlert("লিংক কপি হয়েছে! আপনার বন্ধুদের শেয়ার করুন।");
+            tg.showAlert("লিংক কপি হয়েছে!");
         }
 
-        function withdraw() {
-            tg.showConfirm("আপনি কি নিশ্চিত যে উইথড্র রিকোয়েস্ট পাঠাতে চান?", (ok) => {
-                if(ok) tg.showAlert("রিকোয়েস্ট সফল! ২৪ ঘণ্টার মধ্যে পেমেন্ট পাবেন।");
-            });
-        }
-
-        // অ্যাপ চালু করা
         loadAppData();
+        setInterval(refreshUI, 30000);
     </script>
 </body>
 </html>
-
-
-
