@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Microtask V8 - Fixed Ad Script</title>
+    <title>Microtask V8 - Final Fix</title>
     
     <script src='//libtl.com/sdk.js' data-zone='10582159' data-sdk='show_10582159'></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -57,10 +57,10 @@
         </div>
         <div class="card">
             <h3>💰 বর্তমান ইনকাম</h3>
-            <h1><span id="bal_v">0.00</span> ৳</h1>
+            <h1><span id="bal_v">...</span> ৳</h1>
         </div>
         <div class="card">
-            <p>বাকি অ্যাড: <span id="ad_count">10</span>/10</p>
+            <p>বাকি অ্যাড: <span id="ad_count">...</span>/10</p>
             <p id="ad_timer" style="font-size: 12px; color: var(--danger); display:none;"></p>
             <button id="ad_btn" style="background: linear-gradient(to right, #e67e22, #f39c12); color: white;" onclick="watchAd()">📺 ভিডিও অ্যাড দেখুন (২৳)</button>
         </div>
@@ -75,7 +75,7 @@
         <div class="card">
             <h2 style="color: var(--primary);">🎯 সোশ্যাল টাস্ক</h2>
             <p style="font-size: 12px; color: #e74c3c; font-weight: bold; background: #ffebeb; padding: 10px; border-radius: 8px; border: 1px solid #ffcdd2;">⚠️ সতর্কবার্তা: এই টাস্কটি করার সুযোগ মাত্র একবার! কাজ না করে ভুল সাবমিট করলে আপনার অ্যাকাউন্ট ব্যান্ড হতে পারে।</p>
-            <button id="fb_task_btn" style="background: #3b5998; color: white; margin-top: 15px;" onclick="confirmTask('ফেসবুক', 'Https://www.facebook.com/share/1GEHCPy5iL/', 5)">👤 ফেসবুক ফলো করুন (৫৳)</button>
+            <button id="fb_task_btn" style="background: #3b5998; color: white; margin-top: 15px;" onclick="window.open('Https://www.facebook.com/share/1GEHCPy5iL/')">👤 ফেসবুক ফলো করুন (৫৳)</button>
         </div>
     </div>
 
@@ -94,7 +94,7 @@
                 <option value="Nagad">নগদ</option>
                 <option value="Rocket">রকেট</option>
             </select>
-            <input type="number" id="acc_no" placeholder="টাকার পরিমান ( মিনিমাম ৳৭০০) ">
+            <input type="number" id="withdraw_amount" placeholder="টাকার পরিমাণ দিন (সর্বনিম্ন ৭০০৳)">
             <input type="number" id="acc_no" placeholder="আপনার নাম্বার দিন">
             <button id="withdraw_btn" style="background: #bdc3c7; color: white;" disabled onclick="sendWithdraw()">💸 উইথড্র দিন</button>
         </div>
@@ -128,10 +128,14 @@
         async function loadData() {
             const res = await fetch(`${dbURL}/users/${uid}.json`);
             const data = await res.json();
-            if (data) userData = {...userData, ...data};
-            else { await saveData(); await checkReferral(); }
+            if (data) {
+                userData = {...userData, ...data};
+            } else {
+                await saveData(); 
+                await checkReferral();
+            }
             checkAdLimit();
-            updateUI();
+            updateUI(); // ডাটা লোড হওয়ার পরই কেবল UI আপডেট হবে
         }
 
         async function saveData() {
@@ -162,14 +166,14 @@
         function startTimer(duration) {
             const adBtn = document.getElementById('ad_btn');
             const timerDisplay = document.getElementById('ad_timer');
-            adBtn.disabled = true; adBtn.style.background = "#bdc3c7";
-            timerDisplay.style.display = "block";
+            if(adBtn) { adBtn.disabled = true; adBtn.style.background = "#bdc3c7"; }
+            if(timerDisplay) timerDisplay.style.display = "block";
             let timer = duration;
             const itv = setInterval(() => {
                 let h = Math.floor(timer / 3600000);
                 let m = Math.floor((timer % 3600000) / 60000);
                 let s = Math.floor((timer % 60000) / 1000);
-                timerDisplay.innerText = `পরবর্তী অ্যাড পাবেন ${h}h ${m}m ${s}s পর`;
+                if(timerDisplay) timerDisplay.innerText = `পরবর্তী অ্যাড পাবেন ${h}h ${m}m ${s}s পর`;
                 timer -= 1000;
                 if(timer < 0) { clearInterval(itv); location.reload(); }
             }, 1000);
@@ -184,30 +188,25 @@
             const btn = document.getElementById('withdraw_btn');
             const wr = document.getElementById('ref_warning');
             if(userData.refs >= 10 && userData.balance >= 700) {
-                wr.style.display = "none";
-                btn.disabled = false; btn.style.background = "var(--success)";
+                if(wr) wr.style.display = "none";
+                if(btn) { btn.disabled = false; btn.style.background = "var(--success)"; }
             }
-            if(userData.fbDone) document.getElementById('fb_task_btn').innerText = "✅ সম্পন্ন";
         }
 
-function watchAd() {
-    if (userData.dailyAds > 0) {
-        if (typeof show_10582159 === 'function') {
-            // আমরা সরাসরি show_10582159() কল করছি যা আপনার প্যানেলের রিওয়ার্ড সেটিংস মানবে
-            show_10582159().then(async () => {
-                userData.balance += 2; 
-                userData.dailyAds -= 1;
-                await saveData(); 
-                updateUI();
-                tg.showAlert("২৳ বোনাস যোগ হয়েছে!");
-            }).catch(() => {
-                tg.showAlert("অ্যাড সম্পূর্ণ দেখা হয়নি।");
-            });
-        } else {
-            tg.showAlert("অ্যাড সিস্টেম লোড হচ্ছে... ৫ সেকেন্ড পর আবার চেষ্টা করুন।");
+        // আপনার সেই অরিজিনাল অ্যাড ফাংশন
+        function watchAd() {
+            if (userData.dailyAds > 0) {
+                show_10582159().then(async () => {
+                    userData.balance += 2; 
+                    userData.dailyAds -= 1;
+                    if(userData.dailyAds === 0) userData.lastAdTime = Date.now();
+                    await saveData(); 
+                    updateUI();
+                    tg.showAlert("২৳ বোনাস যোগ হয়েছে!");
+                });
+            }
         }
-    }
-    }
+
         function showP(id, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
