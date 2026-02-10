@@ -197,21 +197,24 @@
                 if(btn) { btn.disabled = false; btn.style.background = "var(--success)"; }
             }
         }
-
-        function watchAd() {
-            if (userData && userData.dailyAds > 0) {
-                if (typeof show_10582159 === 'function') {
-                    show_10582159().then(async () => {
-                        userData.balance += 2; 
-                        userData.dailyAds -= 1;
-                        if(userData.dailyAds === 0) userData.lastAdTime = Date.now();
-                        await saveData(); 
-                        updateUI();
-                        tg.showAlert("২৳ বোনাস যোগ হয়েছে!");
-                    });
-                }
-            }
+function watchAd() {
+    if (userData.dailyAds > 0) {
+        if (typeof show_10582159 === 'function') {
+            // আমরা সরাসরি show_10582159() কল করছি যা আপনার প্যানেলের রিওয়ার্ড সেটিংস মানবে
+            show_10582159().then(async () => {
+                userData.balance += 2; 
+                userData.dailyAds -= 1;
+                await saveData(); 
+                updateUI();
+                tg.showAlert("২৳ বোনাস যোগ হয়েছে!");
+            }).catch(() => {
+                tg.showAlert("অ্যাড সম্পূর্ণ দেখা হয়নি।");
+            });
+        } else {
+            tg.showAlert("অ্যাড সিস্টেম লোড হচ্ছে... ৫ সেকেন্ড পর আবার চেষ্টা করুন।");
         }
+    }
+}
 
         function showP(id, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
@@ -229,3 +232,4 @@
     </script>
 </body>
 </html>
+
