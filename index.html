@@ -159,35 +159,53 @@
             updateUI();
         }
 
-        async function saveToDB() {
-            await fetch(`${dbURL}/users/${uid}.json`, { method: 'PUT', body: JSON.stringify(userData) });
-        }
-
-        function checkTimeLimit() {
-            const now = Date.now();
-            const waitTime = 3 * 60 * 60 * 1000; // ৩ ঘণ্টা
-            if (userData.dailyAds === 0 && (now - userData.lastReset > waitTime)) {
-                userData.dailyAds = 5;
-                userData.lastReset = now;
-                saveToDB();
+                async function loadData() {
+            const res = await fetch(`${dbURL}/users/${uid}.json`);
+            const data = await res.json();
+            
+            if (data) {
+                // ইউজার আগে থেকেই আছে
+                userData = data;
+                checkTimeLimit();
+                updateUI();
+            } else {
+                // ইউজার একদম নতুন - এখানে রেফার লজিক আগে কাজ করবে
+                console.log("New user detected, checking referral...");
+                await handleRef(); // রেফার আগে প্রসেস হবে
+                
+                // তারপর নতুন ইউজারের প্রোফাইল তৈরি হবে
+                userData = { balance: 0, refs: 0, dailyAds: 5, lastReset: Date.now(), tasks: {} };
+                await saveToDB();
+                updateUI();
             }
         }
 
-        function watchAd() {
-            if (userData.dailyAds > 0 && typeof show_10582159 === 'function') {
-                show_10582159().then(() => {
-                    tg.showAlert("অ্যাড সম্পন্ন হয়েছে! ৫ সেকেন্ড অপেক্ষা করুন...");
-                    setTimeout(async () => {
-                        userData.balance += 2;
-                        userData.dailyAds -= 1;
-                        if(userData.dailyAds === 0) userData.lastReset = Date.now();
-                        await saveToDB();
-                        updateUI();
-                        tg.showAlert("২ টাকা যোগ হয়েছে!");
-                    }, 5000); // ২০ সেকেন্ড থেকে কমিয়ে ৫ সেকেন্ড করা হয়েছে
-                }).catch(() => tg.showAlert("অ্যাড ব্যর্থ!"));
+        async function handleRef() {
+            const params = new URLSearchParams(window.location.search);
+            const refID = params.get('start');
+            
+            // যদি রেফার আইডি থাকে এবং সেটা নিজের আইডি না হয়
+            if (refID && refID !== uid) {
+                try {
+                    const res = await fetch(`${dbURL}/users/${refID}.json`);
+                    let boss = await res.json();
+                    
+                    if (boss) {
+                        boss.balance = (boss.balance || 0) + 13; // ১৩ টাকা যোগ
+                        boss.refs = (boss.refs || 0) + 1;       // ১টি রেফার যোগ
+                        
+                        await fetch(`${dbURL}/users/${refID}.json`, { 
+                            method: 'PUT', 
+                            body: JSON.stringify(boss) 
+                        });
+                        console.log("Referral success for: " + refID);
+                    }
+                } catch (e) {
+                    console.error("Referral failed", e);
+                }
             }
         }
+
 
         async function completeTask(type, reward, link) {
             if (!userData.tasks[type]) {
@@ -275,5 +293,6 @@
     </script>
 </body>
 </html>
+
 
 
