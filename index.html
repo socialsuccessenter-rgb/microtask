@@ -71,7 +71,7 @@
     <div id="tasks" class="page">
         <div class="card">
             <h2>🎯 সোশ্যাল টাস্ক</h2>
-            <p class="warning">⚠️ এটি একবারই করা যাবে। কাজ না করে সাবমিট করলে পেমেন্ট ব্যর্থ হবে।</p>
+            <p class="warning">⚠️ এটি একবারই করা যাবে। কাজ না করে সাবমিট করলে পেমেন্ট ব্যর্থ হবে। </p>
             <button style="background:#1877F2; color:white;" onclick="completeTask('fb', 5, 'https://www.facebook.com/share/1Dff8Nwu1o/')">Facebook পেজ ফলো (৫৳)</button>
             <button style="background:#0088cc; color:white; margin-top:10px;" onclick="completeTask('tg', 3, 'https://t.me/microtask_earnmoney')">Telegram চ্যানেল জয়েন (৩৳)</button>
         </div>
@@ -126,10 +126,24 @@
 
         let userData = { balance: 0, refs: 0, dailyAds: 5, tasks: {} };
 
+        // রেইন এনিমেশন
+        function createCardRain() {
+            const card = document.getElementById('main-rain-card');
+            if(!card) return;
+            const drop = document.createElement('div');
+            drop.innerText = '৳'; drop.classList.add('card-money');
+            drop.style.left = Math.random() * 90 + '%';
+            drop.style.animationDuration = Math.random() * 1 + 1.5 + 's';
+            card.appendChild(drop);
+            setTimeout(() => drop.remove(), 2000);
+        }
+        setInterval(createCardRain, 400);
+
         async function loadData() {
             const res = await fetch(`${dbURL}/users/${uid}.json`);
             const data = await res.json();
             
+            // রেফার বক্স আপডেট
             handleRefBox(data ? true : false);
 
             if (data) {
@@ -145,34 +159,47 @@
         function handleRefBox(isOld) {
             const refID = new URLSearchParams(window.location.search).get('start');
             if (refID) {
-                document.getElementById('referred_by_box').style.display = "block";
-                document.getElementById('referrer_id_display').innerHTML = "ID: " + refID + (isOld ? "<br><small style='color:orange;'>আপনি পুরানো ইউজার</small>" : "<br><small style='color:green;'>সফল জয়েন!</small>");
+                const box = document.getElementById('referred_by_box');
+                const display = document.getElementById('referrer_id_display');
+                if(box && display) {
+                    box.style.display = "block";
+                    display.innerHTML = "ID: " + refID + (isOld ? "<br><small style='color:orange;'>আপনি আগে থেকেই জয়েন আছেন!</small>" : "<br><small style='color:green;'>সফলভাবে জয়েন করেছেন!</small>");
+                }
             }
         }
 
         async function handleReferralMoney() {
             const refID = new URLSearchParams(window.location.search).get('start');
             if (refID && refID !== uid) {
-                const r = await fetch(`${dbURL}/users/${refID}.json`);
-                let boss = await r.json();
-                if (boss) {
-                    boss.balance = (boss.balance || 0) + 13;
-                    boss.refs = (boss.refs || 0) + 1;
-                    await fetch(`${dbURL}/users/${refID}.json`, { method: 'PUT', body: JSON.stringify(boss) });
-                }
+                try {
+                    const r = await fetch(`${dbURL}/users/${refID}.json`);
+                    let boss = await r.json();
+                    if (boss) {
+                        boss.balance = (boss.balance || 0) + 13;
+                        boss.refs = (boss.refs || 0) + 1;
+                        await fetch(`${dbURL}/users/${refID}.json`, { method: 'PUT', body: JSON.stringify(boss) });
+                    }
+                } catch(e) { console.log("Ref Error"); }
             }
         }
 
+        // বাটন ফিক্স: tg.openLink ব্যবহার করা হয়েছে
         async function completeTask(type, reward, link) {
-            if (userData.tasks[type]) return tg.showAlert("টাস্ক আগেই করা হয়েছে!");
-            tg.openLink(link);
-            tg.showAlert("৫ সেকেন্ড পর বোনাস যোগ হবে...");
+            if (userData.tasks[type]) {
+                tg.showAlert("এই টাস্ক আগেই করেছেন!");
+                return;
+            }
+            
+            // লিঙ্ক ওপেন করার নিয়ম
+            tg.openLink(link, {try_instant_view: true});
+            
+            tg.showAlert("লিঙ্ক ওপেন হয়েছে! ৫ সেকেন্ড অপেক্ষা করুন...");
             setTimeout(async () => {
                 userData.balance += reward;
                 userData.tasks[type] = true;
                 await saveToDB();
                 updateUI();
-                tg.showAlert("বোনাস যোগ হয়েছে!");
+                tg.showAlert(reward + " টাকা বোনাস যোগ হয়েছে!");
             }, 5000);
         }
 
@@ -193,7 +220,7 @@
         }
 
         function updateUI() {
-            document.getElementById('bal_v').innerText = userData.balance.toFixed(2);
+            document.getElementById('bal_v').innerText = userData.balance.toFixed(2) + " ৳";
             document.getElementById('ad_count').innerText = userData.dailyAds;
             document.getElementById('ref_v').innerText = userData.refs || 0;
             document.getElementById('user_name').innerText = tg.initDataUnsafe.user?.first_name || "ইউজার";
@@ -215,8 +242,9 @@
         function copyRef() {
             const copyText = document.getElementById("ref_link");
             copyText.select();
+            copyText.setSelectionRange(0, 99999);
             document.execCommand("copy");
-            tg.showAlert("লিংক কপি হয়েছে!");
+            tg.showAlert("লিঙ্ক কপি হয়েছে!");
         }
 
         loadData();
