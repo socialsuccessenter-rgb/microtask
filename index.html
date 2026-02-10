@@ -3,24 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Microtask V8 - Stability Fixed</title>
+    <title>Microtask V8 - Final Everything Fix</title>
     
     <script src='//libtl.com/sdk.js' data-zone='10582159' data-sdk='show_10582159'></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
     <style>
-        :root { --primary: #3498db; --success: #2ecc71; --danger: #e74c3c; --bg: #f8f9fa; }
+        :root { --primary: #3498db; --success: #2ecc71; --warning: #f39c12; --danger: #e74c3c; --bg: #f8f9fa; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; user-select: none; }
         .page { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
         .active-page { display: block !important; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
         .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; text-align: center; }
         h1 { margin: 10px 0; font-size: 32px; color: #2c3e50; }
         button { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; transition: 0.3s; }
+        
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #eee; z-index: 1000; left: 0; height: 70px; }
         .nav-item { text-align: center; font-size: 12px; color: #95a5a6; cursor: pointer; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .nav-item.active { color: var(--primary); font-weight: bold; }
-        input, select { width: 90%; padding: 12px; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; text-align: center; background: #f9f9f9; }
+        
+        input, select { width: 90%; padding: 12px; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; text-align: center; background: #f9f9f9; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -28,11 +31,11 @@
     <div id="home" class="page active-page">
         <div class="card">
             <h3>💰 বর্তমান ইনকাম</h3>
-            <h1><span id="bal_v">লোড হচ্ছে...</span> ৳</h1>
+            <h1><span id="bal_v">...</span> ৳</h1>
         </div>
         <div class="card">
             <p>বাকি অ্যাড: <span id="ad_count">...</span>/10</p>
-            <p id="ad_timer" style="display:none; color: var(--danger); font-weight: bold;"></p>
+            <p id="ad_timer" style="font-size: 12px; color: var(--danger); display:none;"></p>
             <button id="ad_btn" style="background: linear-gradient(to right, #e67e22, #f39c12); color: white;" onclick="watchAd()">📺 ভিডিও অ্যাড দেখুন (২৳)</button>
         </div>
     </div>
@@ -40,7 +43,7 @@
     <div id="tasks" class="page">
         <div class="card">
             <h2>🎯 সোশ্যাল টাস্ক</h2>
-            <button style="background: #3b5998; color: white;" onclick="window.open('Https://www.facebook.com/share/1GEHCPy5iL/')">👤 ফেসবুক ফলো (৫৳)</button>
+            <button style="background: #3b5998; color: white;" onclick="window.open('Https://www.facebook.com/share/1GEHCPy5iL/')">👤 ফেসবুক ফলো করুন (৫৳)</button>
         </div>
     </div>
 
@@ -48,12 +51,10 @@
         <div class="card">
             <h2>👤 আপনার তথ্য</h2>
             <p>মোট রেফার: <span id="ref_v">...</span>/10</p>
-            <input type="text" id="ref_link" readonly style="font-size: 10px;">
-            <button style="background: var(--primary); color: white;" onclick="copyRef()">🚀 রেফার লিংক কপি</button>
         </div>
         <div class="card">
             <h4>💸 টাকা উত্তোলন</h4>
-            <input type="number" id="withdraw_amount" placeholder="পরিমাণ (৭০০৳)">
+            <input type="number" id="withdraw_amount" placeholder="টাকার পরিমাণ (সর্বনিম্ন ৭০০৳)">
             <input type="number" id="acc_no" placeholder="বিকাশ/নগদ নাম্বার">
             <button id="withdraw_btn" style="background: #bdc3c7; color: white;" disabled>💸 উইথড্র দিন</button>
         </div>
@@ -62,7 +63,7 @@
     <div id="support" class="page">
         <div class="card">
             <h2>🆘 হেল্প সেন্টার</h2>
-            <button style="background: #0088cc; color: white;" onclick="window.open('https://t.me/microtask_earnmoney')">💬 টেলিগ্রাম চ্যানেল</button>
+            <button style="background: #0088cc; color: white;" onclick="window.open('https://t.me/microtask_earnmoney')">💬 আমাদের টেলিগ্রাম চ্যানেল</button>
         </div>
     </div>
 
@@ -78,112 +79,59 @@
         const uid = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id.toString() : "test_user";
         const dbURL = "https://earnmoneybot-8836f-default-rtdb.firebaseio.com/";
 
-        let userData = null;
+        let userData = null; // ডাটা না আসা পর্যন্ত কোনো কিছু সেভ হবে না
 
-        // ডাটাবেজ থেকে ডাটা লোড
         async function loadData() {
             try {
                 const res = await fetch(`${dbURL}/users/${uid}.json`);
                 const data = await res.json();
-                
                 if (data) {
                     userData = data;
                 } else {
-                    // একদম নতুন ইউজার হলে
-                    userData = { balance: 0, refs: 0, lastAdTime: 0, dailyAds: 10 };
+                    userData = { balance: 0, refs: 0, fbDone: false, lastAdTime: 0, dailyAds: 10 };
                     await saveData(); 
-                    await handleReferral();
                 }
                 updateUI();
-                checkAdTimer();
+                checkAdLimit();
             } catch (e) {
-                document.getElementById('bal_v').innerText = "Error!";
+                console.log("Error loading data");
             }
         }
 
-        // ডাটাবেজে ডাটা সেভ
         async function saveData() {
-            if (!userData) return;
-            await fetch(`${dbURL}/users/${uid}.json`, { 
-                method: 'PUT', 
-                body: JSON.stringify(userData) 
-            });
+            if(userData) {
+                await fetch(`${dbURL}/users/${uid}.json`, { 
+                    method: 'PUT', 
+                    body: JSON.stringify(userData) 
+                });
+            }
         }
 
-        // ইউআই আপডেট
         function updateUI() {
-            if (!userData) return;
+            if(!userData) return;
             document.getElementById('bal_v').innerText = (userData.balance || 0).toFixed(2);
             document.getElementById('ref_v').innerText = userData.refs || 0;
             document.getElementById('ad_count').innerText = userData.dailyAds;
-            document.getElementById('ref_link').value = "https://t.me/microtask_earnmoney_bot?start=" + uid;
             
             const btn = document.getElementById('withdraw_btn');
-            if (userData.balance >= 700 && userData.refs >= 10) {
-                btn.disabled = false;
-                btn.style.background = "var(--success)";
+            if(userData.balance >= 700 && userData.refs >= 10 && btn) {
+                btn.disabled = false; btn.style.background = "var(--success)";
             }
         }
 
-        // রেফার হ্যান্ডেল
-        async function handleReferral() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const refID = urlParams.get('start');
-            if (refID && refID !== uid) {
-                const res = await fetch(`${dbURL}/users/${refID}.json`);
-                let rData = await res.json();
-                if (rData) {
-                    rData.balance += 13;
-                    rData.refs += 1;
-                    await fetch(`${dbURL}/users/${refID}.json`, { method: 'PUT', body: JSON.stringify(rData) });
-                }
-            }
-        }
-
-        // অ্যাড দেখা (মনিট্যাগ অরিজিনাল পদ্ধতি)
         function watchAd() {
             if (userData && userData.dailyAds > 0) {
                 if (typeof show_10582159 === 'function') {
                     show_10582159().then(async () => {
-                        userData.balance += 2;
+                        userData.balance += 2; 
                         userData.dailyAds -= 1;
-                        if (userData.dailyAds === 0) userData.lastAdTime = Date.now();
-                        await saveData();
+                        if(userData.dailyAds === 0) userData.lastAdTime = Date.now();
+                        await saveData(); 
                         updateUI();
-                        tg.showAlert("২৳ আপনার ব্যালেন্সে যোগ হয়েছে!");
-                    }).catch(() => {
-                        tg.showAlert("অ্যাড লোড হয়নি, আবার চেষ্টা করুন।");
+                        tg.showAlert("২৳ বোনাস যোগ হয়েছে!");
                     });
                 } else {
                     tg.showAlert("অ্যাড সিস্টেম লোড হচ্ছে, ৫ সেকেন্ড অপেক্ষা করুন।");
-                }
-            }
-        }
-
-        // ৩ ঘণ্টার টাইমার চেক
-        function checkAdTimer() {
-            if (userData.dailyAds <= 0) {
-                const now = Date.now();
-                const diff = (3 * 60 * 60 * 1000) - (now - userData.lastAdTime);
-                if (diff > 0) {
-                    document.getElementById('ad_btn').disabled = true;
-                    document.getElementById('ad_btn').style.background = "#bdc3c7";
-                    const timerEl = document.getElementById('ad_timer');
-                    timerEl.style.display = "block";
-                    
-                    let timeLeft = diff;
-                    const itv = setInterval(() => {
-                        let h = Math.floor(timeLeft / 3600000);
-                        let m = Math.floor((timeLeft % 3600000) / 60000);
-                        let s = Math.floor((timeLeft % 60000) / 1000);
-                        timerEl.innerText = `আবার অ্যাড পাবেন: ${h}h ${m}m ${s}s পর`;
-                        timeLeft -= 1000;
-                        if (timeLeft < 0) { clearInterval(itv); location.reload(); }
-                    }, 1000);
-                } else {
-                    userData.dailyAds = 10;
-                    saveData();
-                    updateUI();
                 }
             }
         }
@@ -195,11 +143,14 @@
             el.classList.add('active');
         }
 
-        function copyRef() {
-            const copyText = document.getElementById("ref_link");
-            copyText.select();
-            document.execCommand("copy");
-            tg.showAlert("লিংক কপি হয়েছে!");
+        function checkAdLimit() {
+            if (userData && userData.dailyAds <= 0) {
+                const diff = (3 * 60 * 60 * 1000) - (Date.now() - userData.lastAdTime);
+                if (diff > 0) {
+                    const btn = document.getElementById('ad_btn');
+                    if(btn) btn.disabled = true;
+                }
+            }
         }
 
         loadData();
