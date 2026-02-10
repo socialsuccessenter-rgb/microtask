@@ -12,12 +12,12 @@
         :root { --primary: #3498db; --success: #2ecc71; --danger: #e74c3c; --bg: #f0f2f5; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; overflow-x: hidden; }
 
-        /* রেইন কার্ডের স্পেশাল ডিজাইন - ১২ কালার এনিমেশন */
+        /* রেইন কার্ডের স্পেশাল ডিজাইন - ৩-৪ কালার প্রিমিয়াম এনিমেশন */
         .rain-card { 
             position: relative;
-            background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+            background: linear-gradient(-45deg, #23a6d5, #23d5ab, #8e44ad, #2980b9);
             background-size: 400% 400%;
-            animation: colorShift 15s ease infinite;
+            animation: colorShift 10s ease infinite;
             color: white; 
             border-radius: 20px; 
             padding: 30px 25px; 
@@ -163,7 +163,7 @@
 
         function checkTimeLimit() {
             const now = Date.now();
-            const waitTime = 2 * 60 * 60 * 1000;
+            const waitTime = 3 * 60 * 60 * 1000; // ৩ ঘণ্টা
             if (userData.dailyAds === 0 && (now - userData.lastReset > waitTime)) {
                 userData.dailyAds = 5;
                 userData.lastReset = now;
@@ -174,7 +174,7 @@
         function watchAd() {
             if (userData.dailyAds > 0 && typeof show_10582159 === 'function') {
                 show_10582159().then(() => {
-                    tg.showAlert("অ্যাড সম্পন্ন হয়েছে! ২০ সেকেন্ড অপেক্ষা করুন...");
+                    tg.showAlert("অ্যাড সম্পন্ন হয়েছে! ৫ সেকেন্ড অপেক্ষা করুন...");
                     setTimeout(async () => {
                         userData.balance += 2;
                         userData.dailyAds -= 1;
@@ -182,7 +182,7 @@
                         await saveToDB();
                         updateUI();
                         tg.showAlert("২ টাকা যোগ হয়েছে!");
-                    }, 20000);
+                    }, 5000); // ২০ সেকেন্ড থেকে কমিয়ে ৫ সেকেন্ড করা হয়েছে
                 }).catch(() => tg.showAlert("অ্যাড ব্যর্থ!"));
             }
         }
@@ -190,14 +190,14 @@
         async function completeTask(type, reward, link) {
             if (!userData.tasks[type]) {
                 window.open(link, '_blank');
-                tg.showAlert("২০ সেকেন্ড পর বোনাস যোগ হবে...");
+                tg.showAlert("৫ সেকেন্ড পর বোনাস যোগ হবে...");
                 setTimeout(async () => {
                     userData.balance += reward;
                     userData.tasks[type] = true;
                     await saveToDB();
                     updateUI();
                     tg.showAlert(reward + " টাকা যোগ হয়েছে!");
-                }, 20000);
+                }, 5000); // টাস্কের ক্ষেত্রেও ৫ সেকেন্ড করা হয়েছে
             } else {
                 tg.showAlert("এই টাস্ক আগেই করেছেন!");
             }
@@ -215,7 +215,7 @@
             const timeLeftSpan = document.getElementById('time_left');
 
             const now = Date.now();
-            const waitTime = 2 * 60 * 60 * 1000;
+            const waitTime = 3 * 60 * 60 * 1000; // ৩ ঘণ্টা (১৮০ মিনিট)
             const timePassed = now - userData.lastReset;
 
             if (userData.dailyAds === 0) {
@@ -241,8 +241,7 @@
             }
         }
 
-        // টাইমার ১ মিনিট পরপর চেক করবে
-        setInterval(updateUI, 60000);
+        setInterval(updateUI, 30000); // ৩০ সেকেন্ড পরপর রিফ্রেশ হবে
 
         async function handleRef() {
             const params = new URLSearchParams(window.location.search);
