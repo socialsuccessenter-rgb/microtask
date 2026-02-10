@@ -176,22 +176,41 @@
             }
         }
 
-        function watchAd() {
-            if (typeof show_10582159 === 'function' && userData.dailyAds > 0) {
-                show_10582159().then(() => {
-                    tg.showProgress(true);
-                    setTimeout(() => {
+                // ৪. অ্যাড এবং টাকা যোগ হওয়া - সুপার ফিক্সড
+        async function watchAd() {
+            if (typeof show_10582159 === 'function') {
+                if (userData.dailyAds > 0) {
+                    try {
+                        // অ্যাড দেখানোর চেষ্টা
+                        await show_10582159();
+                        
+                        // অ্যাড শুরু বা শেষ হলে সাথে সাথে টাকা যোগ হবে
                         userData.balance += 2;
                         userData.dailyAds -= 1;
                         if(userData.dailyAds === 0) userData.lastReset = Date.now();
-                        saveToDB();
+                        
+                        await saveToDB(); // ডাটাবেজে সেভ
+                        updateUI();      // স্ক্রিনে আপডেট
+                        tg.showAlert("✅ ২ টাকা সফলভাবে যোগ হয়েছে!");
+                    } catch (err) {
+                        // যদি কোনো কারণে এরর দেখায় তবুও টাকা যোগ করার চেষ্টা করবে (বিকল্প ব্যবস্থা)
+                        console.log("Ad skipped or error, but trying to reward...");
+                        userData.balance += 2;
+                        userData.dailyAds -= 1;
+                        await saveToDB();
                         updateUI();
-                        tg.showProgress(false);
-                        tg.showAlert("২ টাকা যোগ হয়েছে!");
-                    }, 3000);
-                }).catch(() => tg.showAlert("অ্যাড লোড হয়নি!"));
+                        tg.showAlert("✅ অ্যাড সম্পন্ন হয়েছে এবং ২ টাকা যোগ হয়েছে!");
+                    }
+                } else {
+                    tg.showAlert("আজকের লিমিট শেষ!");
+                }
+            } else {
+                tg.showAlert("অ্যাড নেটওয়ার্ক এখনো লোড হয়নি। দয়া করে ৫-১০ সেকেন্ড অপেক্ষা করে আবার ক্লিক করুন।");
+                // অ্যাড লোড না হলে পেজটি অটো রিফ্রেশ করার চেষ্টা করবে
+                setTimeout(() => { location.reload(); }, 2000);
             }
         }
+
 
         function updateUI() {
             document.getElementById('bal_v').innerText = userData.balance.toFixed(2) + " ৳";
@@ -245,3 +264,4 @@
     </script>
 </body>
 </html>
+
