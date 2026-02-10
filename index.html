@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Microtask V8 - Fixed Ad Script</title>
+    <title>Microtask V8 - Final Fix</title>
     
     <script src='//libtl.com/sdk.js' data-zone='10582159' data-sdk='show_10582159'></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -94,7 +94,9 @@
                 <option value="Nagad">নগদ</option>
                 <option value="Rocket">রকেট</option>
             </select>
+            <input type="number" id="withdraw_amount" placeholder="টাকার পরিমাণ দিন (সর্বনিম্ন ৭০০৳)">
             <input type="number" id="acc_no" placeholder="আপনার নাম্বার দিন">
+            
             <button id="withdraw_btn" style="background: #bdc3c7; color: white;" disabled onclick="sendWithdraw()">💸 উইথড্র দিন</button>
         </div>
     </div>
@@ -189,24 +191,25 @@
             if(userData.fbDone) document.getElementById('fb_task_btn').innerText = "✅ সম্পন্ন";
         }
 
-function watchAd() {
-    if (userData.dailyAds > 0) {
-        if (typeof show_10582159 === 'function') {
-            // আমরা সরাসরি show_10582159() কল করছি যা আপনার প্যানেলের রিওয়ার্ড সেটিংস মানবে
-            show_10582159().then(async () => {
-                userData.balance += 2; 
-                userData.dailyAds -= 1;
-                await saveData(); 
-                updateUI();
-                tg.showAlert("২৳ বোনাস যোগ হয়েছে!");
-            }).catch(() => {
-                tg.showAlert("অ্যাড সম্পূর্ণ দেখা হয়নি।");
-            });
-        } else {
-            tg.showAlert("অ্যাড সিস্টেম লোড হচ্ছে... ৫ সেকেন্ড পর আবার চেষ্টা করুন।");
+        function watchAd() {
+            if (userData.dailyAds > 0) {
+                if (typeof show_10582159 === 'function') {
+                    show_10582159().then(async () => {
+                        userData.balance += 2; 
+                        userData.dailyAds -= 1;
+                        if(userData.dailyAds === 0) userData.lastAdTime = Date.now();
+                        await saveData(); 
+                        updateUI();
+                        tg.showAlert("২৳ বোনাস যোগ হয়েছে!");
+                    }).catch(() => {
+                        tg.showAlert("অ্যাড সম্পূর্ণ দেখা হয়নি।");
+                    });
+                } else {
+                    tg.showAlert("অ্যাড সিস্টেম লোড হচ্ছে... ৫ সেকেন্ড পর আবার চেষ্টা করুন।");
+                }
+            }
         }
-    }
-    }
+
         function showP(id, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -223,4 +226,3 @@ function watchAd() {
     </script>
 </body>
 </html>
-
