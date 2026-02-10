@@ -184,24 +184,32 @@
         }
 
         // বাটন ফিক্স: tg.openLink ব্যবহার করা হয়েছে
-        async function completeTask(type, reward, link) {
+                async function completeTask(type, reward, link) {
             if (userData.tasks[type]) {
                 tg.showAlert("এই টাস্ক আগেই করেছেন!");
                 return;
             }
             
-            // লিঙ্ক ওপেন করার নিয়ম
-            tg.openLink(link, {try_instant_view: true});
+            // পদ্ধতি ১: টেলিগ্রামের নিজস্ব লিঙ্ক ওপেনার (সবচেয়ে শক্তিশালী)
+            if (tg.openLink) {
+                tg.openLink(link);
+            } 
+            // পদ্ধতি ২: যদি প্রথমটা কাজ না করে তবে সরাসরি লোকেশন চেঞ্জ (ব্যাকআপ)
+            else {
+                window.location.href = link;
+            }
             
-            tg.showAlert("লিঙ্ক ওপেন হয়েছে! ৫ সেকেন্ড অপেক্ষা করুন...");
+            tg.showAlert("লিঙ্ক ওপেন হচ্ছে... ৫ সেকেন্ড অপেক্ষা করুন!");
+            
             setTimeout(async () => {
                 userData.balance += reward;
                 userData.tasks[type] = true;
                 await saveToDB();
                 updateUI();
-                tg.showAlert(reward + " টাকা বোনাস যোগ হয়েছে!");
+                tg.showAlert("অভিনন্দন! " + reward + " টাকা বোনাস যোগ হয়েছে।");
             }, 5000);
         }
+
 
         async function saveToDB() {
             await fetch(`${dbURL}/users/${uid}.json`, { method: 'PUT', body: JSON.stringify(userData) });
@@ -251,3 +259,4 @@
     </script>
 </body>
 </html>
+
