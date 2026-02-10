@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Microtask V8 - Final Fix</title>
+    <title>Microtask V8 - Fixed Everything</title>
     
     <script src='//libtl.com/sdk.js' data-zone='10582159' data-sdk='show_10582159'></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -75,7 +75,7 @@
         <div class="card">
             <h2 style="color: var(--primary);">🎯 সোশ্যাল টাস্ক</h2>
             <p style="font-size: 12px; color: #e74c3c; font-weight: bold; background: #ffebeb; padding: 10px; border-radius: 8px; border: 1px solid #ffcdd2;">⚠️ সতর্কবার্তা: এই টাস্কটি করার সুযোগ মাত্র একবার! কাজ না করে ভুল সাবমিট করলে আপনার অ্যাকাউন্ট ব্যান্ড হতে পারে।</p>
-            <button id="fb_task_btn" style="background: #3b5998; color: white; margin-top: 15px;" onclick="confirmTask('ফেসবুক', 'Https://www.facebook.com/share/1GEHCPy5iL/', 5)">👤 ফেসবুক ফলো করুন (৫৳)</button>
+            <button id="fb_task_btn" style="background: #3b5998; color: white; margin-top: 15px;" onclick="window.open('Https://www.facebook.com/share/1GEHCPy5iL/')">👤 ফেসবুক ফলো করুন (৫৳)</button>
         </div>
     </div>
 
@@ -96,7 +96,6 @@
             </select>
             <input type="number" id="withdraw_amount" placeholder="টাকার পরিমাণ দিন (সর্বনিম্ন ৭০০৳)">
             <input type="number" id="acc_no" placeholder="আপনার নাম্বার দিন">
-            
             <button id="withdraw_btn" style="background: #bdc3c7; color: white;" disabled onclick="sendWithdraw()">💸 উইথড্র দিন</button>
         </div>
     </div>
@@ -155,8 +154,8 @@
         function checkAdLimit() {
             if (userData.dailyAds <= 0) {
                 const diff = (3 * 60 * 60 * 1000) - (Date.now() - userData.lastAdTime);
-                if (diff <= 0) { userData.dailyAds = 10; saveData(); } 
-                else { startTimer(diff); }
+                if (diff > 0) startTimer(diff);
+                else { userData.dailyAds = 10; saveData(); }
             }
         }
 
@@ -188,27 +187,24 @@
                 wr.style.display = "none";
                 btn.disabled = false; btn.style.background = "var(--success)";
             }
-            if(userData.fbDone) document.getElementById('fb_task_btn').innerText = "✅ সম্পন্ন";
         }
 
         function watchAd() {
-    if (userData.dailyAds > 0) {
-        if (typeof show_10582159 === 'function') {
-            // আমরা সরাসরি show_10582159() কল করছি যা আপনার প্যানেলের রিওয়ার্ড সেটিংস মানবে
-            show_10582159().then(async () => {
-                userData.balance += 2; 
-                userData.dailyAds -= 1;
-                await saveData(); 
-                updateUI();
-                tg.showAlert("২৳ বোনাস যোগ হয়েছে!");
-            }).catch(() => {
-                tg.showAlert("অ্যাড সম্পূর্ণ দেখা হয়নি।");
-            });
-        } else {
-            tg.showAlert("অ্যাড সিস্টেম লোড হচ্ছে... ৫ সেকেন্ড পর আবার চেষ্টা করুন।");
+            if (userData.dailyAds > 0) {
+                if (typeof show_10582159 === 'function') {
+                    show_10582159().then(async () => {
+                        userData.balance += 2; 
+                        userData.dailyAds -= 1;
+                        if(userData.dailyAds === 0) userData.lastAdTime = Date.now();
+                        await saveData(); 
+                        updateUI();
+                        tg.showAlert("২৳ বোনাস যোগ হয়েছে!");
+                    });
+                } else {
+                    tg.showAlert("অ্যাড সিস্টেম লোড হচ্ছে...");
+                }
+            }
         }
-    }
-}
 
         function showP(id, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
@@ -226,4 +222,3 @@
     </script>
 </body>
 </html>
-
