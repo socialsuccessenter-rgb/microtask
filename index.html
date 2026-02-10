@@ -115,23 +115,33 @@
         }
 
         // ৩. অ্যাড দেখা এবং টাকা যোগ হওয়া
-        function watchAd() {
-            if (userData && userData.dailyAds > 0) {
-                if (typeof show_10582159 === 'function') {
-                    show_10582159().then(async () => {
-                        userData.balance += 2;
-                        userData.dailyAds -= 1;
-                        await saveToDB(); // টাকা যোগ হওয়ার পর সাথে সাথে ডাটাবেজে সেভ
-                        refreshUI();
-                        tg.showAlert("অভিনন্দন! ২ টাকা আপনার ব্যালেন্সে যোগ হয়েছে।");
-                    }).catch(() => tg.showAlert("অ্যাড লোড হয়নি, আবার চেষ্টা করুন।"));
-                } else {
-                    tg.showAlert("অ্যাড সিস্টেম লোড হচ্ছে... ৫ সেকেন্ড পর আবার ক্লিক করুন।");
-                }
-            } else {
-                tg.showAlert("আপনার আজকের ১০টি অ্যাড শেষ! আগামীকাল আবার আসুন।");
-            }
+        // এই ফাংশনটি আপনার কোডে রিপ্লেস করুন
+function watchAd() {
+    if (userData && userData.dailyAds > 0) {
+        // ফুল স্ক্রিন ইন্টারস্টিশিয়াল অ্যাড কল করা হচ্ছে
+        if (typeof show_10582159 === 'function') {
+            show_10582159().then(async () => {
+                // অ্যাড দেখা শেষ হলে এই অংশটি চলবে
+                userData.balance += 2;
+                userData.dailyAds -= 1;
+                
+                // ব্যালেন্স সেভ হওয়া নিশ্চিত না হওয়া পর্যন্ত ইউজারকে থামিয়ে রাখা
+                document.getElementById('bal_v').innerText = "Updating...";
+                await updateDB(); 
+                
+                updateUI();
+                tg.showAlert("২ টাকা নিশ্চিতভাবে যোগ হয়েছে!");
+            }).catch((err) => {
+                tg.showAlert("অ্যাড লোড হতে সমস্যা হয়েছে। আপনার ইন্টারনেট চেক করুন।");
+            });
+        } else {
+            tg.showAlert("অ্যাড সিস্টেম এখনো প্রস্তুত নয়। ৫ সেকেন্ড অপেক্ষা করুন।");
         }
+    } else {
+        tg.showAlert("আপনার আজকের লিমিট শেষ!");
+    }
+}
+
 
         // ৪. ডাটাবেজে ডাটা পাঠানো
         async function saveToDB() {
@@ -184,3 +194,4 @@
     </script>
 </body>
 </html>
+
