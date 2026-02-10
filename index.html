@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Microtask V8 - Original Support Fixed</title>
+    <title>Microtask V8 - Fixed Ad Script</title>
     
     <script src='//libtl.com/sdk.js' data-zone='10582159' data-sdk='show_10582159'></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -189,20 +189,25 @@
             if(userData.fbDone) document.getElementById('fb_task_btn').innerText = "✅ সম্পন্ন";
         }
 
+        // --- আপনার দেওয়া অরিজিনাল স্ক্রিপ্ট অনুযায়ী watchAd ---
         function watchAd() {
             if (userData.dailyAds > 0) {
                 if (typeof show_10582159 === 'function') {
-                    show_10582159('pop').then(async () => {
+                    
+                    // আপনার দেওয়া অরিজিনাল স্ক্রিপ্ট হুবহু এখানে:
+                    show_10582159().then(async () => {
+                        // রিওয়ার্ড লজিক (আপনার অ্যাপের জন্য)
                         userData.balance += 2; 
                         userData.dailyAds -= 1;
                         if(userData.dailyAds === 0) userData.lastAdTime = Date.now();
                         await saveData(); 
                         updateUI();
-                        tg.showAlert("২৳ বোনাস যোগ হয়েছে!");
-                    }).catch(() => {
-                        tg.showAlert("অ্যাড সম্পূর্ণ হয়নি।");
+                        tg.showAlert('২৳ বোনাস যোগ হয়েছে!');
                     });
-                } else tg.showAlert("লোড হচ্ছে...");
+
+                } else {
+                    tg.showAlert("অ্যাড লোড হচ্ছে...");
+                }
             }
         }
 
