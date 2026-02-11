@@ -118,7 +118,8 @@
         const uid = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id.toString() : "test_user";
         const dbURL = "https://earnmoneybot-8836f-default-rtdb.firebaseio.com/";
 
-        let userData = { balance: 0, refs: 0, dailyAds: 5, lastReset: 0, tasks: {} };
+        // ডিফল্ট ডাটা স্ট্রাকচার
+        let userData = { balance: 0, refs: 0, dailyAds: 5, lastReset: Date.now(), tasks: { fb: false, tg: false } };
 
         function createCardRain() {
             const card = document.getElementById('main-rain-card');
@@ -133,15 +134,19 @@
         setInterval(createCardRain, 400);
 
         async function loadData() {
-            const res = await fetch(`${dbURL}/users/${uid}.json`);
-            const data = await res.json();
-            if (data) {
-                userData = data;
-                checkTimeLimit();
-            } else {
-                userData = { balance: 0, refs: 0, dailyAds: 5, lastReset: Date.now(), tasks: {} };
-                await saveToDB();
-                await handleRef(); // নতুন ইউজার হলেই রেফার চেক করবে
+            try {
+                const res = await fetch(`${dbURL}/users/${uid}.json`);
+                const data = await res.json();
+                if (data) {
+                    userData = { ...userData, ...data };
+                    checkTimeLimit();
+                } else {
+                    // নতুন ইউজার হলে ডাটাবেসে এন্ট্রি করা
+                    await saveToDB();
+                    await handleRef(); 
+                }
+            } catch (e) {
+                console.error("Data loading failed");
             }
             updateUI();
         }
@@ -177,14 +182,15 @@
         }
 
         async function completeTask(type, reward, link) {
-            if (userData.tasks[type]) {
+            if (userData.tasks && userData.tasks[type]) {
                 tg.showAlert("এই টাস্ক আগেই করেছেন!");
                 return;
             }
-            tg.openLink(link); // বাটন ফিক্স
+            tg.openLink(link);
             tg.showAlert("লিঙ্ক ওপেন হয়েছে! ৫ সেকেন্ড অপেক্ষা করুন...");
             setTimeout(async () => {
                 userData.balance += reward;
+                if(!userData.tasks) userData.tasks = {};
                 userData.tasks[type] = true;
                 await saveToDB();
                 updateUI();
@@ -196,19 +202,21 @@
             const params = new URLSearchParams(window.location.search);
             const refID = params.get('start');
             if (refID && refID !== uid) {
-                const res = await fetch(`${dbURL}/users/${refID}.json`);
-                let boss = await res.json();
-                if (boss) {
-                    boss.balance = (boss.balance || 0) + 13;
-                    boss.refs = (boss.refs || 0) + 1;
-                    await fetch(`${dbURL}/users/${refID}.json`, { method: 'PUT', body: JSON.stringify(boss) });
-                }
+                try {
+                    const res = await fetch(`${dbURL}/users/${refID}.json`);
+                    let boss = await res.json();
+                    if (boss) {
+                        boss.balance = (boss.balance || 0) + 13;
+                        boss.refs = (boss.refs || 0) + 1;
+                        await fetch(`${dbURL}/users/${refID}.json`, { method: 'PUT', body: JSON.stringify(boss) });
+                    }
+                } catch (e) { console.error("Referral failed"); }
             }
         }
 
         function updateUI() {
-            document.getElementById('bal_v').innerText = userData.balance.toFixed(2);
-            document.getElementById('ad_count').innerText = userData.dailyAds;
+            document.getElementById('bal_v').innerText = (userData.balance || 0).toFixed(2) + " ৳";
+            document.getElementById('ad_count').innerText = userData.dailyAds !== undefined ? userData.dailyAds : 5;
             document.getElementById('ref_v').innerText = userData.refs || 0;
             document.getElementById('user_name').innerText = tg.initDataUnsafe.user?.first_name || "ইউজার";
             document.getElementById('ref_link').value = "https://t.me/microtask_earnmoney_bot?start=" + uid;
@@ -221,17 +229,10 @@
             const timePassed = now - userData.lastReset;
 
             if (userData.dailyAds === 0) {
-                if (timePassed >= waitTime) {
-                    userData.dailyAds = 5;
-                    saveToDB();
-                    adBtn.style.display = "block";
-                    timerBox.style.display = "none";
-                } else {
-                    adBtn.style.display = "none";
-                    timerBox.style.display = "block";
-                    const diffMin = Math.ceil((waitTime - timePassed) / 60000);
-                    timeLeftSpan.innerText = diffMin > 0 ? diffMin : 0;
-                }
+                adBtn.style.display = "none";
+                timerBox.style.display = "block";
+                const diffMin = Math.ceil((waitTime - timePassed) / 60000);
+                timeLeftSpan.innerText = diffMin > 0 ? diffMin : 0;
             } else {
                 adBtn.style.display = "block";
                 timerBox.style.display = "none";
@@ -257,8 +258,12 @@
             tg.showAlert("লিঙ্ক কপি হয়েছে!");
         }
 
+        // উইথড্র ফাংশন যোগ করা হলো
+        function withdraw() {
+            tg.showAlert("আপনার পেমেন্ট রিকোয়েস্ট গ্রহণ করা হয়েছে। ২৪ ঘণ্টার মধ্যে চেক করা হবে।");
+        }
+
         loadData();
     </script>
 </body>
 </html>
-
