@@ -12,19 +12,13 @@
         :root { --primary: #3498db; --success: #2ecc71; --danger: #e74c3c; --bg: #f0f2f5; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; overflow-x: hidden; }
 
-        /* রেইন কার্ডের স্পেশাল ডিজাইন - ৩-৪ কালার প্রিমিয়াম এনিমেশন */
         .rain-card { 
             position: relative;
             background: linear-gradient(-45deg, #23a6d5, #23d5ab, #8e44ad, #2980b9);
             background-size: 400% 400%;
             animation: colorShift 10s ease infinite;
-            color: white; 
-            border-radius: 20px; 
-            padding: 30px 25px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-            margin-bottom: 20px; 
-            text-align: center;
-            overflow: hidden; 
+            color: white; border-radius: 20px; padding: 30px 25px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 20px; text-align: center; overflow: hidden; 
         }
 
         @keyframes colorShift {
@@ -34,21 +28,12 @@
         }
 
         .card-money {
-            position: absolute;
-            top: -20px;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 20px;
-            pointer-events: none;
-            z-index: 1;
-            animation: cardFall linear forwards;
+            position: absolute; top: -20px; color: rgba(255, 255, 255, 0.7);
+            font-size: 20px; pointer-events: none; z-index: 1; animation: cardFall linear forwards;
         }
 
-        @keyframes cardFall {
-            to { transform: translateY(250px); opacity: 0; }
-        }
-
+        @keyframes cardFall { to { transform: translateY(250px); opacity: 0; } }
         .card-info { position: relative; z-index: 2; }
-
         .page { display: none; padding: 20px; }
         .active-page { display: block; }
         .card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 20px; text-align: center; }
@@ -85,7 +70,7 @@
             <h2>🎯 সোশ্যাল টাস্ক</h2>
             <p class="warning">⚠️ এটি একবারই করা যাবে। কাজ না করে সাবমিট করলে পেমেন্ট ব্যর্থ হবে। </p>
             <button style="background:#1877F2; color:white;" onclick="completeTask('fb', 5, 'https://www.facebook.com/share/1Dff8Nwu1o/')">Facebook পেজ ফলো (৫৳)</button>
-            <button style="background:#0088cc; color:white; margin-top:10px;" onclick="completeTask('tg', 3, 'https://t.me/microtask_earnmoney')">Telegram চ্যানেল জয়েন (৩৳)</button>
+            <button style="background:#0088cc; color:white; margin-top:10px;" onclick="completeTask('tg', 3, 'https://t.me/microtask_earnmoney')">Telegram জয়েন (৩৳)</button>
         </div>
     </div>
 
@@ -107,7 +92,7 @@
             <select id="method">
                 <option value="bkash">বিকাশ</option>
                 <option value="nagad">নগদ</option>
-                <option value="nagad">রকেট</option>
+                <option value="rocket">রকেট</option>
             </select>
             <input type="number" id="phone" placeholder="নাম্বার দিন">
             <input type="number" id="amount" placeholder="পরিমাণ (মিনিমাম ৭০০৳)">
@@ -115,7 +100,7 @@
         </div>
         <div class="card">
             <h2>📢 সাপোর্ট চ্যানেল</h2>
-            <button style="background:#0088cc; color:white;" onclick="window.open('https://t.me/microtask_earnmoney', '_blank')">টেলিগ্রাম সাপোর্ট</button>
+            <button style="background:#0088cc; color:white;" onclick="tg.openTelegramLink('https://t.me/microtask_earnmoney')">টেলিগ্রাম সাপোর্ট</button>
         </div>
     </div>
 
@@ -128,6 +113,7 @@
 
     <script>
         const tg = window.Telegram.WebApp;
+        tg.expand();
         const uid = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id.toString() : "test_user";
         const dbURL = "https://earnmoneybot-8836f-default-rtdb.firebaseio.com/";
 
@@ -137,8 +123,7 @@
             const card = document.getElementById('main-rain-card');
             if(!card) return;
             const drop = document.createElement('div');
-            drop.innerText = '৳';
-            drop.classList.add('card-money');
+            drop.innerText = '৳'; drop.classList.add('card-money');
             drop.style.left = Math.random() * 90 + '%';
             drop.style.animationDuration = Math.random() * 1 + 1.5 + 's';
             card.appendChild(drop);
@@ -153,8 +138,9 @@
                 userData = data;
                 checkTimeLimit();
             } else {
+                userData = { balance: 0, refs: 0, dailyAds: 5, lastReset: Date.now(), tasks: {} };
                 await saveToDB();
-                handleRef();
+                await handleRef(); // নতুন ইউজার হলেই রেফার চেক করবে
             }
             updateUI();
         }
@@ -165,7 +151,7 @@
 
         function checkTimeLimit() {
             const now = Date.now();
-            const waitTime = 3 * 60 * 60 * 1000; // ৩ ঘণ্টা
+            const waitTime = 3 * 60 * 60 * 1000;
             if (userData.dailyAds === 0 && (now - userData.lastReset > waitTime)) {
                 userData.dailyAds = 5;
                 userData.lastReset = now;
@@ -184,24 +170,38 @@
                         await saveToDB();
                         updateUI();
                         tg.showAlert("২ টাকা যোগ হয়েছে!");
-                    }, 5000); // ২০ সেকেন্ড থেকে কমিয়ে ৫ সেকেন্ড করা হয়েছে
+                    }, 5000);
                 }).catch(() => tg.showAlert("অ্যাড ব্যর্থ!"));
             }
         }
 
         async function completeTask(type, reward, link) {
-            if (!userData.tasks[type]) {
-                window.open(link, '_blank');
-                tg.showAlert("৫ সেকেন্ড পর বোনাস যোগ হবে...");
-                setTimeout(async () => {
-                    userData.balance += reward;
-                    userData.tasks[type] = true;
-                    await saveToDB();
-                    updateUI();
-                    tg.showAlert(reward + " টাকা যোগ হয়েছে!");
-                }, 5000); // টাস্কের ক্ষেত্রেও ৫ সেকেন্ড করা হয়েছে
-            } else {
+            if (userData.tasks[type]) {
                 tg.showAlert("এই টাস্ক আগেই করেছেন!");
+                return;
+            }
+            tg.openLink(link); // বাটন ফিক্স
+            tg.showAlert("লিঙ্ক ওপেন হয়েছে! ৫ সেকেন্ড অপেক্ষা করুন...");
+            setTimeout(async () => {
+                userData.balance += reward;
+                userData.tasks[type] = true;
+                await saveToDB();
+                updateUI();
+                tg.showAlert(reward + " টাকা যোগ হয়েছে!");
+            }, 5000);
+        }
+
+        async function handleRef() {
+            const params = new URLSearchParams(window.location.search);
+            const refID = params.get('start');
+            if (refID && refID !== uid) {
+                const res = await fetch(`${dbURL}/users/${refID}.json`);
+                let boss = await res.json();
+                if (boss) {
+                    boss.balance = (boss.balance || 0) + 13;
+                    boss.refs = (boss.refs || 0) + 1;
+                    await fetch(`${dbURL}/users/${refID}.json`, { method: 'PUT', body: JSON.stringify(boss) });
+                }
             }
         }
 
@@ -215,9 +215,8 @@
             const adBtn = document.getElementById('ad_btn');
             const timerBox = document.getElementById('timer_box');
             const timeLeftSpan = document.getElementById('time_left');
-
             const now = Date.now();
-            const waitTime = 3 * 60 * 60 * 1000; // ৩ ঘণ্টা (১৮০ মিনিট)
+            const waitTime = 3 * 60 * 60 * 1000;
             const timePassed = now - userData.lastReset;
 
             if (userData.dailyAds === 0) {
@@ -243,21 +242,6 @@
             }
         }
 
-        setInterval(updateUI, 30000); // ৩০ সেকেন্ড পরপর রিফ্রেশ হবে
-
-        async function handleRef() {
-            const params = new URLSearchParams(window.location.search);
-            const refID = params.get('start');
-            if (refID && refID !== uid) {
-                const res = await fetch(`${dbURL}/users/${refID}.json`);
-                let boss = await res.json();
-                if (boss) {
-                    boss.balance += 13; boss.refs += 1;
-                    await fetch(`${dbURL}/users/${refID}.json`, { method: 'PUT', body: JSON.stringify(boss) });
-                }
-            }
-        }
-
         function showP(id, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -266,30 +250,13 @@
         }
 
         function copyRef() {
-            document.getElementById("ref_link").select();
+            const el = document.getElementById("ref_link");
+            el.select();
             document.execCommand("copy");
-            tg.showAlert("লিংক কপি হয়েছে!");
+            tg.showAlert("লিঙ্ক কপি হয়েছে!");
         }
-async function completeTask(type, reward, link) {
-    if (userData.tasks[type]) {
-        tg.showAlert("এই টাস্ক আগেই করেছেন!");
-        return;
-    }
-    
-    // এই লাইনটিই আসল ম্যাজিক:
-    tg.openLink(link); 
-    
-    tg.showAlert("লিঙ্ক ওপেন হয়েছে! কাজ শেষ করে ৫ সেকেন্ড অপেক্ষা করুন...");
-    setTimeout(async () => {
-        userData.balance += reward;
-        userData.tasks[type] = true;
-        await saveToDB();
-        updateUI();
-        tg.showAlert("অভিনন্দন! " + reward + " টাকা যোগ হয়েছে।");
-    }, 5000);
-}
+
         loadData();
     </script>
 </body>
 </html>
-
