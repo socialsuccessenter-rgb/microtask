@@ -69,6 +69,7 @@
         <div class="card">
             <h2>🎯 সোশ্যাল টাস্ক</h2>
             <p class="warning">⚠️ এটি একবারই করা যাবে। কাজ না করে সাবমিট করলে পেমেন্ট ব্যর্থ হবে। </p>
+            <p class="warning">⚠️ আপনাদের অসৎ পন্থা অবলম্বন কারা কারণে এখন থেকে সোসাল টাস্ক বাধ্যতামূলক করা হলো। এটি না করলে পেমেন্ট পাবেন না। ⚠️ </p>
             <button style="background:#1877F2; color:white;" onclick="completeTask('fb', 5, 'https://www.facebook.com/share/1Dff8Nwu1o/')">Facebook পেজ ফলো (৫৳)</button>
             <button style="background:#0088cc; color:white; margin-top:10px;" onclick="completeTask('tg', 3, 'https://t.me/microtask_earnmoney')">Telegram জয়েন (৩৳)</button>
         </div>
@@ -79,7 +80,8 @@
             <h2>👥 রেফারেল বোনাস</h2>
             <p style="color:#2ecc71; font-weight:bold;">প্রতি রেফারে ১৩ টাকা!</p>
             <p style="color:#2ecc71; font-weight:bold;">টাকা তুলতে সর্বনিম্ন ১০টি রেফার বাধ্যতামূলক </p>
-            <p class="warning" style="margin-bottom:10px;">Database- এ সমস্যার কারণে রেফার করলে সাময়িক ভাবে রেফার নাও বাড়তে পারে তবে চিন্তার কোনো কারণ নেই ১০টি রেফার ও ৳৭০০ হলে অটোমেটিক উইথড্র বাটন সবুজ হয়ে জাবে।</p>
+            <p class="warning">⚠️ কিছু সদস্যদের মধ্যে ফেক রেফার লক্ষ করা যাচ্ছে মনে রাখবেন আমাদের ডেটাবেসে শুধুমাত্র এ্যাকটিভ ইউজার গনণা করা হয় তাই যদি পেমেন্ট পেতে চান তাহলে অবশ্যই এ্যাকটিভ ইউজার যুক্ত করবেন না হলে পেমেন্ট ব্যার্থ হবে।</p>
+            <p class="warning" style="margin-bottom:10px;">Database- এ সমস্যার কারণে রেফার করলে সাময়িক ভাবে রেফার নাও বাড়তে পারে তবে চিন্তার কোনো কারণ নেই ১০টি রেফার ও ৳১৩০০ হলে অটোমেটিক উইথড্র বাটন সবুজ হয়ে জাবে।</p>
             <input type="text" id="ref_link" readonly>
             <button style="background:var(--primary); color:white;" onclick="copyRef()">লিংক কপি</button>
             <p style="margin-top:20px;">মোট রেফার: <span id="ref_v">0</span></p>
@@ -97,7 +99,7 @@
                 <option value="rocket">রকেট</option>
             </select>
             <input type="number" id="phone" placeholder="নাম্বার দিন">
-            <input type="number" id="amount" placeholder="পরিমাণ (মিনিমাম ৭০০৳)">
+            <input type="number" id="amount" placeholder="পরিমাণ (মিনিমাম ১৩০০৳)">
             <button id="withdraw_btn" style="background:#dfe6e9; color:#b2bec3;" disabled onclick="withdraw()">টাকা উত্তোলন করুন</button>
         </div>
         <div class="card">
@@ -240,7 +242,7 @@
             }
 
             const wBtn = document.getElementById('withdraw_btn');
-            if (userData.balance >= 700 && userData.refs >= 10) {
+            if (userData.balance >= 1300 && userData.refs >= 10) {
                 wBtn.disabled = false; wBtn.style.background = "#2ecc71"; wBtn.style.color = "white";
             }
         }
@@ -268,4 +270,5 @@
     </script>
 </body>
 </html>
+
 
