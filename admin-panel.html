@@ -6,7 +6,7 @@
     <title>মাস্টার অ্যাডমিন কন্ট্রোল - প্রো ম্যাক্স</title>
     <style>
         :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --bg: #f4f7f6; }
-        body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 15px; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 15px; }
         .container { max-width: 1100px; margin: auto; }
         
         #login_screen { height: 100vh; display: flex; align-items: center; justify-content: center; }
@@ -14,12 +14,12 @@
 
         #admin_content { display: none; }
         .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 25px; border-top: 5px solid var(--accent); }
-        h2 { color: var(--primary); margin: 0; display: flex; align-items: center; gap: 10px; }
+        h2 { color: var(--primary); margin: 0; display: flex; align-items: center; gap: 10px; font-size: 20px; }
         
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
         .full { grid-column: span 2; }
         label { font-weight: bold; font-size: 13px; color: #555; display: block; margin-top: 10px; }
-        input { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        input { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
 
         .table-wrapper { overflow-x: auto; margin-top: 15px; border-radius: 8px; border: 1px solid #eee; }
         table { width: 100%; border-collapse: collapse; background: white; font-size: 14px; }
@@ -94,7 +94,6 @@
 <script>
     const dbURL = "https://earnmoneybot-8836f-default-rtdb.firebaseio.com";
     
-    // আপনার নতুন পাসওয়ার্ড এখানে সেট করা হয়েছে
     function checkLogin() {
         const pass = document.getElementById('admin_pass').value;
         if(pass === "252646") { 
@@ -126,7 +125,7 @@
                 document.getElementById('ref_notice').value = data.ref_notice || "";
                 document.getElementById('withdraw_notice').value = data.withdraw_notice || "";
             }
-        } catch(e) {}
+        } catch(e) { console.error("Settings load error"); }
     }
 
     async function saveSettings() {
@@ -143,8 +142,10 @@
             ref_notice: document.getElementById('ref_notice').value,
             withdraw_notice: document.getElementById('withdraw_notice').value
         };
-        await fetch(`${dbURL}/settings.json`, { method: 'PUT', body: JSON.stringify(settings) });
-        alert("সেটিংস সফলভাবে আপডেট হয়েছে!");
+        try {
+            await fetch(`${dbURL}/settings.json`, { method: 'PUT', body: JSON.stringify(settings) });
+            alert("সব সেটিংস সফলভাবে আপডেট হয়েছে!");
+        } catch(e) { alert("সেভ করতে সমস্যা হয়েছে!"); }
     }
 
     async function loadUsers() {
@@ -166,16 +167,18 @@
                     </tr>
                 `;
             }
-        } catch (e) { tbody.innerHTML = "<tr><td colspan='5'>ডাটা নেই।</td></tr>"; }
+        } catch (e) { tbody.innerHTML = "<tr><td colspan='5'>কোনো ইউজার ডাটা পাওয়া যায়নি।</td></tr>"; }
     }
 
     async function updateUser(uid) {
         const newBal = parseFloat(document.getElementById(`bal_${uid}`).value);
-        await fetch(`${dbURL}/users/${uid}.json`, { 
-            method: 'PATCH', 
-            body: JSON.stringify({ balance: newBal }) 
-        });
-        alert("ব্যালেন্স আপডেট হয়েছে!");
+        try {
+            await fetch(`${dbURL}/users/${uid}.json`, { 
+                method: 'PATCH', 
+                body: JSON.stringify({ balance: newBal }) 
+            });
+            alert("ইউজার আইডি " + uid + " এর ব্যালেন্স আপডেট হয়েছে!");
+        } catch(e) { alert("আপডেট ব্যর্থ হয়েছে!"); }
     }
 </script>
 </body>
