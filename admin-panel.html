@@ -3,161 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Microtask - Master Admin Control</title>
+    <title>Microtask - প্রো অ্যাডমিন প্যানেল</title>
     <style>
-        :root { --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --text: #f8fafc; --success: #2ecc71; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --bg: #f4f7f6; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; }
         
-        #login_box { max-width: 400px; margin: 100px auto; background: var(--card); padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        input { width: 90%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; text-align: center; }
-        .login-btn, .save-all-btn { background: var(--accent); color: #000; border: none; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; }
-
-        #admin_content { display: none; max-width: 1100px; margin: 0 auto; }
-        .header { background: linear-gradient(135deg, #0ea5e9, #2563eb); padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
+        /* Header Style */
+        .header { background: var(--primary); color: white; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px; }
         
-        /* সেটিংস সেকশন */
-        .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 30px; background: #16213e; padding: 20px; border-radius: 15px; border: 1px solid var(--accent); }
-        .setting-item { text-align: left; }
-        .setting-item label { display: block; margin-bottom: 5px; font-size: 14px; color: var(--accent); }
-
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .stat-box { background: var(--card); padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #334155; }
+        /* Card Style */
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
         
-        .user-table-container { background: var(--card); border-radius: 15px; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; font-size: 14px; }
-        th { background: #334155; color: var(--accent); }
+        /* Input & Button Style */
+        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin: 5px 0; width: 100%; box-sizing: border-box; }
+        button { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-save { background: var(--success); color: white; width: 100%; margin-top: 10px; }
+        .btn-refresh { background: var(--accent); color: white; margin-bottom: 10px; }
         
-        .edit-btn { background: var(--success); color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
-        .action-input { width: 50px; padding: 5px; border-radius: 5px; background: #0f172a; color: white; border: 1px solid #334155; }
+        /* Settings Grid */
+        .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        
+        /* Table Style */
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; }
+        th, td { padding: 12px; border: 1px solid #eee; text-align: center; font-size: 14px; }
+        th { background: #f8f9fa; color: var(--primary); }
+        tr:hover { background: #f9f9f9; }
+        
+        .badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; color: white; }
+        .bg-fb { background: #1877F2; }
+        .bg-tg { background: #0088cc; }
     </style>
 </head>
 <body>
 
-    <div id="login_box">
-        <h2>🔒 অ্যাডমিন লগইন</h2>
-        <input type="password" id="admin_pass" placeholder="Password Here">
-        <button class="login-btn" onclick="checkLogin()">Login</button>
+<div class="container">
+    <div class="header">
+        <h1>🚀 মাইক্রোটাস্ক মাস্টার কন্ট্রোল</h1>
+        <p>ব্যার্থ প্রেমি ভাই, এখান থেকে সবকিছু সামলান!</p>
     </div>
 
-    <div id="admin_content">
-        <div class="header">
-            <h1>🚀 মাস্টার কন্ট্রোল প্যানেল</h1>
-        </div>
-
-        <h3 style="color: var(--accent);">⚙️ কাজের টাকা নির্ধারণ করুন</h3>
+    <div class="card">
+        <h3>⚙️ অ্যাপের টেক্সট ও রেট সেটিংস</h3>
         <div class="settings-grid">
-            <div class="setting-item">
-                <label>প্রতি ভিডিও অ্যাডের টাকা (৳)</label>
-                <input type="number" id="set_ad_rate" step="0.1" placeholder="উদা: 2.0">
+            <div><label>অ্যাড রেট (৳)</label><input type="number" id="set_ad_rate" step="0.1"></div>
+            <div><label>রেফার রেট (৳)</label><input type="number" id="set_ref_rate" step="0.1"></div>
+            <div><label>মিনিমাম উইথড্র (৳)</label><input type="number" id="set_min_withdraw"></div>
+            <div style="grid-column: span 2;">
+                <label>হোম পেজ নোটিশ</label>
+                <input type="text" id="set_home_notice">
             </div>
-            <div class="setting-item">
-                <label>প্রতি রেফারেলের টাকা (৳)</label>
-                <input type="number" id="set_ref_rate" step="0.1" placeholder="উদা: 5.0">
-            </div>
-            <div class="setting-item">
-                <label>ডেইলি অ্যাড লিমিট (সংখ্যা)</label>
-                <input type="number" id="set_ad_limit" placeholder="উদা: 5">
-            </div>
-            <div style="display: flex; align-items: flex-end;">
-                <button class="save-all-btn" onclick="saveGlobalSettings()">সেটিংস সেভ করুন</button>
+            <div style="grid-column: span 2;">
+                <label>উইথড্র পেজ নোটিশ</label>
+                <input type="text" id="set_withdraw_notice">
             </div>
         </div>
+        <button class="btn-save" onclick="saveGlobalSettings()">সব আপডেট করুন</button>
+    </div>
 
-        <div class="stats-grid">
-            <div class="stat-box"><h3 id="u_count">0</h3><p>মোট ইউজার</p></div>
-            <div class="stat-box"><h3 id="t_balance">0.00</h3><p>মোট ব্যালেন্স</p></div>
-        </div>
-
-        <div class="user-table-container">
+    <div class="card">
+        <h3>👥 ইউজার লিস্ট ও ব্যালেন্স কন্ট্রোল</h3>
+        <button class="btn-refresh" onclick="loadUsers()">ইউজার লিস্ট রিফ্রেশ করুন</button>
+        <div class="table-wrapper">
             <table>
                 <thead>
                     <tr>
-                        <th>ইউজার আইডি</th>
-                        <th>ব্যালেন্স</th>
-                        <th>অ্যাড বাকি</th>
+                        <th>ইউজার ID</th>
+                        <th>ব্যালেন্স (৳)</th>
                         <th>রেফার</th>
+                        <th>টাস্ক (FB/TG)</th>
                         <th>অ্যাকশন</th>
                     </tr>
                 </thead>
-                <tbody id="user_rows"></tbody>
+                <tbody id="user_list">
+                    </tbody>
             </table>
         </div>
     </div>
+</div>
 
-    <script>
-        const dbBase = "https://earnmoneybot-8836f-default-rtdb.firebaseio.com";
-        const correctPass = "252646";
+<script>
+    const dbBase = "https://earnmoneybot-8836f-default-rtdb.firebaseio.com";
 
-        function checkLogin() {
-            if (document.getElementById('admin_pass').value === correctPass) {
-                document.getElementById('login_box').style.display = 'none';
-                document.getElementById('admin_content').style.display = 'block';
-                loadAdminData();
-                loadGlobalSettings();
-            } else { alert("ভুল পাসওয়ার্ড!"); }
+    // --- ১. সেটিংস ফাংশন ---
+    async function loadGlobalSettings() {
+        const res = await fetch(`${dbBase}/settings.json`);
+        const data = await res.json();
+        if(data) {
+            document.getElementById('set_ad_rate').value = data.ad_rate || 2;
+            document.getElementById('set_ref_rate').value = data.ref_rate || 13;
+            document.getElementById('set_min_withdraw').value = data.min_withdraw || 1300;
+            document.getElementById('set_home_notice').value = data.home_notice || "🌧️ ছোট ছোট কাজ করে টাকা ইনকাম করুন 🌧️";
+            document.getElementById('set_withdraw_notice').value = data.withdraw_notice || "সঠিক তথ্য দিলে ২৪ ঘন্টার মধ্যে পেমেন্ট পাবেন";
         }
+    }
 
-        // গ্লোবাল সেটিংস লোড করা
-        async function loadGlobalSettings() {
-            const res = await fetch(`${dbBase}/settings.json`);
-            const data = await res.json();
-            if(data) {
-                document.getElementById('set_ad_rate').value = data.ad_rate || "";
-                document.getElementById('set_ref_rate').value = data.ref_rate || "";
-                document.getElementById('set_ad_limit').value = data.ad_limit || "";
-            }
-        }
+    async function saveGlobalSettings() {
+        const settings = {
+            ad_rate: parseFloat(document.getElementById('set_ad_rate').value),
+            ref_rate: parseFloat(document.getElementById('set_ref_rate').value),
+            min_withdraw: parseInt(document.getElementById('set_min_withdraw').value),
+            home_notice: document.getElementById('set_home_notice').value,
+            withdraw_notice: document.getElementById('set_withdraw_notice').value,
+            ad_limit: 5
+        };
+        await fetch(`${dbBase}/settings.json`, { method: 'PUT', body: JSON.stringify(settings) });
+        alert("অ্যাপ সেটিংস সফলভাবে সেভ হয়েছে!");
+    }
 
-        // গ্লোবাল সেটিংস সেভ করা
-        async function saveGlobalSettings() {
-            const ad_rate = parseFloat(document.getElementById('set_ad_rate').value);
-            const ref_rate = parseFloat(document.getElementById('set_ref_rate').value);
-            const ad_limit = parseInt(document.getElementById('set_ad_limit').value);
-            
-            await fetch(`${dbBase}/settings.json`, {
-                method: 'PATCH',
-                body: JSON.stringify({ ad_rate, ref_rate, ad_limit })
-            });
-            alert("সব ইউজারের জন্য কাজের রেট আপডেট হয়েছে!");
-        }
+    // --- ২. ইউজার ম্যানেজমেন্ট ফাংশন ---
+    async function loadUsers() {
+        const tbody = document.getElementById('user_list');
+        tbody.innerHTML = "<tr><td colspan='5'>লোড হচ্ছে...</td></tr>";
+        
+        try {
+            const res = await fetch(`${dbBase}/users.json`);
+            const users = await res.json();
+            tbody.innerHTML = "";
 
-        async function loadAdminData() {
-            const rows = document.getElementById('user_rows');
-            const response = await fetch(`${dbBase}/users.json`);
-            const allUsers = await response.json();
-            
-            if (allUsers) {
-                let userIds = Object.keys(allUsers);
-                let totalBalance = 0;
-                let rowsHTML = "";
-                userIds.forEach(id => {
-                    const user = allUsers[id];
-                    const bal = parseFloat(user.balance || 0);
-                    totalBalance += bal;
-                    rowsHTML += `<tr>
+            for (let id in users) {
+                const user = users[id];
+                const fbTask = user.tasks?.fb ? '<span class="badge bg-fb">Done</span>' : '❌';
+                const tgTask = user.tasks?.tg ? '<span class="badge bg-tg">Done</span>' : '❌';
+
+                tbody.innerHTML += `
+                    <tr>
                         <td>${id}</td>
-                        <td><input type="number" id="bal_${id}" class="action-input" value="${bal}"></td>
-                        <td><input type="number" id="ads_${id}" class="action-input" value="${user.dailyAds || 0}"></td>
-                        <td>${user.refs || 0} জন</td>
-                        <td><button class="edit-btn" onclick="updateUser('${id}')">Save</button></td>
-                    </tr>`;
-                });
-                document.getElementById('u_count').innerText = userIds.length;
-                document.getElementById('t_balance').innerText = totalBalance.toFixed(2);
-                rows.innerHTML = rowsHTML;
+                        <td><input type="number" value="${user.balance}" id="bal_${id}" style="width:80px"></td>
+                        <td>${user.refs || 0}</td>
+                        <td>FB: ${fbTask} | TG: ${tgTask}</td>
+                        <td><button onclick="updateUser('${id}')" style="background:#27ae60; color:white; padding:5px 10px;">সেভ</button></td>
+                    </tr>
+                `;
             }
+        } catch (e) {
+            tbody.innerHTML = "<tr><td colspan='5'>কোনো ইউজার পাওয়া যায়নি।</td></tr>";
         }
+    }
 
-        async function updateUser(id) {
-            const balance = parseFloat(document.getElementById(`bal_${id}`).value);
-            const dailyAds = parseInt(document.getElementById(`ads_${id}`).value);
-            await fetch(`${dbBase}/users/${id}.json`, {
-                method: 'PATCH',
-                body: JSON.stringify({ balance, dailyAds })
-            });
-            alert("আপডেট হয়েছে!");
-        }
-    </script>
+    async function updateUser(uid) {
+        const newBal = parseFloat(document.getElementById(`bal_${uid}`).value);
+        await fetch(`${dbBase}/users/${uid}.json`, { 
+            method: 'PATCH', 
+            body: JSON.stringify({ balance: newBal }) 
+        });
+        alert("ইউজার ব্যালেন্স আপডেট হয়েছে!");
+    }
+
+    // শুরুতে লোড করা
+    loadGlobalSettings();
+    loadUsers();
+</script>
+
 </body>
 </html>
