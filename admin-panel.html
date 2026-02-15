@@ -2,63 +2,92 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>মাস্টার অ্যাডমিন কন্ট্রোল - প্রো ম্যাক্স</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #3498db; --bg: #f4f7f6; }
-        body { font-family: sans-serif; background: var(--bg); padding: 20px; }
-        .container { max-width: 900px; margin: auto; }
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 25px; }
-        h2 { color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --bg: #f4f7f6; }
+        body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 15px; }
+        .container { max-width: 1100px; margin: auto; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h2 { color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 8px; margin-top: 0; }
+        
+        /* Settings Grid */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
         .full { grid-column: span 2; }
-        label { font-weight: bold; display: block; margin-top: 10px; color: #555; }
-        input { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 20px; transition: 0.3s; }
-        button:hover { background: #219150; }
-        .section-title { background: #e8f4fd; padding: 10px; border-radius: 5px; margin-top: 20px; color: #2980b9; font-weight: bold; }
+        label { font-weight: bold; font-size: 13px; color: #555; display: block; margin-top: 8px; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        
+        /* Table Styles */
+        .table-wrapper { overflow-x: auto; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; background: white; font-size: 14px; }
+        th, td { padding: 10px; border: 1px solid #eee; text-align: center; }
+        th { background: var(--primary); color: white; }
+        tr:hover { background: #f9f9f9; }
+
+        /* Buttons */
+        button { padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-update { background: var(--success); color: white; width: 100%; margin-top: 15px; font-size: 16px; }
+        .btn-refresh { background: var(--accent); color: white; margin-bottom: 10px; }
+        .btn-save-user { background: #e67e22; color: white; padding: 5px 10px; font-size: 12px; }
+        
+        .section-title { background: #e8f4fd; padding: 8px; border-radius: 5px; margin: 15px 0 10px; color: #2980b9; font-weight: bold; font-size: 14px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="card">
-        <h2>🛠️ অ্যাপের অল-ইন-ওয়ান কন্ট্রোল</h2>
+        <h2>🛠️ অ্যাপ ইন্টারফেস ও নোটিশ সেটিংস</h2>
         
-        <div class="section-title">💰 রেট এবং লিমিট সেটিংস</div>
+        <div class="section-title">💰 রেট, লিমিট এবং লিঙ্ক</div>
         <div class="grid">
             <div><label>অ্যাড রেট (৳)</label><input type="number" id="ad_rate" step="0.1"></div>
             <div><label>রেফার রেট (৳)</label><input type="number" id="ref_rate" step="0.1"></div>
-            <div><label>অ্যাড লিমিট (Daily)</label><input type="number" id="ad_limit"></div>
+            <div><label>ডেইলি অ্যাড লিমিট</label><input type="number" id="ad_limit"></div>
             <div><label>মিনিমাম উইথড্র (৳)</label><input type="number" id="min_withdraw"></div>
-        </div>
-
-        <div class="section-title">🔗 সোশ্যাল টাস্ক ও লিঙ্ক</div>
-        <div class="grid">
-            <div><label>FB ফলো রিওয়ার্ড (৳)</label><input type="number" id="fb_reward"></div>
-            <div><label>TG জয়েন রিওয়ার্ড (৳)</label><input type="number" id="tg_reward"></div>
+            <div><label>FB রিওয়ার্ড (৳)</label><input type="number" id="fb_reward"></div>
+            <div><label>TG রিওয়ার্ড (৳)</label><input type="number" id="tg_reward"></div>
             <div class="full"><label>Facebook লিঙ্ক</label><input type="text" id="fb_link"></div>
             <div class="full"><label>Telegram লিঙ্ক</label><input type="text" id="tg_link"></div>
         </div>
 
-        <div class="section-title">📢 নোটিশ বোর্ড কন্ট্রোল</div>
-        <label>হোম পেজ নোটিশ (Rain Card এর নিচে)</label>
-        <input type="text" id="home_notice">
-        
-        <label>রেফার পেজ নোটিশ</label>
-        <input type="text" id="ref_notice">
-        
-        <label>উইথড্র পেজ মেইন নোটিশ</label>
-        <input type="text" id="withdraw_notice">
+        <div class="section-title">📢 নোটিশ বোর্ড</div>
+        <label>হোম পেজ নোটিশ</label><input type="text" id="home_notice">
+        <label>রেফার পেজ নোটিশ</label><input type="text" id="ref_notice">
+        <label>উইথড্র পেজ নোটিশ</label><input type="text" id="withdraw_notice">
 
-        <button onclick="saveSettings()">সব কিছু আপডেট করুন 🚀</button>
+        <button class="btn-update" onclick="saveSettings()">সব সেটিংস সেভ করুন 🚀</button>
+    </div>
+
+    <div class="card">
+        <h2>👥 ইউজার ডাটাবেস ম্যানেজমেন্ট</h2>
+        <button class="btn-refresh" onclick="loadUsers()">🔄 ইউজার লিস্ট রিফ্রেশ</button>
+        
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ইউজার ID</th>
+                        <th>ব্যালেন্স (৳)</th>
+                        <th>রেফার</th>
+                        <th>অ্যাড (বাকি)</th>
+                        <th>টাস্ক (FB/TG)</th>
+                        <th>অ্যাকশন</th>
+                    </tr>
+                </thead>
+                <tbody id="user_list">
+                    </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <script>
-    const dbURL = "https://earnmoneybot-8836f-default-rtdb.firebaseio.com/settings.json";
+    const dbURL = "https://earnmoneybot-8836f-default-rtdb.firebaseio.com";
 
+    // ১. সেটিংস লোড ও সেভ
     async function loadSettings() {
-        const res = await fetch(dbURL);
+        const res = await fetch(`${dbURL}/settings.json`);
         const data = await res.json();
         if(data) {
             document.getElementById('ad_rate').value = data.ad_rate || 2;
@@ -89,10 +118,54 @@
             ref_notice: document.getElementById('ref_notice').value,
             withdraw_notice: document.getElementById('withdraw_notice').value
         };
-        await fetch(dbURL, { method: 'PUT', body: JSON.stringify(settings) });
-        alert("সব সেটিংস সফলভাবে সেভ হয়েছে ভাই!");
+        await fetch(`${dbURL}/settings.json`, { method: 'PUT', body: JSON.stringify(settings) });
+        alert("সব সেটিংস আপডেট হয়েছে!");
     }
+
+    // ২. ইউজার ডাটা লোড ও আপডেট
+    async function loadUsers() {
+        const tbody = document.getElementById('user_list');
+        tbody.innerHTML = "<tr><td colspan='6'>লোড হচ্ছে...</td></tr>";
+        
+        try {
+            const res = await fetch(`${dbURL}/users.json`);
+            const users = await res.json();
+            tbody.innerHTML = "";
+
+            for (let id in users) {
+                const user = users[id];
+                const fb = user.tasks?.fb ? "✅" : "❌";
+                const tg = user.tasks?.tg ? "✅" : "❌";
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${id}</td>
+                        <td><input type="number" id="bal_${id}" value="${user.balance}" style="width:70px"></td>
+                        <td>${user.refs || 0}</td>
+                        <td>${user.dailyAds || 0}</td>
+                        <td>FB: ${fb} | TG: ${tg}</td>
+                        <td><button class="btn-save-user" onclick="updateUser('${id}')">সেভ</button></td>
+                    </tr>
+                `;
+            }
+        } catch (e) {
+            tbody.innerHTML = "<tr><td colspan='6'>কোনো ডাটা পাওয়া যায়নি।</td></tr>";
+        }
+    }
+
+    async function updateUser(uid) {
+        const newBal = parseFloat(document.getElementById(`bal_${uid}`).value);
+        await fetch(`${dbURL}/users/${uid}.json`, { 
+            method: 'PATCH', 
+            body: JSON.stringify({ balance: newBal }) 
+        });
+        alert("ইউজার ব্যালেন্স আপডেট হয়েছে!");
+    }
+
+    // পেজ লোড হলে রান হবে
     loadSettings();
+    loadUsers();
 </script>
+
 </body>
 </html>
