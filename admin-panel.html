@@ -9,43 +9,36 @@
         body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 15px; }
         .container { max-width: 1100px; margin: auto; }
         
-        /* Login Form Style */
-        #login_screen { 
-            height: 100vh; display: flex; align-items: center; justify-content: center; 
-        }
-        .login-card { 
-            background: white; padding: 30px; border-radius: 12px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 300px; text-align: center;
-        }
+        #login_screen { height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .login-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 320px; text-align: center; }
 
-        /* Dashboard Style */
         #admin_content { display: none; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        h2 { color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 8px; margin-top: 0; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 25px; border-top: 5px solid var(--accent); }
+        h2 { color: var(--primary); margin: 0; display: flex; align-items: center; gap: 10px; }
         
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
         .full { grid-column: span 2; }
-        label { font-weight: bold; font-size: 13px; color: #555; display: block; margin-top: 8px; }
-        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        
-        .table-wrapper { overflow-x: auto; margin-top: 15px; }
+        label { font-weight: bold; font-size: 13px; color: #555; display: block; margin-top: 10px; }
+        input { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+
+        .table-wrapper { overflow-x: auto; margin-top: 15px; border-radius: 8px; border: 1px solid #eee; }
         table { width: 100%; border-collapse: collapse; background: white; font-size: 14px; }
-        th, td { padding: 10px; border: 1px solid #eee; text-align: center; }
+        th, td { padding: 12px; border: 1px solid #eee; text-align: center; }
         th { background: var(--primary); color: white; }
-        
-        button { padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-update { background: var(--success); color: white; width: 100%; margin-top: 15px; font-size: 16px; }
+
+        button { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-update { background: var(--success); color: white; width: 100%; margin-top: 20px; font-size: 16px; }
         .btn-refresh { background: var(--accent); color: white; margin-bottom: 10px; }
-        .btn-save-user { background: #e67e22; color: white; padding: 5px 10px; font-size: 12px; }
+        .btn-save-user { background: #e67e22; color: white; padding: 6px 12px; font-size: 12px; }
         
-        .section-title { background: #e8f4fd; padding: 8px; border-radius: 5px; margin: 15px 0 10px; color: #2980b9; font-weight: bold; font-size: 14px; }
+        .section-title { background: #eef2f7; padding: 10px; border-radius: 6px; margin: 20px 0 10px; color: #34495e; font-weight: bold; font-size: 15px; border-left: 4px solid var(--accent); }
     </style>
 </head>
 <body>
 
 <div id="login_screen">
     <div class="login-card">
-        <h2>🔒 অ্যাডমিন লগইন</h2>
+        <h2 style="justify-content: center;">🔒 অ্যাডমিন লগইন</h2>
         <input type="password" id="admin_pass" placeholder="পাসওয়ার্ড দিন">
         <button class="btn-update" onclick="checkLogin()">প্রবেশ করুন</button>
     </div>
@@ -80,7 +73,7 @@
 
     <div class="card">
         <h2>👥 ইউজার ডাটাবেস ম্যানেজমেন্ট</h2>
-        <button class="btn-refresh" onclick="loadUsers()">🔄 ইউজার লিস্ট রিফ্রেশ</button>
+        <button class="btn-refresh" onclick="loadUsers()">🔄 রিফ্রেশ লিস্ট</button>
         <div class="table-wrapper">
             <table>
                 <thead>
@@ -101,10 +94,10 @@
 <script>
     const dbURL = "https://earnmoneybot-8836f-default-rtdb.firebaseio.com";
     
-    // পাসওয়ার্ড প্রোটেকশন
+    // আপনার নতুন পাসওয়ার্ড এখানে সেট করা হয়েছে
     function checkLogin() {
         const pass = document.getElementById('admin_pass').value;
-        if(pass === "252646") { // <-- এখানে আপনার পছন্দমতো পাসওয়ার্ড দিন
+        if(pass === "252646") { 
             document.getElementById('login_screen').style.display = 'none';
             document.getElementById('admin_content').style.display = 'block';
             loadSettings();
@@ -114,27 +107,26 @@
         }
     }
 
-    function logout() {
-        location.reload();
-    }
+    function logout() { location.reload(); }
 
-    // সেটিংস লোড ও সেভ
     async function loadSettings() {
-        const res = await fetch(`${dbURL}/settings.json`);
-        const data = await res.json();
-        if(data) {
-            document.getElementById('ad_rate').value = data.ad_rate || 2;
-            document.getElementById('ref_rate').value = data.ref_rate || 13;
-            document.getElementById('ad_limit').value = data.ad_limit || 5;
-            document.getElementById('min_withdraw').value = data.min_withdraw || 1300;
-            document.getElementById('fb_reward').value = data.fb_reward || 5;
-            document.getElementById('tg_reward').value = data.tg_reward || 3;
-            document.getElementById('fb_link').value = data.fb_link || "";
-            document.getElementById('tg_link').value = data.tg_link || "";
-            document.getElementById('home_notice').value = data.home_notice || "";
-            document.getElementById('ref_notice').value = data.ref_notice || "";
-            document.getElementById('withdraw_notice').value = data.withdraw_notice || "";
-        }
+        try {
+            const res = await fetch(`${dbURL}/settings.json`);
+            const data = await res.json();
+            if(data) {
+                document.getElementById('ad_rate').value = data.ad_rate || 2;
+                document.getElementById('ref_rate').value = data.ref_rate || 13;
+                document.getElementById('ad_limit').value = data.ad_limit || 5;
+                document.getElementById('min_withdraw').value = data.min_withdraw || 1300;
+                document.getElementById('fb_reward').value = data.fb_reward || 5;
+                document.getElementById('tg_reward').value = data.tg_reward || 3;
+                document.getElementById('fb_link').value = data.fb_link || "";
+                document.getElementById('tg_link').value = data.tg_link || "";
+                document.getElementById('home_notice').value = data.home_notice || "";
+                document.getElementById('ref_notice').value = data.ref_notice || "";
+                document.getElementById('withdraw_notice').value = data.withdraw_notice || "";
+            }
+        } catch(e) {}
     }
 
     async function saveSettings() {
@@ -152,7 +144,7 @@
             withdraw_notice: document.getElementById('withdraw_notice').value
         };
         await fetch(`${dbURL}/settings.json`, { method: 'PUT', body: JSON.stringify(settings) });
-        alert("সব সেটিংস আপডেট হয়েছে!");
+        alert("সেটিংস সফলভাবে আপডেট হয়েছে!");
     }
 
     async function loadUsers() {
@@ -167,10 +159,10 @@
                 tbody.innerHTML += `
                     <tr>
                         <td>${id}</td>
-                        <td><input type="number" id="bal_${id}" value="${user.balance}" style="width:70px"></td>
+                        <td><input type="number" id="bal_${id}" value="${user.balance}" style="width:70px; border:1px solid #ddd; padding:5px; border-radius:4px;"></td>
                         <td>${user.refs || 0}</td>
                         <td>FB: ${user.tasks?.fb?'✅':'❌'} | TG: ${user.tasks?.tg?'✅':'❌'}</td>
-                        <td><button class="btn-save-user" onclick="updateUser('${id}')">সেভ</button></td>
+                        <td><button class="btn-save-user" onclick="updateUser('${id}')">Save</button></td>
                     </tr>
                 `;
             }
@@ -183,75 +175,8 @@
             method: 'PATCH', 
             body: JSON.stringify({ balance: newBal }) 
         });
-        alert("ইউজার ব্যালেন্স আপডেট হয়েছে!");
+        alert("ব্যালেন্স আপডেট হয়েছে!");
     }
 </script>
-
-</body>
-</html>
-
-    async function saveSettings() {
-        const settings = {
-            ad_rate: parseFloat(document.getElementById('ad_rate').value),
-            ref_rate: parseFloat(document.getElementById('ref_rate').value),
-            ad_limit: parseInt(document.getElementById('ad_limit').value),
-            min_withdraw: parseInt(document.getElementById('min_withdraw').value),
-            fb_reward: parseInt(document.getElementById('fb_reward').value),
-            tg_reward: parseInt(document.getElementById('tg_reward').value),
-            fb_link: document.getElementById('fb_link').value,
-            tg_link: document.getElementById('tg_link').value,
-            home_notice: document.getElementById('home_notice').value,
-            ref_notice: document.getElementById('ref_notice').value,
-            withdraw_notice: document.getElementById('withdraw_notice').value
-        };
-        await fetch(`${dbURL}/settings.json`, { method: 'PUT', body: JSON.stringify(settings) });
-        alert("সব সেটিংস আপডেট হয়েছে!");
-    }
-
-    // ২. ইউজার ডাটা লোড ও আপডেট
-    async function loadUsers() {
-        const tbody = document.getElementById('user_list');
-        tbody.innerHTML = "<tr><td colspan='6'>লোড হচ্ছে...</td></tr>";
-        
-        try {
-            const res = await fetch(`${dbURL}/users.json`);
-            const users = await res.json();
-            tbody.innerHTML = "";
-
-            for (let id in users) {
-                const user = users[id];
-                const fb = user.tasks?.fb ? "✅" : "❌";
-                const tg = user.tasks?.tg ? "✅" : "❌";
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${id}</td>
-                        <td><input type="number" id="bal_${id}" value="${user.balance}" style="width:70px"></td>
-                        <td>${user.refs || 0}</td>
-                        <td>${user.dailyAds || 0}</td>
-                        <td>FB: ${fb} | TG: ${tg}</td>
-                        <td><button class="btn-save-user" onclick="updateUser('${id}')">সেভ</button></td>
-                    </tr>
-                `;
-            }
-        } catch (e) {
-            tbody.innerHTML = "<tr><td colspan='6'>কোনো ডাটা পাওয়া যায়নি।</td></tr>";
-        }
-    }
-
-    async function updateUser(uid) {
-        const newBal = parseFloat(document.getElementById(`bal_${uid}`).value);
-        await fetch(`${dbURL}/users/${uid}.json`, { 
-            method: 'PATCH', 
-            body: JSON.stringify({ balance: newBal }) 
-        });
-        alert("ইউজার ব্যালেন্স আপডেট হয়েছে!");
-    }
-
-    // পেজ লোড হলে রান হবে
-    loadSettings();
-    loadUsers();
-</script>
-
 </body>
 </html>
