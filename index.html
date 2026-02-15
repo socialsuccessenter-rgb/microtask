@@ -60,8 +60,8 @@
 
         <div class="card">
             <p>বাকি অ্যাড: <span id="ad_count" style="font-weight:bold; color:var(--primary);">...</span>/5</p>
-            <p id="timer_box" style="display:none; color:var(--danger); font-weight:bold;">পরবর্তী ৫টি অ্যাড আসবে: <span id="time_left"></span> মিনিট পর</p>
-            <button class="btn-ad" id="ad_btn" onclick="watchAd()">📺 ভিডিও অ্যাড দেখুন (২৳)</button>
+            <p id="timer_box" style="display:none; color:var(--danger); font-weight:bold;">পরবর্তী অ্যাড আসবে: <span id="time_left"></span> মিনিট পর</p>
+            <button class="btn-ad" id="ad_btn" onclick="watchAd()">📺 ভিডিও অ্যাড দেখুন (লোড হচ্ছে...)</button>
         </div>
     </div>
 
@@ -78,7 +78,7 @@
     <div id="refer" class="page">
         <div class="card">
             <h2>👥 রেফারেল বোনাস</h2>
-            <p style="color:#2ecc71; font-weight:bold;">প্রতি রেফারে ১৩ টাকা!</p>
+            <p style="color:#2ecc71; font-weight:bold;" id="ref_bonus_text">প্রতি রেফারে লোড হচ্ছে...</p>
             <p style="color:#2ecc71; font-weight:bold;">টাকা তুলতে সর্বনিম্ন ১০টি রেফার বাধ্যতামূলক </p>
             <p class="warning">⚠️ কিছু সদস্যদের মধ্যে ফেক রেফার লক্ষ করা যাচ্ছে মনে রাখবেন আমাদের ডেটাবেসে শুধুমাত্র এ্যাকটিভ ইউজার গনণা করা হয় তাই যদি পেমেন্ট পেতে চান তাহলে অবশ্যই এ্যাকটিভ ইউজার যুক্ত করবেন না হলে পেমেন্ট ব্যার্থ হবে।</p>
             <p class="warning" style="margin-bottom:10px;">Database- এ সমস্যার কারণে রেফার করলে সাময়িক ভাবে রেফার নাও বাড়তে পারে তবে চিন্তার কোনো কারণ নেই ১০টি রেফার ও ৳১৩০০ হলে অটোমেটিক উইথড্র বাটন সবুজ হয়ে জাবে।</p>
@@ -99,7 +99,7 @@
                 <option value="rocket">রকেট</option>
             </select>
             <input type="number" id="phone" placeholder="নাম্বার দিন">
-            <input type="number" id="amount" placeholder="পরিমাণ (মিনিমাম ১৩০০৳)">
+            <input type="number" id="amount" placeholder="পরিমাণ (লোড হচ্ছে...)">
             <button id="withdraw_btn" style="background:#dfe6e9; color:#b2bec3;" disabled onclick="withdraw()">টাকা উত্তোলন করুন</button>
         </div>
         <div class="card">
@@ -121,8 +121,9 @@
         const uid = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id.toString() : "test_user";
         const dbURL = "https://earnmoneybot-8836f-default-rtdb.firebaseio.com/";
 
-        // ডিফল্ট ডাটা স্ট্রাকচার
-        let userData = { balance: 0, refs: 0, dailyAds: 5, lastReset: Date.now(), tasks: { fb: false, tg: false } };
+        // অ্যাডমিন সেটিংস ও ইউজার ডাটা
+        let settings = { ad_rate: 2, ref_rate: 13, ad_limit: 5, min_withdraw: 1300 };
+        let userData = { balance: 320, refs: 0, dailyAds: 5, lastReset: Date.now(), tasks: { fb: false, tg: false } };
 
         function createCardRain() {
             const card = document.getElementById('main-rain-card');
@@ -136,7 +137,19 @@
         }
         setInterval(createCardRain, 400);
 
+        // সেটিংস লোড করা
+        async function loadSettings() {
+            try {
+                const res = await fetch(`${dbURL}/settings.json`);
+                const data = await res.json();
+                if(data) {
+                    settings = { ...settings, ...data };
+                }
+            } catch (e) { console.log("Settings Load Error"); }
+        }
+
         async function loadData() {
+            await loadSettings();
             try {
                 const res = await fetch(`${dbURL}/users/${uid}.json`);
                 const data = await res.json();
@@ -144,7 +157,6 @@
                     userData = { ...userData, ...data };
                     checkTimeLimit();
                 } else {
-                    // নতুন ইউজার হলে ডাটাবেসে এন্ট্রি করা
                     await saveToDB();
                     await handleRef(); 
                 }
@@ -158,13 +170,17 @@
             await fetch(`${dbURL}/users/${uid}.json`, { method: 'PUT', body: JSON.stringify(userData) });
         }
 
+        async function updatePartialData(obj) {
+            await fetch(`${dbURL}/users/${uid}.json`, { method: 'PATCH', body: JSON.stringify(obj) });
+        }
+
         function checkTimeLimit() {
             const now = Date.now();
             const waitTime = 3 * 60 * 60 * 1000;
             if (userData.dailyAds === 0 && (now - userData.lastReset > waitTime)) {
-                userData.dailyAds = 5;
+                userData.dailyAds = settings.ad_limit;
                 userData.lastReset = now;
-                saveToDB();
+                updatePartialData({ dailyAds: settings.ad_limit, lastReset: now });
             }
         }
 
@@ -173,12 +189,18 @@
                 show_10582159().then(() => {
                     tg.showAlert("অ্যাড সম্পন্ন হয়েছে! ৫ সেকেন্ড অপেক্ষা করুন...");
                     setTimeout(async () => {
-                        userData.balance += 2;
+                        userData.balance += settings.ad_rate;
                         userData.dailyAds -= 1;
                         if(userData.dailyAds === 0) userData.lastReset = Date.now();
-                        await saveToDB();
+                        
+                        await updatePartialData({ 
+                            balance: userData.balance, 
+                            dailyAds: userData.dailyAds, 
+                            lastReset: userData.lastReset 
+                        });
+                        
                         updateUI();
-                        tg.showAlert("২ টাকা যোগ হয়েছে!");
+                        tg.showAlert(`${settings.ad_rate} টাকা যোগ হয়েছে!`);
                     }, 5000);
                 }).catch(() => tg.showAlert("অ্যাড ব্যর্থ!"));
             }
@@ -195,7 +217,8 @@
                 userData.balance += reward;
                 if(!userData.tasks) userData.tasks = {};
                 userData.tasks[type] = true;
-                await saveToDB();
+                
+                await updatePartialData({ balance: userData.balance, tasks: userData.tasks });
                 updateUI();
                 tg.showAlert(reward + " টাকা যোগ হয়েছে!");
             }, 5000);
@@ -209,9 +232,13 @@
                     const res = await fetch(`${dbURL}/users/${refID}.json`);
                     let boss = await res.json();
                     if (boss) {
-                        boss.balance = (boss.balance || 0) + 13;
-                        boss.refs = (boss.refs || 0) + 1;
-                        await fetch(`${dbURL}/users/${refID}.json`, { method: 'PUT', body: JSON.stringify(boss) });
+                        const newBal = (boss.balance || 0) + settings.ref_rate;
+                        const newRefs = (boss.refs || 0) + 1;
+                        
+                        await fetch(`${dbURL}/users/${refID}.json`, { 
+                            method: 'PATCH', 
+                            body: JSON.stringify({ balance: newBal, refs: newRefs }) 
+                        });
                     }
                 } catch (e) { console.error("Referral failed"); }
             }
@@ -223,6 +250,11 @@
             document.getElementById('ref_v').innerText = userData.refs || 0;
             document.getElementById('user_name').innerText = tg.initDataUnsafe.user?.first_name || "ইউজার";
             document.getElementById('ref_link').value = "https://t.me/microtask_earnmoney_bot?start=" + uid;
+            
+            // অ্যাডমিন প্যানেল থেকে আসা ভ্যালু সেট করা
+            document.getElementById('ad_btn').innerText = `📺 ভিডিও অ্যাড দেখুন (${settings.ad_rate}৳)`;
+            document.getElementById('ref_bonus_text').innerText = `প্রতি রেফারে ${settings.ref_rate} টাকা!`;
+            document.getElementById('amount').placeholder = `পরিমাণ (মিনিমাম ${settings.min_withdraw}৳)`;
 
             const adBtn = document.getElementById('ad_btn');
             const timerBox = document.getElementById('timer_box');
@@ -242,7 +274,7 @@
             }
 
             const wBtn = document.getElementById('withdraw_btn');
-            if (userData.balance >= 1300 && userData.refs >= 10) {
+            if (userData.balance >= settings.min_withdraw && userData.refs >= 10) {
                 wBtn.disabled = false; wBtn.style.background = "#2ecc71"; wBtn.style.color = "white";
             }
         }
@@ -261,7 +293,6 @@
             tg.showAlert("লিঙ্ক কপি হয়েছে!");
         }
 
-        // উইথড্র ফাংশন যোগ করা হলো
         function withdraw() {
             tg.showAlert("আপনার পেমেন্ট রিকোয়েস্ট গ্রহণ করা হয়েছে। ২৪ ঘণ্টার মধ্যে চেক করা হবে।");
         }
@@ -270,6 +301,3 @@
     </script>
 </body>
 </html>
-
-
-
