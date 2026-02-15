@@ -7,31 +7,40 @@
     <style>
         :root { --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --text: #f8fafc; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
-        .container { max-width: 1000px; margin: 0 auto; }
-        .header { background: linear-gradient(135deg, #0ea5e9, #2563eb); padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        
+        /* লগইন বক্স স্টাইল */
+        #login_box { max-width: 400px; margin: 100px auto; background: var(--card); padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        input { width: 90%; padding: 15px; margin-bottom: 20px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; text-align: center; font-size: 18px; }
+        .login-btn { background: var(--accent); color: #000; border: none; padding: 15px 30px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; }
+
+        /* মেইন প্যানেল স্টাইল (শুরুতে হাইড থাকবে) */
+        #admin_content { display: none; max-width: 1000px; margin: 0 auto; }
+        .header { background: linear-gradient(135deg, #0ea5e9, #2563eb); padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 30px; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .stat-box { background: var(--card); padding: 25px; border-radius: 15px; text-align: center; border: 1px solid #334155; }
         .stat-box h3 { margin: 0; font-size: 35px; color: var(--accent); }
-        .stat-box p { margin: 5px 0 0; opacity: 0.7; font-size: 14px; }
-        .user-table-container { background: var(--card); border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .user-table-container { background: var(--card); border-radius: 15px; overflow: hidden; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 15px; text-align: left; border-bottom: 1px solid #334155; }
-        th { background: #334155; color: var(--accent); text-transform: uppercase; font-size: 12px; }
-        tr:hover { background: #2d3748; }
-        .refresh-btn { background: var(--accent); color: #000; border: none; padding: 12px 25px; border-radius: 10px; font-weight: bold; cursor: pointer; float: right; margin-bottom: 20px; transition: 0.3s; }
-        .refresh-btn:hover { opacity: 0.8; transform: scale(1.05); }
+        th { background: #334155; color: var(--accent); }
         .balance-tag { background: #065f46; color: #34d399; padding: 4px 8px; border-radius: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="header">
-            <h1>🚀 মাইক্রোটাস্ক অ্যাডমিন প্যানেল</h1>
-            <p>রিয়েল-টাইম ইউজার ট্র্যাকিং সিস্টেম</p>
-        </div>
+    <div id="login_box">
+        <h2>🔒 অ্যাডমিন লগইন</h2>
+        <p style="opacity: 0.7; font-size: 14px; margin-bottom: 20px;">পাসওয়ার্ড দিয়ে প্রবেশ করুন</p>
+        <input type="password" id="admin_pass" placeholder="Password Here">
+        <button class="login-btn" onclick="checkLogin()">Login</button>
+        <p id="error_msg" style="color: #e74c3c; margin-top: 10px; display: none;">ভুল পাসওয়ার্ড!</p>
+    </div>
 
-        <button class="refresh-btn" onclick="loadAdminData()">🔄 রিফ্রেশ ডাটা</button>
+    <div id="admin_content">
+        <div class="header">
+            <h1>🚀 মাইক্রোটাস্ক মাস্টার কন্ট্রোল</h1>
+            <p>রিয়েল-টাইম ইউজার ম্যানেজমেন্ট</p>
+        </div>
 
         <div class="stats-grid">
             <div class="stat-box">
@@ -42,10 +51,6 @@
                 <h3 id="t_balance">0.00</h3>
                 <p>ইউজারদের মোট টাকা (৳)</p>
             </div>
-            <div class="stat-box">
-                <h3 id="t_refs">0</h3>
-                <p>মোট রেফারেল</p>
-            </div>
         </div>
 
         <div class="user-table-container">
@@ -55,7 +60,6 @@
                         <th>ইউজার আইডি</th>
                         <th>ব্যালেন্স (৳)</th>
                         <th>মোট রেফার</th>
-                        <th>অ্যাড বাকি</th>
                     </tr>
                 </thead>
                 <tbody id="user_rows">
@@ -65,56 +69,46 @@
     </div>
 
     <script>
-        const dbPath = "https://earnmoneybot-8836f-default-rtdb.firebaseio.com/users.json";
+        const dbPath = "https://earnemoneybot-8836f-default-rtdb.firebaseio.com/users.json";
+        const correctPass = "ALAMIN03@A"; // আপনার গোপন পাসওয়ার্ড এখানে বদলাতে পারেন
+
+        function checkLogin() {
+            const inputPass = document.getElementById('admin_pass').value;
+            if (inputPass === correctPass) {
+                document.getElementById('login_box').style.display = 'none';
+                document.getElementById('admin_content').style.display = 'block';
+                loadAdminData();
+            } else {
+                document.getElementById('error_msg').style.display = 'block';
+                setTimeout(() => { document.getElementById('error_msg').style.display = 'none'; }, 2000);
+            }
+        }
 
         async function loadAdminData() {
-            const tableBody = document.getElementById('user_rows');
-            tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">ডাটা লোড হচ্ছে...</td></tr>';
-            
             try {
                 const response = await fetch(dbPath);
                 const allUsers = await response.json();
-
                 if (allUsers) {
                     let userIds = Object.keys(allUsers);
                     let totalBalance = 0;
-                    let totalRefs = 0;
                     let rowsHTML = "";
 
                     userIds.forEach(id => {
                         const user = allUsers[id];
                         const bal = user.balance || 0;
                         const refs = user.refs || 0;
-                        const ads = user.dailyAds !== undefined ? user.dailyAds : 5;
-                        
                         totalBalance += bal;
-                        totalRefs += refs;
-
-                        rowsHTML += `
-                            <tr>
-                                <td style="font-family: monospace; color:#94a3b8;">${id}</td>
-                                <td><span class="balance-tag">${bal.toFixed(2)} ৳</span></td>
-                                <td>${refs} জন</td>
-                                <td>${ads}/5</td>
-                            </tr>
-                        `;
+                        rowsHTML += `<tr><td>${id}</td><td><span class="balance-tag">${bal.toFixed(2)} ৳</span></td><td>${refs} জন</td></tr>`;
                     });
 
                     document.getElementById('u_count').innerText = userIds.length;
                     document.getElementById('t_balance').innerText = totalBalance.toFixed(2);
-                    document.getElementById('t_refs').innerText = totalRefs;
-                    tableBody.innerHTML = rowsHTML;
-                } else {
-                    tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">কোন ইউজার পাওয়া যায়নি!</td></tr>';
+                    document.getElementById('user_rows').innerHTML = rowsHTML;
                 }
             } catch (error) {
-                console.error(error);
-                tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">ডাটাবেস কানেকশন এরর!</td></tr>';
+                alert("ডাটাবেস কানেকশন এরর!");
             }
         }
-
-        // পেজ লোড হলে ডাটা নিয়ে আসবে
-        loadAdminData();
     </script>
 </body>
-  </html>
+</html>
