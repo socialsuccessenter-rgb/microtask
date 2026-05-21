@@ -1,7 +1,13 @@
-import telebot, os, json
+import telebot, os, json, firebase_admin
 from telebot import types
+from firebase_admin import credentials, db
 from flask import Flask, send_from_directory
 from threading import Thread
+
+cred_json = os.environ.get('FIREBASE_CREDENTIALS')
+if cred_json:
+    cred = credentials.Certificate(json.loads(cred_json))
+    firebase_admin.initialize_app(cred, {'databaseURL': 'https://earnmoneybot-8836f-default-rtdb.firebaseio.com/'})
 
 app = Flask(__name__, template_folder='.')
 bot = telebot.TeleBot('8908147209:AAER1PEgJtE0A45cWELAmj434lOjzylgOW8')
@@ -12,23 +18,22 @@ def home(): return send_from_directory('.', 'index.html')
 @app.route('/earn')
 def earn(): return send_from_directory('.', 'index.html')
 
-# ১. Start কমান্ড এবং চ্যানেল চেক
 @bot.message_handler(commands=['start'])
 def start(message):
+    user_ref = db.reference(f'users/{message.chat.id}')
+    user_ref.set({'username': message.chat.username or "No Username", 'first_name': message.chat.first_name})
     try:
-        user_id = message.chat.id
-        member = bot.get_chat_member(CHANNEL_ID, user_id)
+        member = bot.get_chat_member(CHANNEL_ID, message.chat.id)
         if member.status in ['member', 'administrator', 'creator']:
-            send_shop_menu(user_id)
+            send_shop_menu(message.chat.id)
         else:
             markup = types.InlineKeyboardMarkup()
             markup.add(types.InlineKeyboardButton("📢 চ্যানেল জয়েন করুন", url="https://t.me/microtask_earnmoney"))
             markup.add(types.InlineKeyboardButton("✅ আমি জয়েন করেছি", callback_data="verify"))
-            bot.send_message(user_id, "কাজ শুরু করতে আগে আমাদের চ্যানেলে জয়েন করুন:", reply_markup=markup)
-    except Exception as e:
-        bot.send_message(message.chat.id, "বোটটি চ্যানেলের এডমিন করা আছে কি না নিশ্চিত করুন।")
+            bot.send_message(message.chat.id, "কাজ শুরু করতে আগে আমাদের চ্যানেলে জয়েন করুন:", reply_markup=markup)
+    except:
+        bot.send_message(message.chat.id, "বোটটিকে চ্যানেলের এডমিন করুন।")
 
-# ২. ভেরিফিকেশন চেক
 @bot.callback_query_handler(func=lambda call: call.data == "verify")
 def verify(call):
     member = bot.get_chat_member(CHANNEL_ID, call.message.chat.id)
@@ -38,7 +43,6 @@ def verify(call):
     else:
         bot.answer_callback_query(call.id, "আপনি এখনো জয়েন করেননি!", show_alert=True)
 
-# ৩. মেইন মেনু বাটন
 def send_shop_menu(chat_id):
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("🛒 SHOP NOW", web_app=types.WebAppInfo(url="https://ardigitalmart.blogspot.com")))
